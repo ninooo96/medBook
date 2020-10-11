@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+
+import 'commentScreen.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 
 final dummySnapshot = [
@@ -13,14 +15,14 @@ final dummySnapshot = [
       {
         'nameProfile': 'Chiara Del Re',
         'comment': 'ciao',
-        'upvote': 0,
-        'downvote': 0
+        'upvote': 3,
+        'downvote': 7
       },
       {
         'nameProfile': 'Dott. House',
         'comment': 'ciao Antonio',
-        'upvote': 0,
-        'downvote': 0
+        'upvote': 2,
+        'downvote': 7
       },
     ]
   },
@@ -34,8 +36,8 @@ final dummySnapshot = [
       {
         'nameProfile': 'Dott.ssa Peluche',
         'comment': 'ciao Chiara',
-        'upvote': 0,
-        'downvote': 0
+        'upvote': 5,
+        'downvote': 5
       },
     ]
   },
@@ -95,14 +97,14 @@ class _MyFeedPageState extends State<MyFeedPage> {
         appBar: AppBar(
           leading: IconButton(
             icon: Icon(Icons.menu),
-            onPressed: _postWithMyHashtags,
+            onPressed: _openDrawer,
           ),
           title: Center(child: Text(widget.title)),
           actions: [
             IconButton(icon: Icon(Icons.search), onPressed: _search),
             IconButton(
               icon: Icon(Icons.notifications),
-              onPressed: _openDrawer(),
+              onPressed: _postWithMyHashtags,
             ),
 
           ],
@@ -126,6 +128,8 @@ class _MyFeedPageState extends State<MyFeedPage> {
   void _search() {
     //TODO funzione di ricerca
   }
+
+
 
   _openDrawer() {}
 }
@@ -157,40 +161,29 @@ Widget _buildListItem(BuildContext context, Map data) {
           ),
           child: Column(children: <Widget>[
             ListTile(
-                trailing:
-                    Row(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                  // IconButton(icon: Icon(Icons.notifications_active_rounded), onPressed: _activeNotifications,),
-                  // IconButton(
-                  //   // icon: Icon(Icons.comment_rounded),
-                  //   onPressed: _addComment,
-                  // ),
-                ]),
                 leading: Icon(Icons.account_circle_outlined, size: 50.0),
                 title: Text(record.nameProfile),
-
-                //     "\n\n" +
-                //     record.post),
-                // isThreeLine: true,
                 ),
             ListTile(
                 title: Text('Età: ' +
                     (record.agePatient).toString() +
                     ', Sesso: ' +
                     (record.sexPatient == 'Male' ? 'Maschile' : "Femminile")+ "\n\n"+ record.post)),
-                // subtitle: Text(record.post)),
             ListTile(
                 title: record.numComment > 0
                     ? record.numComment > 1
                         ? Text(record.numComment.toString() + ' commenti')
                         : Text(record.numComment.toString() + ' commento')
-                    : Text('Non ci sono commenti')),
+                    : Text('Non ci sono commenti'),
+                onTap: () {addComment(context,record.comments, 0);},
+            ),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Flexible(
                     child: ListTile(
-                      onTap: _addComment,
+                      onTap: (){addComment(context, record.comments, 1);},
                       title: Center(child: Text('Commenta')),
                 )),
                 Container(height: 30, child: VerticalDivider(color: Colors.grey, thickness: 2,)),
@@ -202,6 +195,22 @@ Widget _buildListItem(BuildContext context, Map data) {
             )
           ])));
 }
+
+void addComment(context, record, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
+  print('Ciao Lele' + record.length.toString(), );
+  if(record.length != 0 || nuovoCommento==1) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CommentScreen(record)),
+    );
+
+  }
+
+}
+
+
+// }
+
 
 class Record {
   final String nameProfile;
@@ -244,10 +253,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => new Size.fromHeight(kToolbarHeight);
 }
 
-void _addComment() {
-  //TODO apri pagina dei commenti
-  print("Ciao Lele");
-}
+
 
 void _activeNotifications() {}
 
