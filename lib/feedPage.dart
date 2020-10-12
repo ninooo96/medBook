@@ -198,7 +198,11 @@ Widget _buildListItem(BuildContext context, Map data) {
 
 void addComment(context, record, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
   print('Ciao Lele' + record.length.toString(), );
-  if(record.length != 0 || nuovoCommento==1) {
+  print(record);
+  if(record.length==0)
+    record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0}];
+  print(record);
+  if(record.length != 1 || nuovoCommento==1) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CommentScreen(record)),
