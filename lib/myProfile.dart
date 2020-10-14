@@ -1,100 +1,51 @@
 import 'package:flutter/material.dart';
-
+import 'package:medbook/feedPage.dart';
 import 'commentScreen.dart';
-import 'newPostScreen.dart';
-import 'myProfile.dart';
 import 'settings.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-final id_accesso = 1;
-final hashtags = ['Dermatologia','Ortopedia','Ematologia','Geriatria','Igiene','Pediatria','Psichiatria','Cardiologia','Neurologia','Urologia'];
-final dummySnapshot = [
-  {
-    'id':1,
-    'nameProfile': 'Antonio Gagliostro',
-    'agePatient': 67,
-    'sexPatient': 'Male',
-    'post':
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    'numComment': 2,
-    'comments': [
-      {
-        'id':2,
-        'nameProfile': 'Chiara Del Re',
-        'comment': 'ciao',
-        'upvote': 3,
-        'downvote': 7
-      },
-      {
-        'id':4,
-        'nameProfile': 'Dott. House',
-        'comment': 'ciao Antonio',
-        'upvote': 2,
-        'downvote': 7
-      },
-    ]
-  },
-  {
-    'id':2,
-    'nameProfile': 'Chiara Del Re',
-    'agePatient': 79,
-    'sexPatient': 'Female',
-    'post': 'Diagnosi2',
-    'numComment': 1,
-    'comments': [
-      {
-        'id':3,
-        'nameProfile': 'Dott.ssa Peluche',
-        'comment': 'ciao Chiara',
-        'upvote': 5,
-        'downvote': 5
-      },
-    ]
-  },
-  {
-    'id':1,
-    'nameProfile': 'Antonio Gagliostro',
-    'agePatient': 67,
-    'sexPatient': 'Male',
-    'post':
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    'numComment': 0,
-    'comments': []
-  },
-  {
-    'id':1,
-    'nameProfile': 'Antonio Gagliostro',
-    'agePatient': 67,
-    'sexPatient': 'Male',
-    'post':
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    'numComment': 0,
-    'comments': []
-  },
-];
+import 'newPostScreen.dart';
 
-class FeedPage extends StatelessWidget {
-  // @override
-  Widget build(BuildContext context) {
-    //   // TODO: scrolling di ListView dei post
-    return MaterialApp(
-      title: 'MedBook',
-      theme: ThemeData(primaryColor: Colors.orange),
-      home: MyFeedPage(title: 'MedBook'),
-    );
+// import 'commentScreen.dart';
+
+
+// class MyProfile2 extends StatelessWidget {
+//   // @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: nameProfile(),
+//       theme: ThemeData(primaryColor: Colors.orange),
+//       home: MyProfile(title: nameProfile().toString()),
+//     );
+//   }
+// }
+String title;
+
+class MyProfile extends StatefulWidget {
+  // String title ;
+  MyProfile(){
+    title = nameProfile();
+  }
+  String getTitle(){
+    return title;
+}
+
+  // String title = 'anto';
+
+  @override
+  _MyProfileState createState() => _MyProfileState();
+
+
+  nameProfile(){
+    for(var elem in dummySnapshot){
+      if(elem['id'] == id_accesso) {
+        print(elem['nameProfile']);
+        return elem['nameProfile'];
+      }
+      return '404';
+    }
   }
 }
 
-class MyFeedPage extends StatefulWidget {
-  MyFeedPage({Key key, this.title}) : super(key: key);
-
-  final String title;
-
-  @override
-  _MyFeedPageState createState() => _MyFeedPageState();
-}
-
-class _MyFeedPageState extends State<MyFeedPage> {
-
+class _MyProfileState extends State<MyProfile> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,24 +58,24 @@ class _MyFeedPageState extends State<MyFeedPage> {
         splashColor: Colors.yellow,
       ),
       drawer: Drawer(
-        child: Column(
-    children: <Widget> [
-      drawDrawerHeader(),
-      ListView(
-          scrollDirection: Axis.vertical,
-          shrinkWrap: true,
-          children: _drawerTile()
-        ),
-          Expanded(
-            child: Align(
-                alignment: FractionalOffset.bottomCenter,
-          child: ListTile(
-            title: Text('Esci',textScaleFactor: 1.5,),
-            tileColor: Colors.red,
-            onTap: _logout,
-          )))
-        ],
-      )
+          child: Column(
+            children: <Widget> [
+              drawDrawerHeader(),
+              ListView(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  children: _drawerTile()
+              ),
+              Expanded(
+                  child: Align(
+                      alignment: FractionalOffset.bottomCenter,
+                      child: ListTile(
+                        title: Text('Esci',textScaleFactor: 1.5,),
+                        tileColor: Colors.red,
+                        onTap: _logout,
+                      )))
+            ],
+          )
       ),
       appBar: CustomAppBar(
         appBar: AppBar(
@@ -133,7 +84,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
           //   icon: Icon(Icons.menu),
           //   onPressed: _openDrawer,
           // ),
-          title: Center(child: Text(widget.title)),
+          title: Center(child: Text(title)),
           actions: [
             IconButton(icon: Icon(Icons.search), onPressed: _search),
             IconButton(
@@ -158,26 +109,25 @@ class _MyFeedPageState extends State<MyFeedPage> {
     return Container(
       height: 90.0,
       child: DrawerHeader(
-          // child: Text('Specializzazioni',
-          //     textScaleFactor: 1.8,
-          //     textAlign: TextAlign.left,
-          //     style: TextStyle(color: Colors.white)),
+        // child: Text('Specializzazioni',
+        //     textScaleFactor: 1.8,
+        //     textAlign: TextAlign.left,
+        //     style: TextStyle(color: Colors.white)),
           decoration: BoxDecoration(color: Colors.orange),
           padding: EdgeInsets.symmetric(vertical: 25)),
     );
   }
-  
+
   _drawerTile(){
     List<Widget> drawerTile = [];
     drawerTile.add(ListTile(
       title: Text('Il mio profilo', textScaleFactor: 1.5,),
-          onTap: (){
-            Navigator.of(context).pop();
-            Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MyProfile()),
-                  );
-          },
+      onTap: (){
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MyProfile()),
+        );
+      },
     ));
     drawerTile.add(Divider(thickness: 2,));
     drawerTile.add(ListTile(
@@ -220,26 +170,35 @@ class _MyFeedPageState extends State<MyFeedPage> {
 Widget _buildBody(BuildContext context) {
   //TODO: estrai snapshot dal Cloud Firebase
   List<Map> snapshot = dummySnapshot;
-
   return _buildList(context, snapshot);
 }
 
 Widget _buildList(BuildContext context, List<Map> snapshot) {
+  var snapshot2 = snapshot.where((id) => id==id_accesso);
+  print(snapshot2);
 
   return ListView(
     padding: const EdgeInsets.only(top: 5.0),
     //da giocarci dopo che visualizzo un post
-
+  //     final record = Record.fromMap(data);
+  // // print(record);
+  // if( record.id==2){
+  //   print(record.post);
     children: snapshot.map((data) => _buildListItem(context, data)).toList(),
   );
 }
 
 Widget _buildListItem(BuildContext context, Map data) {
-  final record = Record.fromMap(data);
-  print('ciao');
-  // record.map((data)=> print(data[1]));
+  var recordTmp;
+  if(Record.fromMap(data).id!=id_accesso) return Container();
+  var record = Record.fromMap(data);
+  // if(recordTot.id==id_accesso){
+  //   recordTmp = recordTot;
+  // }
+  // final record = recordTmp;
+  print(record);
   return Padding(
-      // key: ValueKey(record.nameProfile),
+    // key: ValueKey(record.nameProfile),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
       child: Container(
           decoration: BoxDecoration(
@@ -248,21 +207,21 @@ Widget _buildListItem(BuildContext context, Map data) {
           ),
           child: Column(children: <Widget>[
             ListTile(
-                leading: Icon(Icons.account_circle_outlined, size: 50.0),
-                title: Text(record.nameProfile),
-                ),
+              leading: Icon(Icons.account_circle_outlined, size: 50.0),
+              title: Text(record.nameProfile),
+            ),
             ListTile(
                 title: Text('Età: ' +
                     (record.agePatient).toString() +
                     ', Sesso: ' +
                     (record.sexPatient == 'Male' ? 'Maschile' : "Femminile")+ "\n\n"+ record.post)),
             ListTile(
-                title: record.numComment > 0
-                    ? record.numComment > 1
-                        ? Text(record.numComment.toString() + ' commenti')
-                        : Text(record.numComment.toString() + ' commento')
-                    : Text('Non ci sono commenti'),
-                onTap: () {addComment(context,record.comments, 0);},
+              title: record.numComment > 0
+                  ? record.numComment > 1
+                  ? Text(record.numComment.toString() + ' commenti')
+                  : Text(record.numComment.toString() + ' commento')
+                  : Text('Non ci sono commenti'),
+              onTap: () {addComment(context,record.comments, 0);},
             ),
 
             Row(
@@ -272,12 +231,12 @@ Widget _buildListItem(BuildContext context, Map data) {
                     child: ListTile(
                       onTap: (){addComment(context, record.comments, 1);},
                       title: Center(child: Text('Commenta')),
-                )),
+                    )),
                 Container(height: 30, child: VerticalDivider(color: Colors.grey, thickness: 2,)),
                 Flexible(
                     child: ListTile(
-                      onTap: _activeNotifications,
-                      title: Center(child: Text('Segui'))))
+                        onTap: _activeNotifications,
+                        title: Center(child: Text('Segui'))))
               ],
             )
           ])));
@@ -299,7 +258,7 @@ void addComment(context, record, nuovoCommento) { //nuovoCommento è un intero c
 }
 
 
-// }
+
 
 
 class Record {
@@ -313,6 +272,7 @@ class Record {
   final List comments;
 
   // final DocumentReference reference;
+
 
   Record.fromMap(Map<String, dynamic> map)
       : nameProfile = map['nameProfile'],

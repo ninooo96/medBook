@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:medbook/feedPage.dart';
 
 void main() {
+
   runApp(FeedPage());
+
 }
 
 // class MyApp extends StatelessWidget {
