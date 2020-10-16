@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 import 'feedPage.dart';
@@ -12,7 +13,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
   final hashtagPost = [];
   final _textController = TextEditingController();
-  final _sessoController = TextEditingController();
+
+  // final _sessoController = TextEditingController();
+  var sexPatient;
   final _etaController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
@@ -24,8 +27,10 @@ class _NewPostScreenState extends State<NewPostScreen> {
             child: ListView(
           children: [drawDrawerHeader(), _populateHashtags()],
         )),
-        appBar: AppBar(title: Text('Nuovo Post'),actions: [Container()],),
-
+        appBar: AppBar(
+          title: Text('Nuovo Post'),
+          actions: [Container()],
+        ),
         body: _buildBody(context));
   }
 
@@ -96,22 +101,59 @@ class _NewPostScreenState extends State<NewPostScreen> {
               children: <Widget>[
                 Row(children: <Widget>[
                   Expanded(
-                      child: TextFormField(
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                          borderSide: BorderSide(
-                        width: 0.5,
-                      )),
-                      labelText: 'Sesso',
-                    ),
-                    controller: _sessoController,
-                  )),
-                  Expanded(
-                      child: TextFormField(
+                      child: DropdownButtonFormField<String>(
+                        isDense: true,
                     decoration: InputDecoration(
                         border: OutlineInputBorder(
                             borderSide: BorderSide(
+                      width: 0.5,
+                    ))),
+                    hint: Text('Seleziona il sesso'),
+                    value: sexPatient,
+                    // icon: Icon(Icons.arrow_downward),
+                    // iconSize: 24,
+                    // elevation: 16,
+
+                    // style: TextStyle(color: Colors.deepPurple),
+                    // underline: Container(
+                    //   height: 2,
+                    //   color: Colors.deepPurpleAccent,
+                    // ),
+                    onChanged: (String newValue) {
+                      setState(() {
+                        sexPatient = newValue;
+                      });
+                    },
+                    items: <String>['Maschile', 'Femminile']
+                        .map<DropdownMenuItem<String>>((String value) {
+                      return DropdownMenuItem<String>(
+                        value: value,
+                        child: Text(
+                          value,
+                        ),
+                      );
+                    }).toList(),
+                  )
+                      //     child: TextFormField(
+                      //   decoration: InputDecoration(
+                      //     border: OutlineInputBorder(
+                      //         borderSide: BorderSide(
+                      //       width: 0.5,
+                      //     )),
+                      //     labelText: 'Sesso',
+                      //   ),
+                      //   controller: _sessoController,
+                      // )
+                      ),
+                  Expanded(
+                      child: TextFormField(
+
+                    decoration: InputDecoration(
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide(
+                              color: Colors.black,
                           width: 0.5,
+
                         )),
                         labelText: 'Età'),
                     controller: _etaController,
@@ -169,7 +211,10 @@ class _NewPostScreenState extends State<NewPostScreen> {
       // String hashtag = text[0]+', ';
       var tmp = text.toString();
       print(tmp);
-      return Text(tmp.substring(1, tmp.length - 1), textScaleFactor: 1.1,);
+      return Text(
+        tmp.substring(1, tmp.length - 1),
+        textScaleFactor: 1.1,
+      );
     }
     return Text('');
   }
@@ -180,6 +225,65 @@ class _NewPostScreenState extends State<NewPostScreen> {
   }
 
   void _sendPost() {
+    FirebaseFirestore.instance
+        .collection("subscribers")
+        .doc(id_accesso.toString())
+        .get()
+        .then((querySnapshot) {
+      _sendPost2(querySnapshot.data()['nameProfile']);
+    });
+  }
+
+  void _sendPost2(nameProfile) async {
+    var age;
+    try {
+      age = int.parse(_etaController.text);
+    } catch (e) {
+      _etaController.text = '';
+      _scaffoldKey.currentState.showSnackBar(SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.error_outline_outlined),
+            SizedBox(
+              width: 20,
+            ),
+            Expanded(child: Text("L'età deve essere in formato numerico."))
+          ],
+        ),
+      ));
+      return;
+    }
+    // var timestampTmp = Timestamp.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch);
+    print(hashtagPost);
+    var timeTmp = DateTime.now().toUtc();
+    var timestamp = timeTmp.day.toString() +
+        timeTmp.month.toString() +
+        timeTmp.year.toString() +
+        "-" +
+        (timeTmp.hour + 2).toString() +
+        ":" +
+        timeTmp.minute.toString() +
+        ":" +
+        timeTmp.second.toString();
+    var newPost = {
+      'nameProfile': nameProfile,
+      'post': _textController.text,
+      'agePatient': age,
+      'sexPatient': sexPatient.toString(),
+      'comments': [Map()],
+      'id': id_accesso,
+      'timestamp': timeTmp.toUtc(),
+      'hashtags': hashtagPost
+    };
+    await FirebaseFirestore.instance
+        .collection('feed')
+        .doc(nameProfile.toString().toLowerCase().replaceAll(' ', '') +
+            "_" +
+            id_accesso.toString() +
+            "-" +
+            timestamp)
+        .set(newPost);
+    Navigator.of(context).pop();
     //TODO send post to firebase
   }
 }

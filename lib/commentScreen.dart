@@ -127,6 +127,7 @@ class _CommentState extends State<Comment>{
                           },
     )),
                     Flexible(
+
                       child: Text((upvote - downvote).toString()),
 
                     ),
@@ -232,6 +233,7 @@ class CommentScreen extends StatefulWidget {
     // print('lista dei commenti?');
     // print(comments);
     this.reference = reference;
+
   }
 
   @override
@@ -252,7 +254,13 @@ class _CommentScreenState extends State<CommentScreen> {
     this.reference = reference;
     // this.comments = comment.map((data) => Record.fromMap(data)).toList();
     // comment.map((data)=> print(data['comment']));
-    // print(comment);
+    // print('comment');
+    // print(FirebaseFirestore.instance.collection('subscribers').snapshots().toList());
+
+    //       .forEach((result) {
+    //     print(result.data());
+    //   });
+    // });
     //TODO read data from Firebase
     for (var data in comment) {
       if(data['nameProfile']!='')
@@ -303,7 +311,7 @@ class _CommentScreenState extends State<CommentScreen> {
             Flexible(
               child: TextField(
                 controller: _textController,
-                onSubmitted: _handleSubmitted,
+                onSubmitted: _handleSubmitted_tmp,
                 decoration:
                     InputDecoration.collapsed(hintText: 'Invia un commento'),
                 focusNode: _focusNode,
@@ -313,7 +321,7 @@ class _CommentScreenState extends State<CommentScreen> {
               margin: EdgeInsets.symmetric(horizontal: 4.0),
               child: IconButton(
                   icon: const Icon(Icons.send),
-                  onPressed: () => _handleSubmitted(comments)),
+                  onPressed: () => _handleSubmitted_tmp(comments )),
             )
           ],
         ),
@@ -321,18 +329,28 @@ class _CommentScreenState extends State<CommentScreen> {
     );
   }
 
-  void _handleSubmitted(comment) {
+  void _handleSubmitted_tmp(comment){
+    FirebaseFirestore.instance.collection("subscribers").doc(id_accesso.toString()).get().then((querySnapshot) {
+      _handleSubmitted(comment, querySnapshot.data()['nameProfile']);});
+  }
+
+  void _handleSubmitted(comment, nameProfile) {
     // _textController.clear();
     //   Comment comment = Comment(
     //     );
+
     if(_textController.text == '') return;
     var newEntry = {
-      'nameProfile': 'Pippo',
+      'nameProfile': nameProfile ,
       'comment': _textController.text,
       'upvote': 0,
-      'downvote': 0
+      'downvote': 0,
+      'idVotersLike':[],
+      'idVotersDislike': []
     };
-    comments.add(newEntry);
+
+    comment.add(newEntry);
+    reference.update({'comments':comment});
     setState(() {
       _comments.add(Comment(newEntry, reference, comments));
     });

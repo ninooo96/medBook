@@ -157,11 +157,19 @@ class _MyProfileState extends State<MyProfile> {
 
 Widget _buildBody(BuildContext context) {
   //TODO: estrai snapshot dal Cloud Firebase
-  List<Map> snapshot = dummySnapshot;
-  return _buildList(context, snapshot);
+  // List<Map> snapshot = dummySnapshot;
+  // return _buildList(context, snapshot);
+  return StreamBuilder<QuerySnapshot>(
+    stream: FirebaseFirestore.instance.collection('feed').orderBy('timestamp', descending:true).snapshots(),
+    builder: (context, snapshot) {
+      if (!snapshot.hasData) return LinearProgressIndicator();
+      print('OK');
+      return _buildList(context, snapshot.data.docs);
+    },
+  );
 }
 
-Widget _buildList(BuildContext context, List<Map> snapshot) {
+Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
   var snapshot2 = snapshot.where((id) => id==id_accesso);
   print(snapshot2);
 
@@ -176,10 +184,10 @@ Widget _buildList(BuildContext context, List<Map> snapshot) {
   );
 }
 
-Widget _buildListItem(BuildContext context, Map data) {
+Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
   var recordTmp;
-  if(Record.fromMap(data).id!=id_accesso) return Container();
-  var record = Record.fromMap(data);
+  if(Record.fromSnapshot(data).id!=id_accesso) return Container();
+  var record = Record.fromSnapshot(data);
   // if(recordTot.id==id_accesso){
   //   recordTmp = recordTot;
   // }
@@ -204,10 +212,10 @@ Widget _buildListItem(BuildContext context, Map data) {
                     ', Sesso: ' +
                     (record.sexPatient == 'Male' ? 'Maschile' : "Femminile")+ "\n\n"+ record.post)),
             ListTile(
-              title: record.numComment > 0
-                  ? record.numComment > 1
-                  ? Text(record.numComment.toString() + ' commenti')
-                  : Text(record.numComment.toString() + ' commento')
+              title: record.comments.first.length > 0
+                  ? record.comments.first.length > 1
+                  ? Text(record.comments.length.toString() + ' commenti')
+                  : Text(record.comments.toString() + ' commento')
                   : Text('Non ci sono commenti'),
               onTap: () {addComment(context,record.comments, record.reference, 0);},
             ),
@@ -244,19 +252,48 @@ Widget _buildListItem(BuildContext context, Map data) {
 //   }
 //
 // }
+// void addComment(context, List<dynamic> record1, reference, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
+//   print('Ciao Lele' + record1.length.toString() );
+//   List<Map<String,dynamic>> record = new List<Map<String,dynamic>>();// la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
+//   record1.forEach((data) => record.add({
+//     'nameProfile' : data['nameProfile'],
+//     'comment': data['comment'],
+//     'upvote': data['upvote'],
+//     'downvote' : data['downvote']
+//   }));
+//   if(record.length==0)
+//     record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0}];
+//   print(record);
+//   if(record.length != 1 || nuovoCommento==1) {
+//     Navigator.push(
+//       context,
+//       MaterialPageRoute(builder: (context) => CommentScreen(record, reference)),
+//     );
+//   }
+//
+// }
 void addComment(context, List<dynamic> record1, reference, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
   print('Ciao Lele' + record1.length.toString() );
   List<Map<String,dynamic>> record = new List<Map<String,dynamic>>();// la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
-  record1.forEach((data) => record.add({
-    'nameProfile' : data['nameProfile'],
-    'comment': data['comment'],
-    'upvote': data['upvote'],
-    'downvote' : data['downvote']
-  }));
-  if(record.length==0)
-    record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0}];
-  print(record);
-  if(record.length != 1 || nuovoCommento==1) {
+  print(nuovoCommento);
+  // print(record1.first.length);
+  if(record1.first.length!=0) {
+    record1.forEach((data) =>
+        record.add({
+          'nameProfile': data['nameProfile'],
+          'comment': data['comment'],
+          'upvote': data['upvote'],
+          'downvote': data['downvote'],
+          'idVotersLike': data['idVotersLike'],
+          'idVotersDislike': data['idVotersDislike']
+        }));
+  }
+
+
+  // if(record.length==0)
+  //   record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0, 'idVotersLike':[0], 'idVotersDislike':[0]}];
+  // print(record);
+  if(record1.first.length != 0 || nuovoCommento==1) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CommentScreen(record, reference)),

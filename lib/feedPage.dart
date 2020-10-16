@@ -9,7 +9,9 @@ import 'newPostScreen.dart';
 import 'myProfile.dart';
 import 'setting.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
-final id_accesso = 1;
+final id_accesso = 2;
+// = FirebaseFirestore.instance.collection("subscribers").doc(id_accesso.toString()).get().then((querySnapshot) {
+//    querySnapshot.data()['nameProfile'];});
 final hashtags = ['Dermatologia','Ortopedia','Ematologia','Geriatria','Igiene','Pediatria','Psichiatria','Cardiologia','Neurologia','Urologia'];
 final dummySnapshot = [
   {
@@ -282,10 +284,10 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
                     ', Sesso: ' +
                     (record.sexPatient == 'Male' ? 'Maschile' : "Femminile")+ "\n\n"+ record.post)),
             ListTile(
-                title: record.numComment > 0
-                    ? record.numComment > 1
-                        ? Text(record.numComment.toString() + ' commenti')
-                        : Text(record.numComment.toString() + ' commento')
+                title: record.comments.first.length > 0
+                    ? record.comments.first.length > 1
+                        ? Text(record.comments.length.toString() + ' commenti')
+                        : Text(record.comments.length.toString() + ' commento')
                     : Text('Non ci sono commenti'),
                 onTap: () {addComment(context,record.comments, record.reference, 0);},
             ),
@@ -312,7 +314,7 @@ void addComment(context, List<dynamic> record1, reference, nuovoCommento) { //nu
   print('Ciao Lele' + record1.length.toString() );
   List<Map<String,dynamic>> record = new List<Map<String,dynamic>>();// la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
   print(nuovoCommento);
-  print(record1.first.length);
+  // print(record1.first.length);
   if(record1.first.length!=0) {
     record1.forEach((data) =>
         record.add({
