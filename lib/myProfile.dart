@@ -1,22 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:medbook/feedPage.dart';
 import 'commentScreen.dart';
-import 'settings.dart';
+import 'setting.dart';
 import 'newPostScreen.dart';
 
-// import 'commentScreen.dart';
-
-
-// class MyProfile2 extends StatelessWidget {
-//   // @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//       title: nameProfile(),
-//       theme: ThemeData(primaryColor: Colors.orange),
-//       home: MyProfile(title: nameProfile().toString()),
-//     );
-//   }
-// }
 String title;
 
 class MyProfile extends StatefulWidget {
@@ -27,8 +14,6 @@ class MyProfile extends StatefulWidget {
   String getTitle(){
     return title;
 }
-
-  // String title = 'anto';
 
   @override
   _MyProfileState createState() => _MyProfileState();
@@ -123,6 +108,8 @@ class _MyProfileState extends State<MyProfile> {
     drawerTile.add(ListTile(
       title: Text('Il mio profilo', textScaleFactor: 1.5,),
       onTap: (){
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => MyProfile()),
@@ -135,7 +122,7 @@ class _MyProfileState extends State<MyProfile> {
       onTap: (){
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => Settings()),
+          MaterialPageRoute(builder: (context) => Setting()),
         );
       },
     ));

@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 
 import 'commentScreen.dart';
 import 'newPostScreen.dart';
 import 'myProfile.dart';
-import 'settings.dart';
+import 'setting.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
 final id_accesso = 1;
 final hashtags = ['Dermatologia','Ortopedia','Ematologia','Geriatria','Igiene','Pediatria','Psichiatria','Cardiologia','Neurologia','Urologia'];
@@ -72,14 +74,22 @@ final dummySnapshot = [
   },
 ];
 
+
 class FeedPage extends StatelessWidget {
+
+  // FeedPage() {
+  //   Firebase.initializeApp();
+  //   // var db = FirebaseFirestore.instance.firestore();
+  // }
   // @override
   Widget build(BuildContext context) {
+    Firebase.initializeApp();
     //   // TODO: scrolling di ListView dei post
     return MaterialApp(
       title: 'MedBook',
       theme: ThemeData(primaryColor: Colors.orange),
       home: MyFeedPage(title: 'MedBook'),
+
     );
   }
 }
@@ -185,7 +195,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
       onTap: (){
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => Settings()),
+          MaterialPageRoute(builder: (context) => Setting()),
         );
       },
     ));
@@ -218,25 +228,37 @@ class _MyFeedPageState extends State<MyFeedPage> {
 }
 
 Widget _buildBody(BuildContext context) {
-  //TODO: estrai snapshot dal Cloud Firebase
-  List<Map> snapshot = dummySnapshot;
-
-  return _buildList(context, snapshot);
+   //TODO: estrai snapshot dal Cloud Firebase
+  // List<Map> snapshot = dummySnapshot;
+  //
+  // return _buildList(context, snapshot);
+  return StreamBuilder<QuerySnapshot>(
+    stream: FirebaseFirestore.instance.collection('feed').snapshots(),
+    builder: (context, snapshot) {
+      if (!snapshot.hasData) return LinearProgressIndicator();
+      print('OK');
+      return _buildList(context, snapshot.data.docs);
+    },
+  );
 }
 
-Widget _buildList(BuildContext context, List<Map> snapshot) {
+Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
 
   return ListView(
     padding: const EdgeInsets.only(top: 5.0),
     //da giocarci dopo che visualizzo un post
 
-    children: snapshot.map((data) => _buildListItem(context, data)).toList(),
+  children: snapshot.map((data) => _buildListItem(context, data)).toList(),
   );
 }
 
-Widget _buildListItem(BuildContext context, Map data) {
-  final record = Record.fromMap(data);
-  print('ciao');
+Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
+  // final record = Record.fromMap(data);
+  print('provaaa');
+  print(data.data()['posts']);
+
+
+  final record = Record.fromSnapshot(data);
   // record.map((data)=> print(data[1]));
   return Padding(
       // key: ValueKey(record.nameProfile),
@@ -312,9 +334,9 @@ class Record {
 
   final List comments;
 
-  // final DocumentReference reference;
+  final DocumentReference reference;
 
-  Record.fromMap(Map<String, dynamic> map)
+  Record.fromMap(Map<String, dynamic> map,{this.reference})
       : nameProfile = map['nameProfile'],
         sexPatient = map['sexPatient'],
         agePatient = map['agePatient'],
@@ -322,6 +344,9 @@ class Record {
         numComment = map['numComment'],
         id = map['id'],
         comments = map['comments'];
+
+  Record.fromSnapshot(DocumentSnapshot snapshot, int i)
+      : this.fromMap(snapshot.data()['posts'][i], reference: snapshot.reference);
 
 
 

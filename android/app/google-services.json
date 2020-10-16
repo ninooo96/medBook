@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "555381704729",
+    "firebase_url": "https://medbook-4f243.firebaseio.com",
+    "project_id": "medbook-4f243",
+    "storage_bucket": "medbook-4f243.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:555381704729:android:a902968fb2668c398b4288",
+        "android_client_info": {
+          "package_name": "com.antonio.medbook"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "555381704729-075huiamd5v287gdvp3jfeautcrdhqhg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.antonio.medbook",
+            "certificate_hash": "e08525cf1eb031a0a26201c2299c6ec551a2ec33"
+          }
+        },
+        {
+          "client_id": "555381704729-0ssngqjhp45sdtu33s182b957f7e8v3i.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxfOx_A70WRZr8aueKvGrSrfYgy7EMmvg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "555381704729-0ssngqjhp45sdtu33s182b957f7e8v3i.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

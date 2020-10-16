@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 class Comment extends StatefulWidget implements Comparable{
 
 
-  var record;//=[{'nameProfile':'','comment':'','upvote':'0','downvote':0}];
+  Map<String,dynamic> record;//=[{'nameProfile':'','comment':'','upvote':'0','downvote':0}];
 
   // Record record;
   Comment(record) {
