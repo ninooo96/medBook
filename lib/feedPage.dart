@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:intl/intl.dart';
 
 import 'commentScreen.dart';
 import 'newPostScreen.dart';
@@ -233,7 +235,7 @@ Widget _buildBody(BuildContext context) {
   //
   // return _buildList(context, snapshot);
   return StreamBuilder<QuerySnapshot>(
-    stream: FirebaseFirestore.instance.collection('feed').snapshots(),
+    stream: FirebaseFirestore.instance.collection('feed').orderBy('timestamp', descending:true).snapshots(),
     builder: (context, snapshot) {
       if (!snapshot.hasData) return LinearProgressIndicator();
       print('OK');
@@ -243,19 +245,19 @@ Widget _buildBody(BuildContext context) {
 }
 
 Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
-
+  print(snapshot);
   return ListView(
     padding: const EdgeInsets.only(top: 5.0),
     //da giocarci dopo che visualizzo un post
 
-  children: snapshot.map((data) => _buildListItem(context, data)).toList(),
+  children: snapshot.map((data) =>  _buildListItem(context, data)).toList(),
   );
 }
 
 Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
   // final record = Record.fromMap(data);
   print('provaaa');
-  print(data.data()['posts']);
+  // print(data.data()['posts']);
 
 
   final record = Record.fromSnapshot(data);
@@ -272,6 +274,7 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
             ListTile(
                 leading: Icon(Icons.account_circle_outlined, size: 50.0),
                 title: Text(record.nameProfile),
+              subtitle: Text(record.timestamp)
                 ),
             ListTile(
                 title: Text('Età: ' +
@@ -284,7 +287,7 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
                         ? Text(record.numComment.toString() + ' commenti')
                         : Text(record.numComment.toString() + ' commento')
                     : Text('Non ci sono commenti'),
-                onTap: () {addComment(context,record.comments, 0);},
+                onTap: () {addComment(context,record.comments, record.reference, 0);},
             ),
 
             Row(
@@ -292,7 +295,7 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
               children: <Widget>[
                 Flexible(
                     child: ListTile(
-                      onTap: (){addComment(context, record.comments, 1);},
+                      onTap: (){addComment(context, record.comments, record.reference, 1);},
                       title: Center(child: Text('Commenta')),
                 )),
                 Container(height: 30, child: VerticalDivider(color: Colors.grey, thickness: 2,)),
@@ -305,16 +308,31 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
           ])));
 }
 
-void addComment(context, record, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
-  print('Ciao Lele' + record.length.toString(), );
-  print(record);
-  if(record.length==0)
-    record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0}];
-  print(record);
-  if(record.length != 1 || nuovoCommento==1) {
+void addComment(context, List<dynamic> record1, reference, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
+  print('Ciao Lele' + record1.length.toString() );
+  List<Map<String,dynamic>> record = new List<Map<String,dynamic>>();// la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
+  print(nuovoCommento);
+  print(record1.first.length);
+  if(record1.first.length!=0) {
+    record1.forEach((data) =>
+        record.add({
+          'nameProfile': data['nameProfile'],
+          'comment': data['comment'],
+          'upvote': data['upvote'],
+          'downvote': data['downvote'],
+          'idVotersLike': data['idVotersLike'],
+          'idVotersDislike': data['idVotersDislike']
+        }));
+  }
+
+
+  // if(record.length==0)
+  //   record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0, 'idVotersLike':[0], 'idVotersDislike':[0]}];
+  // print(record);
+  if(record1.first.length != 0 || nuovoCommento==1) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CommentScreen(record)),
+      MaterialPageRoute(builder: (context) => CommentScreen(record, reference)),
     );
   }
 
@@ -331,6 +349,7 @@ class Record {
   final int agePatient;
   final int numComment;
   final int id;
+  final String timestamp;
 
   final List comments;
 
@@ -343,14 +362,24 @@ class Record {
         post = map['post'],
         numComment = map['numComment'],
         id = map['id'],
+        timestamp = getTimestamp(map['timestamp']),
         comments = map['comments'];
 
-  Record.fromSnapshot(DocumentSnapshot snapshot, int i)
-      : this.fromMap(snapshot.data()['posts'][i], reference: snapshot.reference);
+  Record.fromSnapshot(DocumentSnapshot snapshot)
+      : this.fromMap(snapshot.data(), reference: snapshot.reference); //prende solo il primo post
 
 
 
   String toString() => "Record<$nameProfile:$post>";
+
+  static String getTimestamp(Timestamp timestamp) {
+    var time = timestamp.toDate();
+    print(time);
+    final f = new DateFormat('dd/MM/yyyy').add_Hm();
+    return f.format(time);
+    // formatDate(time, [yyyy, '-', mm, '-', dd]);
+    // return (time.day.toString()+"/"+time.month.toString()+"/"+time.year.toString()+" - "+time.hour.toString()+":"+time.minute);
+  }
 }
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {

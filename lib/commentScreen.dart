@@ -1,21 +1,27 @@
 import 'dart:core';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+
+import 'feedPage.dart';
 
 class Comment extends StatefulWidget implements Comparable{
 
 
-  Map<String,dynamic> record;//=[{'nameProfile':'','comment':'','upvote':'0','downvote':0}];
-
+  var record;//=[{'nameProfile':'','comment':'','upvote':'0','downvote':0}];
+  DocumentReference reference;
+  List<Map<String,dynamic>> comments;
   // Record record;
-  Comment(record) {
+  Comment(record, reference, comments) {
       this.record = record;
+      this.reference = reference;
+      this.comments = comments;
     // else
     //   this.record =[{'comments':[{'nameProfile':'','comment':'','upvote':0,'downvote':0}]}];
   }
 
   @override
-  _CommentState createState() => _CommentState(record);
+  _CommentState createState() => _CommentState(record, reference, comments);
   @override
   int compareTo(other) {
     if(this.record['upvote']-this.record['downvote']<other['upvote']-other['downvote'])
@@ -33,15 +39,25 @@ class _CommentState extends State<Comment>{
   String text;
   int upvote;
   int downvote;
-  bool votatoLike = false;
-  bool votatoDislike = false;
+  bool votatoLike;
+  bool votatoDislike;
+  DocumentReference reference;
+  List<Map<String,dynamic>> comments;
 
-  _CommentState(record){
+
+  _CommentState(record, reference, comments){
     this.text = record['comment'];
     this.upvote = record['upvote'];
     this.downvote = record['downvote'];
     this.record = record;
+    print('quale record?');
+    print(record);
+    this.reference = reference;
+    this.comments = comments;
+    this.votatoLike = record['idVotersLike'].contains(id_accesso) ? true : false;
+    this.votatoDislike = record['idVotersDislike'].contains(id_accesso) ? true : false;
   }
+
 
 
 
@@ -86,12 +102,24 @@ class _CommentState extends State<Comment>{
                             setState(() {
                               if(!votatoLike && !votatoDislike) {
                                 upvote++;
+                                // record.updateData({'upvote': upvote});
+                                comments.remove(record);
                                 record['upvote'] = upvote;
+                                record['idVotersLike'].add(id_accesso);
+                                print(record);
+                                comments.add(record);
+                                reference.update({'comments':comments});
                                 votatoLike = true;
                               }
                               else if(votatoLike && !votatoDislike){
                                 upvote--;
+                                // reference.updateData({'upvote': upvote});
+                                comments.remove(record);
                                 record['upvote'] = upvote;
+                                record['idVotersLike'].remove(id_accesso);
+                                print(record);
+                                comments.add(record);
+                                reference.update({'comments':comments});
                                 votatoLike =false;
                               }
                             });
@@ -104,7 +132,7 @@ class _CommentState extends State<Comment>{
                     ),
                     Flexible(
                         child: IconButton(
-                          color: votatoDislike? Colors.red : Colors.grey,
+                          color: votatoDislike ? Colors.red  : Colors.grey,
 
                       icon: Icon(Icons.thumb_down),
                       onPressed: (){
@@ -112,12 +140,23 @@ class _CommentState extends State<Comment>{
                         setState(() {
                           if(!votatoDislike && !votatoLike) {
                             downvote++;
+                            comments.remove(record);
                             record['downvote'] = downvote;
+                            record['idVotersDislike'].add(id_accesso);
+                            print(record);
+                            comments.add(record);
+                            reference.update({'comments':comments});
                             votatoDislike = true;
                           }
                           else if(votatoDislike && !votatoLike){
                             downvote--;
+                            comments.remove(record);
                             record['downvote'] = downvote;
+                            record['idVotersDislike'].remove(id_accesso);
+                            print(record);
+                            comments.add(record);
+                            reference.update({'comments':comments});
+                            // record.update({'comments': record});
                             votatoDislike =false;
                           }
                         });
@@ -186,33 +225,38 @@ class _CommentState extends State<Comment>{
 
 class CommentScreen extends StatefulWidget {
   List<Map<String, dynamic>> comments;
+  DocumentReference reference;
 
-  CommentScreen(comments) {
+  CommentScreen(comments, reference) {
     this.comments = comments;
+    // print('lista dei commenti?');
+    // print(comments);
+    this.reference = reference;
   }
 
   @override
-  _CommentScreenState createState() => _CommentScreenState(comments);
+  _CommentScreenState createState() => _CommentScreenState(comments, reference);
 }
 
 class _CommentScreenState extends State<CommentScreen> {
   List<Comment> _comments = [];
   final _textController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-
+  DocumentReference reference;
 
   // List<Record> comments = [];
   List<Map<String, dynamic>> comments;
 
-  _CommentScreenState(comment) {
+  _CommentScreenState(comment, reference) {
     this.comments = comment;
+    this.reference = reference;
     // this.comments = comment.map((data) => Record.fromMap(data)).toList();
     // comment.map((data)=> print(data['comment']));
     // print(comment);
     //TODO read data from Firebase
     for (var data in comment) {
       if(data['nameProfile']!='')
-        _comments.add(Comment(data));
+        _comments.add(Comment(data, reference, comments));
     }
     _comments.sort((a,b) {
       return a.compareTo(b.record);
@@ -290,7 +334,7 @@ class _CommentScreenState extends State<CommentScreen> {
     };
     comments.add(newEntry);
     setState(() {
-      _comments.add(Comment(newEntry));
+      _comments.add(Comment(newEntry, reference, comments));
     });
     _focusNode.requestFocus();
     _textController.clear();

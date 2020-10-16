@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:medbook/feedPage.dart';
 import 'commentScreen.dart';
@@ -208,7 +209,7 @@ Widget _buildListItem(BuildContext context, Map data) {
                   ? Text(record.numComment.toString() + ' commenti')
                   : Text(record.numComment.toString() + ' commento')
                   : Text('Non ci sono commenti'),
-              onTap: () {addComment(context,record.comments, 0);},
+              onTap: () {addComment(context,record.comments, record.reference, 0);},
             ),
 
             Row(
@@ -216,7 +217,7 @@ Widget _buildListItem(BuildContext context, Map data) {
               children: <Widget>[
                 Flexible(
                     child: ListTile(
-                      onTap: (){addComment(context, record.comments, 1);},
+                      onTap: (){addComment(context, record.comments, record.reference, 1);},
                       title: Center(child: Text('Commenta')),
                     )),
                 Container(height: 30, child: VerticalDivider(color: Colors.grey, thickness: 2,)),
@@ -229,16 +230,36 @@ Widget _buildListItem(BuildContext context, Map data) {
           ])));
 }
 
-void addComment(context, record, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
-  print('Ciao Lele' + record.length.toString(), );
-  print(record);
+// void addComment(context, record, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
+//   print('Ciao Lele' + record.length.toString(), );
+//   print(record);
+//   if(record.length==0)
+//     record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0}];
+//   print(record);
+//   if(record.length != 1 || nuovoCommento==1) {
+//     Navigator.push(
+//       context,
+//       MaterialPageRoute(builder: (context) => CommentScreen(record, reference)),
+//     );
+//   }
+//
+// }
+void addComment(context, List<dynamic> record1, reference, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
+  print('Ciao Lele' + record1.length.toString() );
+  List<Map<String,dynamic>> record = new List<Map<String,dynamic>>();// la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
+  record1.forEach((data) => record.add({
+    'nameProfile' : data['nameProfile'],
+    'comment': data['comment'],
+    'upvote': data['upvote'],
+    'downvote' : data['downvote']
+  }));
   if(record.length==0)
     record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0}];
   print(record);
   if(record.length != 1 || nuovoCommento==1) {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => CommentScreen(record)),
+      MaterialPageRoute(builder: (context) => CommentScreen(record, reference)),
     );
   }
 
@@ -258,10 +279,10 @@ class Record {
 
   final List comments;
 
-  // final DocumentReference reference;
+  final DocumentReference reference;
 
 
-  Record.fromMap(Map<String, dynamic> map)
+  Record.fromMap(Map<String, dynamic> map, {this.reference})
       : nameProfile = map['nameProfile'],
         sexPatient = map['sexPatient'],
         agePatient = map['agePatient'],
@@ -269,6 +290,9 @@ class Record {
         numComment = map['numComment'],
         id = map['id'],
         comments = map['comments'];
+
+  Record.fromSnapshot(DocumentSnapshot snapshot)
+      : this.fromMap(snapshot.data(), reference: snapshot.reference);
 
 
 
