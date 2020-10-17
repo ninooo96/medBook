@@ -1,18 +1,30 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:date_format/date_format.dart';
-import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:medbook/welcomeScreen.dart';
 
 import 'commentScreen.dart';
-import 'newPostScreen.dart';
 import 'myProfile.dart';
+import 'newPostScreen.dart';
 import 'setting.dart';
+
 // import 'package:cloud_firestore/cloud_firestore.dart';
 final id_accesso = 1;
 // = FirebaseFirestore.instance.collection("subscribers").doc(id_accesso.toString()).get().then((querySnapshot) {
 //    querySnapshot.data()['nameProfile'];});
-final hashtags = ['Dermatologia','Ortopedia','Ematologia','Geriatria','Igiene','Pediatria','Psichiatria','Cardiologia','Neurologia','Urologia'];
+final hashtags = [
+  'Dermatologia',
+  'Ortopedia',
+  'Ematologia',
+  'Geriatria',
+  'Igiene',
+  'Pediatria',
+  'Psichiatria',
+  'Cardiologia',
+  'Neurologia',
+  'Urologia'
+];
 // final dummySnapshot = [
 //   {
 //     'id':1,
@@ -78,22 +90,21 @@ final hashtags = ['Dermatologia','Ortopedia','Ematologia','Geriatria','Igiene','
 //   },
 // ];
 
-
 class FeedPage extends StatelessWidget {
-
   // FeedPage() {
   //   Firebase.initializeApp();
   //   // var db = FirebaseFirestore.instance.firestore();
   // }
   // @override
   Widget build(BuildContext context) {
-    // Firebase.initializeApp();
+    Firebase.initializeApp();
     //   // TODO: scrolling di ListView dei post
     return MaterialApp(
+      routes: {
+        'welcome': (context) => WelcomeScreen(),},
       title: 'MedBook',
       theme: ThemeData(primaryColor: Colors.orange),
       home: MyFeedPage(title: 'MedBook'),
-
     );
   }
 }
@@ -108,7 +119,6 @@ class MyFeedPage extends StatefulWidget {
 }
 
 class _MyFeedPageState extends State<MyFeedPage> {
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,32 +131,40 @@ class _MyFeedPageState extends State<MyFeedPage> {
         splashColor: Colors.yellow,
       ),
       drawer: Drawer(
-        child: Column(
-    children: <Widget> [
-      drawDrawerHeader(),
-      ListView(
-          scrollDirection: Axis.vertical,
-          shrinkWrap: true,
-          children: _drawerTile()
-        ),
+          child: Column(
+        children: <Widget>[
+          drawDrawerHeader(),
+          ListView(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              children: _drawerTile()),
           Expanded(
-            child: Align(
-                alignment: FractionalOffset.bottomCenter,
-          child: ListTile(
-            title: Text('Esci',textScaleFactor: 1.5,),
-            tileColor: Colors.red,
-            onTap: _logout,
-          )))
+              child: Align(
+                  alignment: FractionalOffset.bottomCenter,
+                  child: ListTile(
+                    title: Text(
+                      'Esci',
+                      textScaleFactor: 1.5,
+                    ),
+                    tileColor: Colors.red,
+                    onTap: _logout,
+                  )))
         ],
-      )
-      ),
+      )),
       appBar: CustomAppBar(
         appBar: AppBar(
-          //
-          // leading: IconButton(
-          //   icon: Icon(Icons.menu),
-          //   onPressed: _openDrawer,
-          // ),
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+            //
+            // leading: IconButton(
+            //   icon: Icon(Icons.menu),
+            //   onPressed: _openDrawer,
+            // ),
+          ),
           title: Center(child: Text(widget.title)),
           actions: [
             IconButton(icon: Icon(Icons.search), onPressed: _search),
@@ -154,7 +172,6 @@ class _MyFeedPageState extends State<MyFeedPage> {
               icon: Icon(Icons.notifications),
               onPressed: _postWithMyHashtags,
             ),
-
           ],
         ),
         // onTap: () {
@@ -176,16 +193,24 @@ class _MyFeedPageState extends State<MyFeedPage> {
           //     textScaleFactor: 1.8,
           //     textAlign: TextAlign.left,
           //     style: TextStyle(color: Colors.white)),
-          decoration: BoxDecoration(color: Colors.orange),
+          decoration: BoxDecoration(
+              color: Colors.orange,
+              gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [Color(0xfffbb448), Color(0xfff7892b)])),
           padding: EdgeInsets.symmetric(vertical: 25)),
     );
   }
-  
-  _drawerTile(){
+
+  _drawerTile() {
     List<Widget> drawerTile = [];
     drawerTile.add(ListTile(
-      title: Text('Home', textScaleFactor: 1.5,),
-      onTap: (){
+      title: Text(
+        'Home',
+        textScaleFactor: 1.5,
+      ),
+      onTap: () {
         Navigator.of(context).pop();
         Navigator.of(context).pop();
         Navigator.push(
@@ -194,35 +219,51 @@ class _MyFeedPageState extends State<MyFeedPage> {
         );
       },
     ));
-    drawerTile.add(Divider(thickness: 2,));
-    drawerTile.add(ListTile(
-      title: Text('Il mio profilo', textScaleFactor: 1.5,),
-          onTap: (){
-            Navigator.of(context).pop();
-            Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => MyProfile(id_accesso)),
-                  );
-          },
+    drawerTile.add(Divider(
+      thickness: 2,
     ));
-    drawerTile.add(Divider(thickness: 2,));
     drawerTile.add(ListTile(
-      title: Text('Impostazioni',textScaleFactor: 1.5,),
-      onTap: (){
+      title: Text(
+        'Il mio profilo',
+        textScaleFactor: 1.5,
+      ),
+      onTap: () {
+        Navigator.of(context).pop();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MyProfile(id_accesso)),
+        );
+      },
+    ));
+    drawerTile.add(Divider(
+      thickness: 2,
+    ));
+    drawerTile.add(ListTile(
+      title: Text(
+        'Impostazioni',
+        textScaleFactor: 1.5,
+      ),
+      onTap: () {
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => Setting()),
         );
       },
     ));
-    drawerTile.add(Divider(thickness: 2,));
+    drawerTile.add(Divider(
+      thickness: 2,
+    ));
 
     return drawerTile;
   }
 
-  _logout(){
+  _logout() {
     //TODO scollegati da Firebase
+    Navigator.of(context).popUntil(ModalRoute.withName('welcome'));
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => WelcomeScreen()));
   }
+
   void _postWithMyHashtags() {
     // print("ciao Anto");
     //TODO pagina con i post di cui ho ricevuto la notifica perchè con il mio hashtag
@@ -231,7 +272,6 @@ class _MyFeedPageState extends State<MyFeedPage> {
   void _search() {
     //TODO funzione di ricerca
   }
-
 
   _openDrawer() {}
 
@@ -244,12 +284,15 @@ class _MyFeedPageState extends State<MyFeedPage> {
 }
 
 Widget _buildBody(BuildContext context) {
-   //TODO: estrai snapshot dal Cloud Firebase
+  //TODO: estrai snapshot dal Cloud Firebase
   // List<Map> snapshot = dummySnapshot;
   //
   // return _buildList(context, snapshot);
   return StreamBuilder<QuerySnapshot>(
-    stream: FirebaseFirestore.instance.collection('feed').orderBy('timestamp', descending:true).snapshots(),
+    stream: FirebaseFirestore.instance
+        .collection('feed')
+        .orderBy('timestamp', descending: true)
+        .snapshots(),
     builder: (context, snapshot) {
       if (!snapshot.hasData) return LinearProgressIndicator();
       // print('OK');
@@ -264,7 +307,7 @@ Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
     padding: const EdgeInsets.only(top: 5.0),
     //da giocarci dopo che visualizzo un post
 
-  children: snapshot.map((data) =>  _buildListItem(context, data)).toList(),
+    children: snapshot.map((data) => _buildListItem(context, data)).toList(),
   );
 }
 
@@ -272,10 +315,8 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
   // final record = Record.fromMap(data);
   // print('provaaa');
 
-
-
   final record = Record.fromSnapshot(data);
-  print(record.sexPatient);// record.map((data)=> print(data[1]));
+  print(record.sexPatient); // record.map((data)=> print(data[1]));
   return Padding(
       // key: ValueKey(record.nameProfile),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
@@ -286,59 +327,74 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
           ),
           child: Column(children: <Widget>[
             ListTile(
-                leading: Icon(Icons.account_circle_outlined, size: 50.0),
-                title: Text(record.nameProfile),
+              leading: Icon(Icons.account_circle_outlined, size: 50.0),
+              title: Text(record.nameProfile),
               subtitle: Text(record.timestamp),
-              onTap: (){
+              onTap: () {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => MyProfile(record.id)),
                 );
-
               },
-                ),
+            ),
             ListTile(
                 title: Text('Età: ' +
                     (record.agePatient).toString() +
                     ', Sesso: ' +
-                    (record.sexPatient)+
-                    (record.hashtags.length == 0 ? '':"\n# "+record.hashtags.toString().substring(1, record.hashtags.toString().length - 1))+ ""
-                    "\n\n"+ record.post)),
+                    (record.sexPatient) +
+                    (record.hashtags.length == 0
+                        ? ''
+                        : "\n# " +
+                            record.hashtags.toString().substring(
+                                1, record.hashtags.toString().length - 1)) +
+                    ""
+                        "\n\n" +
+                    record.post)),
             ListTile(
-                title: record.comments.first.length > 0
-                    ? record.comments.first.length > 1
-                        ? Text(record.comments.length.toString() + ' commenti')
-                        : Text(record.comments.length.toString() + ' commento')
-                    : Text('Non ci sono commenti'),
-                onTap: () {addComment(context,record.comments, record.reference, 0);},
+              title: record.comments.first.length > 0
+                  ? record.comments.first.length > 1
+                      ? Text(record.comments.length.toString() + ' commenti')
+                      : Text(record.comments.length.toString() + ' commento')
+                  : Text('Non ci sono commenti'),
+              onTap: () {
+                addComment(context, record.comments, record.reference, 0);
+              },
             ),
-
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 Flexible(
                     child: ListTile(
-                      onTap: (){addComment(context, record.comments, record.reference, 1);},
-                      title: Center(child: Text('Commenta')),
+                  onTap: () {
+                    addComment(context, record.comments, record.reference, 1);
+                  },
+                  title: Center(child: Text('Commenta')),
                 )),
-                Container(height: 30, child: VerticalDivider(color: Colors.grey, thickness: 2,)),
+                Container(
+                    height: 30,
+                    child: VerticalDivider(
+                      color: Colors.grey,
+                      thickness: 2,
+                    )),
                 Flexible(
                     child: ListTile(
-                      onTap: _activeNotifications,
-                      title: Center(child: Text('Segui'))))
+                        onTap: _activeNotifications,
+                        title: Center(child: Text('Segui'))))
               ],
             )
           ])));
 }
 
-void addComment(context, List<dynamic> record1, reference, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
+void addComment(context, List<dynamic> record1, reference, nuovoCommento) {
+  //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
   // print('Ciao Lele' + record1.length.toString() );
-  List<Map<String,dynamic>> record = new List<Map<String,dynamic>>();// la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
+  List<Map<String, dynamic>> record = new List<
+      Map<String,
+          dynamic>>(); // la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
   // print(nuovoCommento);
   // print(record1.first.length);
-  if(record1.first.length!=0) {
-    record1.forEach((data) =>
-        record.add({
+  if (record1.first.length != 0) {
+    record1.forEach((data) => record.add({
           'nameProfile': data['nameProfile'],
           'comment': data['comment'],
           'upvote': data['upvote'],
@@ -348,22 +404,18 @@ void addComment(context, List<dynamic> record1, reference, nuovoCommento) { //nu
         }));
   }
 
-
   // if(record.length==0)
   //   record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0, 'idVotersLike':[0], 'idVotersDislike':[0]}];
   // print(record);
-  if(record1.first.length != 0 || nuovoCommento==1) {
+  if (record1.first.length != 0 || nuovoCommento == 1) {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CommentScreen(record, reference)),
     );
   }
-
 }
 
-
 // }
-
 
 class Record {
   final String nameProfile;
@@ -378,7 +430,7 @@ class Record {
   final List hashtags;
   final DocumentReference reference;
 
-  Record.fromMap(Map<String, dynamic> map,{this.reference})
+  Record.fromMap(Map<String, dynamic> map, {this.reference})
       : nameProfile = map['nameProfile'],
         sexPatient = map['sexPatient'],
         agePatient = map['agePatient'],
@@ -390,9 +442,8 @@ class Record {
         comments = map['comments'];
 
   Record.fromSnapshot(DocumentSnapshot snapshot)
-      : this.fromMap(snapshot.data(), reference: snapshot.reference); //prende solo il primo post
-
-
+      : this.fromMap(snapshot.data(),
+            reference: snapshot.reference); //prende solo il primo post
 
   String toString() => "Record<$nameProfile:$post>";
 
@@ -422,11 +473,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => new Size.fromHeight(kToolbarHeight);
 }
 
-
-
 void _activeNotifications() {}
 
-String _visualizeComments(record){
-  print(record.comments.map((data)=> data['comment'].toString()));
-  return record.comments.map((data)=> data['comment'][0].toString());
+String _visualizeComments(record) {
+  print(record.comments.map((data) => data['comment'].toString()));
+  return record.comments.map((data) => data['comment'][0].toString());
 }

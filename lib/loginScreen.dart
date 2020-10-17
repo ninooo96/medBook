@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:medbook/feedPage.dart';
 import 'package:medbook/registerScreen.dart';
 
 // import 'Widget/bezierContainer.dart';
@@ -125,7 +126,13 @@ class _LoginScreenState extends State<LoginScreen> {
           width: 30,
           height: 30,
         ),
-        onPressed: () {},
+        onPressed: () {
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => FeedPage()));
+          },
+
       ),
     );
   }

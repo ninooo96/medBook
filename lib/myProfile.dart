@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:medbook/feedPage.dart';
+import 'package:medbook/welcomeScreen.dart';
 import 'commentScreen.dart';
 import 'setting.dart';
 import 'newPostScreen.dart';
@@ -167,6 +168,9 @@ class _MyProfileState extends State<MyProfile> {
 
   _logout(){
     //TODO scollegati da Firebase
+    Navigator.of(context).popUntil(ModalRoute.withName('welcome'));
+    Navigator.push(context,
+        MaterialPageRoute(builder: (context) => WelcomeScreen()));
   }
   void _postWithMyHashtags() {
     print("ciao Anto");
