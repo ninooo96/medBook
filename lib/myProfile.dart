@@ -7,33 +7,53 @@ import 'newPostScreen.dart';
 
 String title;
 
+
 class MyProfile extends StatefulWidget {
   // String title ;
-  MyProfile(){
-    title = nameProfile();
+  // int id_profile;
+  var id_profile;
+  MyProfile(id){
+    this.id_profile = id;
   }
-  String getTitle(){
-    return title;
-}
+//   String getTitle(){
+//     return title;
+// }
 
   @override
-  _MyProfileState createState() => _MyProfileState();
+  _MyProfileState createState() => _MyProfileState(id_profile);
 
 
-  nameProfile(){
-    for(var elem in dummySnapshot){
-      if(elem['id'] == id_accesso) {
-        print(elem['nameProfile']);
-        return elem['nameProfile'];
-      }
-      return '404';
-    }
-  }
+  // nameProfile(){
+  //   for(var elem in dummySnapshot){
+  //     if(elem['id'] == id_accesso) {
+  //       print(elem['nameProfile']);
+  //       return elem['nameProfile'];
+  //     }
+  //     return '404';
+  //   }
+  // }
 }
 
 class _MyProfileState extends State<MyProfile> {
+  var id_profile;
+  _MyProfileState(id){
+    this.id_profile = id;
+  }
+
   @override
   Widget build(BuildContext context) {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance.collection('subscribers').snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return LinearProgressIndicator();
+        print('OK2');
+        // print(snapshot.data.docs[id_accesso-1]['nameProfile']);
+        return  _build(context, snapshot.data.docs[id_profile-1]['nameProfile']);
+      },
+    );
+  }
+
+  Widget _build(BuildContext context, String nameProfile){
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -70,7 +90,7 @@ class _MyProfileState extends State<MyProfile> {
           //   icon: Icon(Icons.menu),
           //   onPressed: _openDrawer,
           // ),
-          title: Center(child: Text(title)),
+          title: Center(child: Text(nameProfile)),
           actions: [
             IconButton(icon: Icon(Icons.search), onPressed: _search),
             IconButton(
@@ -87,7 +107,7 @@ class _MyProfileState extends State<MyProfile> {
         //   );
         // },
       ),
-      body: _buildBody(context),
+      body: _buildBody(context, id_profile),
     );
   }
 
@@ -107,13 +127,26 @@ class _MyProfileState extends State<MyProfile> {
   _drawerTile(){
     List<Widget> drawerTile = [];
     drawerTile.add(ListTile(
+      title: Text('Home', textScaleFactor: 1.5,),
+      onTap: (){
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => FeedPage()),
+        );
+      },
+    ));
+    drawerTile.add(Divider(thickness: 2,));
+    drawerTile.add(ListTile(
       title: Text('Il mio profilo', textScaleFactor: 1.5,),
       onTap: (){
         Navigator.of(context).pop();
         Navigator.of(context).pop();
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => MyProfile()),
+          MaterialPageRoute(builder: (context) => MyProfile(id_profile)),
         );
       },
     ));
@@ -155,7 +188,7 @@ class _MyProfileState extends State<MyProfile> {
   }
 }
 
-Widget _buildBody(BuildContext context) {
+Widget _buildBody(BuildContext context, int id_profile) {
   //TODO: estrai snapshot dal Cloud Firebase
   // List<Map> snapshot = dummySnapshot;
   // return _buildList(context, snapshot);
@@ -164,15 +197,32 @@ Widget _buildBody(BuildContext context) {
     builder: (context, snapshot) {
       if (!snapshot.hasData) return LinearProgressIndicator();
       print('OK');
-      return _buildList(context, snapshot.data.docs);
+      return _buildList(context, snapshot.data.docs, id_profile);
     },
   );
 }
 
-Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
-  var snapshot2 = snapshot.where((id) => id==id_accesso);
-  print(snapshot2);
 
+// Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot2) {
+
+  // return StreamBuilder<QuerySnapshot>(
+  //   stream: FirebaseFirestore.instance.collection('subscribers').snapshots(),
+  //   builder: (context, snapshot) {
+  //     if (!snapshot.hasData) return LinearProgressIndicator();
+  //     print('OK2');
+  //     // print(snapshot.data.docs[id_accesso-1]['nameProfile']);
+  //     return  _buildList2(context, snapshot2, snapshot.data.docs[id_profile-1]['nameProfile'], id_profile);
+  //   },
+  // );
+  //   print(FirebaseFirestore.instance.collection("subscribers").get());//doc(id_accesso.toString()).get()[0]());
+      // return _buildList2(context, snapshot, querySnapshot.data()['nameProfile']);
+  // }
+
+
+Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot, int id_profile) {
+  // var snapshot2 = snapshot.where((id) => id==id_accesso);
+  // print(snapshot2);
+//
   return ListView(
     padding: const EdgeInsets.only(top: 5.0),
     //da giocarci dopo che visualizzo un post
@@ -180,14 +230,16 @@ Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
   // // print(record);
   // if( record.id==2){
   //   print(record.post);
-    children: snapshot.map((data) => _buildListItem(context, data)).toList(),
+    children: snapshot.map((data) => _buildListItem(context, data, id_profile)).toList(),
   );
 }
 
-Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
+Widget _buildListItem(BuildContext context, DocumentSnapshot data, int id_profile) {
   var recordTmp;
-  if(Record.fromSnapshot(data).id!=id_accesso) return Container();
+  // title = nameProfile;
+  if(Record.fromSnapshot(data).id!=id_profile) return Container();
   var record = Record.fromSnapshot(data);
+
   // if(recordTot.id==id_accesso){
   //   recordTmp = recordTot;
   // }
@@ -210,7 +262,9 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
                 title: Text('Età: ' +
                     (record.agePatient).toString() +
                     ', Sesso: ' +
-                    (record.sexPatient == 'Male' ? 'Maschile' : "Femminile")+ "\n\n"+ record.post)),
+                    (record.sexPatient)+
+                    (record.hashtags.length == 0 ? '':"\n# "+record.hashtags.toString().substring(1, record.hashtags.toString().length - 1))+ ""
+                    "\n\n"+ record.post)),
             ListTile(
               title: record.comments.first.length > 0
                   ? record.comments.first.length > 1
@@ -315,6 +369,7 @@ class Record {
   final int id;
 
   final List comments;
+  final List hashtags;
 
   final DocumentReference reference;
 
@@ -326,6 +381,7 @@ class Record {
         post = map['post'],
         numComment = map['numComment'],
         id = map['id'],
+        hashtags = map['hashtags'],
         comments = map['comments'];
 
   Record.fromSnapshot(DocumentSnapshot snapshot)

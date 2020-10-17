@@ -9,74 +9,74 @@ import 'newPostScreen.dart';
 import 'myProfile.dart';
 import 'setting.dart';
 // import 'package:cloud_firestore/cloud_firestore.dart';
-final id_accesso = 2;
+final id_accesso = 1;
 // = FirebaseFirestore.instance.collection("subscribers").doc(id_accesso.toString()).get().then((querySnapshot) {
 //    querySnapshot.data()['nameProfile'];});
 final hashtags = ['Dermatologia','Ortopedia','Ematologia','Geriatria','Igiene','Pediatria','Psichiatria','Cardiologia','Neurologia','Urologia'];
-final dummySnapshot = [
-  {
-    'id':1,
-    'nameProfile': 'Antonio Gagliostro',
-    'agePatient': 67,
-    'sexPatient': 'Male',
-    'post':
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    'numComment': 2,
-    'comments': [
-      {
-        'id':2,
-        'nameProfile': 'Chiara Del Re',
-        'comment': 'ciao',
-        'upvote': 3,
-        'downvote': 7
-      },
-      {
-        'id':4,
-        'nameProfile': 'Dott. House',
-        'comment': 'ciao Antonio',
-        'upvote': 2,
-        'downvote': 7
-      },
-    ]
-  },
-  {
-    'id':2,
-    'nameProfile': 'Chiara Del Re',
-    'agePatient': 79,
-    'sexPatient': 'Female',
-    'post': 'Diagnosi2',
-    'numComment': 1,
-    'comments': [
-      {
-        'id':3,
-        'nameProfile': 'Dott.ssa Peluche',
-        'comment': 'ciao Chiara',
-        'upvote': 5,
-        'downvote': 5
-      },
-    ]
-  },
-  {
-    'id':1,
-    'nameProfile': 'Antonio Gagliostro',
-    'agePatient': 67,
-    'sexPatient': 'Male',
-    'post':
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    'numComment': 0,
-    'comments': []
-  },
-  {
-    'id':1,
-    'nameProfile': 'Antonio Gagliostro',
-    'agePatient': 67,
-    'sexPatient': 'Male',
-    'post':
-        'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    'numComment': 0,
-    'comments': []
-  },
-];
+// final dummySnapshot = [
+//   {
+//     'id':1,
+//     'nameProfile': 'Antonio Gagliostro',
+//     'agePatient': 67,
+//     'sexPatient': 'Male',
+//     'post':
+//         'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+//     'numComment': 2,
+//     'comments': [
+//       {
+//         'id':2,
+//         'nameProfile': 'Chiara Del Re',
+//         'comment': 'ciao',
+//         'upvote': 3,
+//         'downvote': 7
+//       },
+//       {
+//         'id':4,
+//         'nameProfile': 'Dott. House',
+//         'comment': 'ciao Antonio',
+//         'upvote': 2,
+//         'downvote': 7
+//       },
+//     ]
+//   },
+//   {
+//     'id':2,
+//     'nameProfile': 'Chiara Del Re',
+//     'agePatient': 79,
+//     'sexPatient': 'Female',
+//     'post': 'Diagnosi2',
+//     'numComment': 1,
+//     'comments': [
+//       {
+//         'id':3,
+//         'nameProfile': 'Dott.ssa Peluche',
+//         'comment': 'ciao Chiara',
+//         'upvote': 5,
+//         'downvote': 5
+//       },
+//     ]
+//   },
+//   {
+//     'id':1,
+//     'nameProfile': 'Antonio Gagliostro',
+//     'agePatient': 67,
+//     'sexPatient': 'Male',
+//     'post':
+//         'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+//     'numComment': 0,
+//     'comments': []
+//   },
+//   {
+//     'id':1,
+//     'nameProfile': 'Antonio Gagliostro',
+//     'agePatient': 67,
+//     'sexPatient': 'Male',
+//     'post':
+//         'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
+//     'numComment': 0,
+//     'comments': []
+//   },
+// ];
 
 
 class FeedPage extends StatelessWidget {
@@ -87,7 +87,7 @@ class FeedPage extends StatelessWidget {
   // }
   // @override
   Widget build(BuildContext context) {
-    Firebase.initializeApp();
+    // Firebase.initializeApp();
     //   // TODO: scrolling di ListView dei post
     return MaterialApp(
       title: 'MedBook',
@@ -184,12 +184,24 @@ class _MyFeedPageState extends State<MyFeedPage> {
   _drawerTile(){
     List<Widget> drawerTile = [];
     drawerTile.add(ListTile(
+      title: Text('Home', textScaleFactor: 1.5,),
+      onTap: (){
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => FeedPage()),
+        );
+      },
+    ));
+    drawerTile.add(Divider(thickness: 2,));
+    drawerTile.add(ListTile(
       title: Text('Il mio profilo', textScaleFactor: 1.5,),
           onTap: (){
             Navigator.of(context).pop();
             Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => MyProfile()),
+                    MaterialPageRoute(builder: (context) => MyProfile(id_accesso)),
                   );
           },
     ));
@@ -212,7 +224,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
     //TODO scollegati da Firebase
   }
   void _postWithMyHashtags() {
-    print("ciao Anto");
+    // print("ciao Anto");
     //TODO pagina con i post di cui ho ricevuto la notifica perchè con il mio hashtag
   }
 
@@ -240,7 +252,7 @@ Widget _buildBody(BuildContext context) {
     stream: FirebaseFirestore.instance.collection('feed').orderBy('timestamp', descending:true).snapshots(),
     builder: (context, snapshot) {
       if (!snapshot.hasData) return LinearProgressIndicator();
-      print('OK');
+      // print('OK');
       return _buildList(context, snapshot.data.docs);
     },
   );
@@ -258,12 +270,12 @@ Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
 
 Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
   // final record = Record.fromMap(data);
-  print('provaaa');
-  // print(data.data()['posts']);
+  // print('provaaa');
+
 
 
   final record = Record.fromSnapshot(data);
-  // record.map((data)=> print(data[1]));
+  print(record.sexPatient);// record.map((data)=> print(data[1]));
   return Padding(
       // key: ValueKey(record.nameProfile),
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
@@ -276,13 +288,22 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
             ListTile(
                 leading: Icon(Icons.account_circle_outlined, size: 50.0),
                 title: Text(record.nameProfile),
-              subtitle: Text(record.timestamp)
+              subtitle: Text(record.timestamp),
+              onTap: (){
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => MyProfile(record.id)),
+                );
+
+              },
                 ),
             ListTile(
                 title: Text('Età: ' +
                     (record.agePatient).toString() +
                     ', Sesso: ' +
-                    (record.sexPatient == 'Male' ? 'Maschile' : "Femminile")+ "\n\n"+ record.post)),
+                    (record.sexPatient)+
+                    (record.hashtags.length == 0 ? '':"\n# "+record.hashtags.toString().substring(1, record.hashtags.toString().length - 1))+ ""
+                    "\n\n"+ record.post)),
             ListTile(
                 title: record.comments.first.length > 0
                     ? record.comments.first.length > 1
@@ -311,9 +332,9 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
 }
 
 void addComment(context, List<dynamic> record1, reference, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
-  print('Ciao Lele' + record1.length.toString() );
+  // print('Ciao Lele' + record1.length.toString() );
   List<Map<String,dynamic>> record = new List<Map<String,dynamic>>();// la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
-  print(nuovoCommento);
+  // print(nuovoCommento);
   // print(record1.first.length);
   if(record1.first.length!=0) {
     record1.forEach((data) =>
@@ -354,7 +375,7 @@ class Record {
   final String timestamp;
 
   final List comments;
-
+  final List hashtags;
   final DocumentReference reference;
 
   Record.fromMap(Map<String, dynamic> map,{this.reference})
@@ -365,6 +386,7 @@ class Record {
         numComment = map['numComment'],
         id = map['id'],
         timestamp = getTimestamp(map['timestamp']),
+        hashtags = map['hashtags'],
         comments = map['comments'];
 
   Record.fromSnapshot(DocumentSnapshot snapshot)
@@ -376,7 +398,7 @@ class Record {
 
   static String getTimestamp(Timestamp timestamp) {
     var time = timestamp.toDate();
-    print(time);
+    // print(time);
     final f = new DateFormat('dd/MM/yyyy').add_Hm();
     return f.format(time);
     // formatDate(time, [yyyy, '-', mm, '-', dd]);

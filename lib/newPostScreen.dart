@@ -210,7 +210,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
       }
       // String hashtag = text[0]+', ';
       var tmp = text.toString();
-      print(tmp);
+      // print(tmp);
       return Text(
         tmp.substring(1, tmp.length - 1),
         textScaleFactor: 1.1,
@@ -260,7 +260,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
         timeTmp.month.toString() +
         timeTmp.year.toString() +
         "-" +
-        (timeTmp.hour + 2).toString() +
+        (timeTmp.hour).toString() +
         ":" +
         timeTmp.minute.toString() +
         ":" +

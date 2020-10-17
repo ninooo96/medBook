@@ -1,6 +1,8 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:medbook/feedPage.dart';
+import 'package:google_fonts/google_fonts.dart';
+// import 'package:medbook/feedPage.dart';
+import 'package:medbook/welcomeScreen.dart';
 
 // void main() {
 //
@@ -8,10 +10,31 @@ import 'package:medbook/feedPage.dart';
 //
 // }
 
-void main() {
+// void main() {
+//
+//   runApp(MyApp());
+// }
+void main() => runApp(MyApp());
 
-  runApp(FeedPage());
+class MyApp extends StatelessWidget {
+  // This widget is the root of your application.
+  @override
+  Widget build(BuildContext context2) {
+    final textTheme = Theme.of(context2).textTheme;
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+        textTheme:GoogleFonts.latoTextTheme(textTheme).copyWith(
+          bodyText1: GoogleFonts.montserrat(textStyle: textTheme.bodyText1),
+        ),
+      ),
+      debugShowCheckedModeBanner: false,
+      home: WelcomeScreen(),
+    );
+  }
 }
+
 
 //
 // final Future<FirebaseApp> _initialization = Firebase.initializeApp();
