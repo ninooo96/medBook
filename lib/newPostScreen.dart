@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'feedPage.dart';
@@ -28,6 +29,18 @@ class _NewPostScreenState extends State<NewPostScreen> {
           children: [drawDrawerHeader(), _populateHashtags()],
         )),
         appBar: AppBar(
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+            //
+            // leading: IconButton(
+            //   icon: Icon(Icons.menu),
+            //   onPressed: _openDrawer,
+            // ),
+          ),
           title: Text('Nuovo Post'),
           actions: [Container()],
         ),
@@ -226,12 +239,10 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
   void _sendPost() {
     FirebaseFirestore.instance
-        .collection("subscribers")
-        .doc(id_accesso.toString())
-        .get()
-        .then((querySnapshot) {
-      _sendPost2(querySnapshot.data()['nameProfile']);
-    });
+        .collection('subscribers').doc(FirebaseAuth.instance.currentUser.uid).get().then((value) =>
+        _sendPost2(value['name'] +
+            " " +
+            value['surname']));
   }
 
   void _sendPost2(nameProfile) async {
@@ -271,7 +282,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
       'agePatient': age,
       'sexPatient': sexPatient.toString(),
       'comments': [Map()],
-      'id': id_accesso,
+      'id': FirebaseAuth.instance.currentUser.uid,
       'timestamp': timeTmp.toUtc(),
       'hashtags': hashtagPost
     };
@@ -279,7 +290,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
         .collection('feed')
         .doc(nameProfile.toString().toLowerCase().replaceAll(' ', '') +
             "_" +
-            id_accesso.toString() +
+        FirebaseAuth.instance.currentUser.uid +
             "-" +
             timestamp)
         .set(newPost);

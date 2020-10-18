@@ -1,5 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:medbook/welcomeScreen.dart';
@@ -10,8 +10,9 @@ import 'newPostScreen.dart';
 import 'setting.dart';
 
 // import 'package:cloud_firestore/cloud_firestore.dart';
-final id_accesso = 1;
-// = FirebaseFirestore.instance.collection("subscribers").doc(id_accesso.toString()).get().then((querySnapshot) {
+// final id_accesso = 2;
+// = Firebase
+// Firestore.instance.collection("subscribers").doc(id_accesso.toString()).get().then((querySnapshot) {
 //    querySnapshot.data()['nameProfile'];});
 final hashtags = [
   'Dermatologia',
@@ -25,6 +26,8 @@ final hashtags = [
   'Neurologia',
   'Urologia'
 ];
+
+// String nameProfileid = 'Prova';
 // final dummySnapshot = [
 //   {
 //     'id':1,
@@ -96,12 +99,14 @@ class FeedPage extends StatelessWidget {
   //   // var db = FirebaseFirestore.instance.firestore();
   // }
   // @override
+
   Widget build(BuildContext context) {
-    Firebase.initializeApp();
+    // Firebase.initializeApp();
     //   // TODO: scrolling di ListView dei post
     return MaterialApp(
       routes: {
-        'welcome': (context) => WelcomeScreen(),},
+        'welcome': (context) => WelcomeScreen(),
+      },
       title: 'MedBook',
       theme: ThemeData(primaryColor: Colors.orange),
       home: MyFeedPage(title: 'MedBook'),
@@ -114,11 +119,13 @@ class MyFeedPage extends StatefulWidget {
 
   final String title;
 
+
   @override
   _MyFeedPageState createState() => _MyFeedPageState();
 }
 
 class _MyFeedPageState extends State<MyFeedPage> {
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -132,25 +139,25 @@ class _MyFeedPageState extends State<MyFeedPage> {
       ),
       drawer: Drawer(
           child: Column(
-        children: <Widget>[
-          drawDrawerHeader(),
-          ListView(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              children: _drawerTile()),
-          Expanded(
-              child: Align(
-                  alignment: FractionalOffset.bottomCenter,
-                  child: ListTile(
-                    title: Text(
-                      'Esci',
-                      textScaleFactor: 1.5,
-                    ),
-                    tileColor: Colors.red,
-                    onTap: _logout,
-                  )))
-        ],
-      )),
+            children: <Widget>[
+              drawDrawerHeader(),
+              ListView(
+                  scrollDirection: Axis.vertical,
+                  shrinkWrap: true,
+                  children: _drawerTile()),
+              Expanded(
+                  child: Align(
+                      alignment: FractionalOffset.bottomCenter,
+                      child: ListTile(
+                        title: Text(
+                          'Esci',
+                          textScaleFactor: 1.5,
+                        ),
+                        tileColor: Colors.red,
+                        onTap: _logout,
+                      )))
+            ],
+          )),
       appBar: CustomAppBar(
         appBar: AppBar(
           flexibleSpace: Container(
@@ -189,10 +196,10 @@ class _MyFeedPageState extends State<MyFeedPage> {
     return Container(
       height: 90.0,
       child: DrawerHeader(
-          // child: Text('Specializzazioni',
-          //     textScaleFactor: 1.8,
-          //     textAlign: TextAlign.left,
-          //     style: TextStyle(color: Colors.white)),
+        // child: Text('Specializzazioni',
+        //     textScaleFactor: 1.8,
+        //     textAlign: TextAlign.left,
+        //     style: TextStyle(color: Colors.white)),
           decoration: BoxDecoration(
               color: Colors.orange,
               gradient: LinearGradient(
@@ -203,7 +210,32 @@ class _MyFeedPageState extends State<MyFeedPage> {
     );
   }
 
-  _drawerTile() {
+// _drawerTile(List<Widget> drawerTile) {
+//   FirebaseFirestore.instance
+//       .collection('subscribers').doc(FirebaseAuth.instance.currentUser.uid).get().then((value) =>
+//       print(value['name'] +
+//           " " +
+//           value['surname']));
+//   FirebaseFirestore.instance
+//       .collection('subscribers').doc(FirebaseAuth.instance.currentUser.uid).get().then((value) =>
+//        _drawerTile2(value['name'] +
+//       " " +
+//       value['surname']));
+// }
+    // FutureBuilder<DocumentSnapshot>(
+    //     future: FirebaseFirestore.instance
+    //         .collection('subscribers')
+    //         .doc(FirebaseAuth.instance.currentUser.uid)
+    //         .get(),
+    //     builder: (BuildContext context,
+    //         AsyncSnapshot<DocumentSnapshot> snapshot) {
+    //       return _drawerTile2(snapshot.data.data()['name'] +
+    //           " " +
+    //           snapshot.data.data()['surname']);
+    //     }
+    // );
+  // }
+    _drawerTile(){
     List<Widget> drawerTile = [];
     drawerTile.add(ListTile(
       title: Text(
@@ -227,13 +259,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
         'Il mio profilo',
         textScaleFactor: 1.5,
       ),
-      onTap: () {
-        Navigator.of(context).pop();
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => MyProfile(id_accesso)),
-        );
-      },
+      onTap: myProfile
     ));
     drawerTile.add(Divider(
       thickness: 2,
@@ -260,8 +286,9 @@ class _MyFeedPageState extends State<MyFeedPage> {
   _logout() {
     //TODO scollegati da Firebase
     Navigator.of(context).popUntil(ModalRoute.withName('welcome'));
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => WelcomeScreen()));
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
+    FirebaseAuth.instance.signOut();
   }
 
   void _postWithMyHashtags() {
@@ -279,6 +306,25 @@ class _MyFeedPageState extends State<MyFeedPage> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => NewPostScreen()),
+    );
+  }
+
+  myProfile(){
+    FirebaseFirestore.instance
+      .collection('subscribers').doc(FirebaseAuth.instance.currentUser.uid).get().then((value) =>
+      myProfile2(value['name'] +
+          " " +
+          value['surname']));
+  }
+
+  myProfile2(String nameProfileId) {
+
+    Navigator.of(context).pop();
+    Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => MyProfile(nameProfileId, FirebaseAuth.instance.currentUser.uid),
+        )
     );
   }
 }
@@ -333,15 +379,17 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
               onTap: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => MyProfile(record.id)),
+                  MaterialPageRoute(
+                      builder: (context) => MyProfile(record.nameProfile, record.id.toString())),
                 );
               },
             ),
             ListTile(
                 title: Text('Età: ' +
                     (record.agePatient).toString() +
-                    ', Sesso: ' +
-                    (record.sexPatient) +
+                    (record.sexPatient == 'null'
+                        ? ''
+                        : (', Sesso: ' + (record.sexPatient))) +
                     (record.hashtags.length == 0
                         ? ''
                         : "\n# " +
@@ -423,7 +471,7 @@ class Record {
   final String post;
   final int agePatient;
   final int numComment;
-  final int id;
+  final String id;
   final String timestamp;
 
   final List comments;

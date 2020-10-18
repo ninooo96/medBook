@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:medbook/feedPage.dart';
@@ -15,6 +16,8 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  final emailController = TextEditingController();
+  final pwdController = TextEditingController();
   Widget _backButton() {
     return InkWell(
       onTap: () {
@@ -36,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _entryField(String title, {bool isPassword = false}) {
+  Widget _entryField(String title, TextEditingController controller, {bool isPassword = false}) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -50,6 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
             height: 10,
           ),
           TextField(
+              controller: controller,
               obscureText: isPassword,
               decoration: InputDecoration(
                   border: InputBorder.none,
@@ -61,7 +65,10 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _submitButton() {
-    return Container(
+    return
+      GestureDetector(
+        onTap: _loginButton,
+        child: Container(
       width: MediaQuery.of(context).size.width,
       padding: EdgeInsets.symmetric(vertical: 15),
       alignment: Alignment.center,
@@ -82,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
         'Login',
         style: TextStyle(fontSize: 20, color: Colors.white),
       ),
-    );
+    ));
   }
 
   Widget _divider() {
@@ -261,8 +268,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        _entryField("Email"),
-        _entryField("Password", isPassword: true),
+        _entryField("Email", emailController),
+        _entryField("Password", pwdController, isPassword: true),
       ],
     );
   }
@@ -312,5 +319,24 @@ class _LoginScreenState extends State<LoginScreen> {
         ],
       ),
     ));
+  }
+
+  void _loginButton() async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailController.text,
+          password: pwdController.text
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        print('No user found for that email.');
+      } else if (e.code == 'wrong-password') {
+        print('Wrong password provided for that user.');
+      }
+    }
+
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
+    Navigator.push(context, MaterialPageRoute(builder: (context) => FeedPage()));
   }
 }

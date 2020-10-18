@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-
+import 'package:medbook/feedPage.dart';
 // import 'package:flutter_login_signup/src/Widget/bezierContainer.dart';
 import 'package:medbook/loginScreen.dart';
 
@@ -14,6 +16,11 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
+  final nameController = TextEditingController();
+  final surnameController = TextEditingController();
+  final emailController = TextEditingController();
+  final pwdController = TextEditingController();
+
   Widget _backButton() {
     return InkWell(
       onTap: () {
@@ -35,7 +42,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  Widget _entryField(String title, {bool isPassword = false}) {
+  Widget _entryField(String title,  TextEditingController controller, {bool isPassword = false}) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -49,6 +56,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             height: 10,
           ),
           TextField(
+              controller: controller,
               obscureText: isPassword,
               decoration: InputDecoration(
                   border: InputBorder.none,
@@ -60,28 +68,33 @@ class _RegisterScreenState extends State<RegisterScreen> {
   }
 
   Widget _submitButton() {
-    return Container(
-      width: MediaQuery.of(context).size.width,
-      padding: EdgeInsets.symmetric(vertical: 15),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(5)),
-          boxShadow: <BoxShadow>[
-            BoxShadow(
-                color: Colors.grey.shade200,
-                offset: Offset(2, 4),
-                blurRadius: 5,
-                spreadRadius: 2)
-          ],
-          gradient: LinearGradient(
-              begin: Alignment.centerLeft,
-              end: Alignment.centerRight,
-              colors: [Color(0xfffbb448), Color(0xfff7892b)])),
-      child: Text(
-        'Registrati',
-        style: TextStyle(fontSize: 20, color: Colors.white),
-      ),
-    );
+    return GestureDetector(
+      onTap: _registerUser,
+      child:
+        Container(
+          width: MediaQuery.of(context).size.width,
+          padding: EdgeInsets.symmetric(vertical: 15),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.all(Radius.circular(5)),
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                    color: Colors.grey.shade200,
+                    offset: Offset(2, 4),
+                    blurRadius: 5,
+                    spreadRadius: 2)
+              ],
+              gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+          child: Text(
+            'Registrati',
+            style: TextStyle(fontSize: 20, color: Colors.white),
+          ),
+    ));
+
+
   }
 
   Widget _loginAccountLabel() {
@@ -105,18 +118,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
               width: 10,
             ),
             new GestureDetector(
-              onTap: (){
-                Navigator.of(context).pop();
-                Navigator.push(
-                    context, MaterialPageRoute(builder: (context) => LoginScreen()));
-              },
+                onTap: () {
+                  Navigator.of(context).pop();
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => LoginScreen()));
+                },
                 child: Text(
-              'Login',
-              style: TextStyle(
-                  color: Color(0xfff79c4f),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600),
-            )),
+                  'Login',
+                  style: TextStyle(
+                      color: Color(0xfff79c4f),
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600),
+                )),
           ],
         ),
       ),
@@ -160,10 +173,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget _emailPasswordWidget() {
     return Column(
       children: <Widget>[
-        _entryField("Nome"),
-        _entryField("Cognome"),
-        _entryField("Email"),
-        _entryField("Password", isPassword: true),
+        _entryField("Nome", nameController),
+        _entryField("Cognome", surnameController),
+        _entryField("Email", emailController),
+        _entryField("Password", pwdController, isPassword: true),
       ],
     );
   }
@@ -209,5 +222,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ),
       ),
     );
+  }
+
+  _registerUser() async{
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: emailController.text,
+          password: pwdController.text
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'weak-password') {
+        print('The password provided is too weak.');
+      } else if (e.code == 'email-already-in-use') {
+        print('The account already exists for that email.');
+      }
+    } catch (e) {
+      print(e);
+    }
+
+    CollectionReference users = FirebaseFirestore.instance.collection('subscribers');
+    print(users.get().then((value) => print(value)));
+
+
+
+    addUser();
+    Navigator.of(context).pop();
+    Navigator.of(context).pop();
+    Navigator.push(context, MaterialPageRoute(builder: (context) => FeedPage()));
+  }
+
+  addUser() {
+    // Call the user's CollectionReference to add a new user
+    return  FirebaseFirestore.instance.collection('subscribers')
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .set({
+      'name': nameController.text,
+      'surname': surnameController.text,
+      'id': 3
+    })
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
   }
 }

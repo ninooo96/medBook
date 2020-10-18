@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -14,13 +15,20 @@ import 'package:medbook/welcomeScreen.dart';
 //
 //   runApp(MyApp());
 // }
-void main() => runApp(MyApp());
+Future<FirebaseApp> _initialization = Firebase.initializeApp();
+
+final app = Firebase.app('MedBook');
+
+
+void main() => runApp(FirebaseInitializer());
 
 class MyApp extends StatelessWidget {
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context2) {
     final textTheme = Theme.of(context2).textTheme;
+    print('myApp');
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
@@ -35,38 +43,54 @@ class MyApp extends StatelessWidget {
   }
 }
 
+final FirebaseAuth auth = FirebaseAuth.instance;
+
 
 //
-// final Future<FirebaseApp> _initialization = Firebase.initializeApp();
 //
-// class FirebaseInitializer extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return FutureBuilder(
-//       // Initialize FlutterFire:
-//       future: _initialization,
-//       builder: (context, snapshot) {
-//         // Check for errors
-//         if (snapshot.hasError) {
-//           return SomethingWentWrong();
-//         }
-//
-//         // Once complete, show your application
-//         if (snapshot.connectionState == ConnectionState.done) {
-//           print('prova1');
-//           return FeedPage();
-//         }
-//
-//         // Otherwise, show something whilst waiting for initialization to complete
-//         return LinearProgressIndicator();
-//       },
-//     );
-//   }
-//
-//   Widget SomethingWentWrong() {
-//     print('error');
-//   }
-// }
+class FirebaseInitializer extends StatelessWidget {
+  @override
+  Widget build(BuildContext context2) {
+    FirebaseAuth.instance
+        .authStateChanges()
+        .listen((User user) {
+      if (user == null) {
+        print('User is currently signed out!');
+      } else {
+        print('User is signed in!');
+      }
+    });
+    return FutureBuilder(
+      // Initialize FlutterFire:
+      future: _initialization,
+      builder: (context2, snapshot) {
+        // Check for errors
+        if (snapshot.hasError) {
+          return SomethingWentWrong();
+        }
+
+        // Once complete, show your application
+        if (snapshot.connectionState == ConnectionState.done) {
+          print('prova1');
+          return MyApp();
+        }
+
+        // Otherwise, show something whilst waiting for initialization to complete
+        return Loading();
+      },
+    );
+  }
+
+  Widget SomethingWentWrong() {
+    print('error');
+    return Text('error');
+  }
+
+  Widget Loading() {
+    print('loading');
+    return Text('loading');
+  }
+}
 
 // class MyApp extends StatelessWidget {
 //   // This widget is the root of your application.

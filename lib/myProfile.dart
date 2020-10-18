@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:medbook/feedPage.dart';
 import 'package:medbook/welcomeScreen.dart';
@@ -6,22 +7,24 @@ import 'commentScreen.dart';
 import 'setting.dart';
 import 'newPostScreen.dart';
 
-String title;
+// String nameProfile;
 
 
 class MyProfile extends StatefulWidget {
   // String title ;
-  // int id_profile;
-  var id_profile;
-  MyProfile(id){
-    this.id_profile = id;
+  var idProfile;
+  var nameProfile;
+  MyProfile(nameProfile, idProfile){
+    this.nameProfile = nameProfile;
+    this.idProfile = idProfile;
+
   }
 //   String getTitle(){
 //     return title;
 // }
 
   @override
-  _MyProfileState createState() => _MyProfileState(id_profile);
+  _MyProfileState createState() => _MyProfileState(nameProfile, idProfile);
 
 
   // nameProfile(){
@@ -36,25 +39,28 @@ class MyProfile extends StatefulWidget {
 }
 
 class _MyProfileState extends State<MyProfile> {
-  var id_profile;
-  _MyProfileState(id){
-    this.id_profile = id;
+  var idProfile;
+  var nameProfile;
+  _MyProfileState(nameProfile, id){
+    this.idProfile = id;
+    this.nameProfile = nameProfile;
   }
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: FirebaseFirestore.instance.collection('subscribers').snapshots(),
-      builder: (context, snapshot) {
-        if (!snapshot.hasData) return LinearProgressIndicator();
-        print('OK2');
-        // print(snapshot.data.docs[id_accesso-1]['nameProfile']);
-        return  _build(context, snapshot.data.docs[id_profile-1]['nameProfile']);
-      },
-    );
+    return _build(context, nameProfile, idProfile);
+    // return StreamBuilder<QuerySnapshot>(
+    //   stream: FirebaseFirestore.instance.collection('subscribers').snapshots(),
+    //   builder: (context, snapshot) {
+    //     if (!snapshot.hasData) return LinearProgressIndicator();
+    //     print('OK2');
+    //     // print(snapshot.data.docs[id_accesso-1]['nameProfile']);
+    //     return  _build(context, snapshot.data.docs[id_profile-1]['nameProfile']);
+    //   },
+    // );
   }
 
-  Widget _build(BuildContext context, String nameProfile){
+  Widget _build(BuildContext context, String nameProfile,  String idProfile){
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -71,7 +77,7 @@ class _MyProfileState extends State<MyProfile> {
               ListView(
                   scrollDirection: Axis.vertical,
                   shrinkWrap: true,
-                  children: _drawerTile()
+                  children: _drawerTile(nameProfile, idProfile)
               ),
               Expanded(
                   child: Align(
@@ -91,6 +97,18 @@ class _MyProfileState extends State<MyProfile> {
           //   icon: Icon(Icons.menu),
           //   onPressed: _openDrawer,
           // ),
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+            //
+            // leading: IconButton(
+            //   icon: Icon(Icons.menu),
+            //   onPressed: _openDrawer,
+            // ),
+          ),
           title: Center(child: Text(nameProfile)),
           actions: [
             IconButton(icon: Icon(Icons.search), onPressed: _search),
@@ -108,7 +126,7 @@ class _MyProfileState extends State<MyProfile> {
         //   );
         // },
       ),
-      body: _buildBody(context, id_profile),
+      body: _buildBody(context, nameProfile, idProfile),
     );
   }
 
@@ -125,7 +143,7 @@ class _MyProfileState extends State<MyProfile> {
     );
   }
 
-  _drawerTile(){
+  _drawerTile(String nameProfile, String idProfile){
     List<Widget> drawerTile = [];
     drawerTile.add(ListTile(
       title: Text('Home', textScaleFactor: 1.5,),
@@ -147,7 +165,7 @@ class _MyProfileState extends State<MyProfile> {
         Navigator.of(context).pop();
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => MyProfile(id_profile)),
+          MaterialPageRoute(builder: (context) => MyProfile(nameProfile, idProfile)),
         );
       },
     ));
@@ -192,7 +210,7 @@ class _MyProfileState extends State<MyProfile> {
   }
 }
 
-Widget _buildBody(BuildContext context, int id_profile) {
+Widget _buildBody(BuildContext context, String nameProfile, String idProfile) {
   //TODO: estrai snapshot dal Cloud Firebase
   // List<Map> snapshot = dummySnapshot;
   // return _buildList(context, snapshot);
@@ -201,7 +219,7 @@ Widget _buildBody(BuildContext context, int id_profile) {
     builder: (context, snapshot) {
       if (!snapshot.hasData) return LinearProgressIndicator();
       print('OK');
-      return _buildList(context, snapshot.data.docs, id_profile);
+      return _buildList(context, snapshot.data.docs, nameProfile, idProfile);
     },
   );
 }
@@ -223,7 +241,7 @@ Widget _buildBody(BuildContext context, int id_profile) {
   // }
 
 
-Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot, int id_profile) {
+Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot, String nameProfile, String idProfile) {
   // var snapshot2 = snapshot.where((id) => id==id_accesso);
   // print(snapshot2);
 //
@@ -234,14 +252,16 @@ Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot, int id_
   // // print(record);
   // if( record.id==2){
   //   print(record.post);
-    children: snapshot.map((data) => _buildListItem(context, data, id_profile)).toList(),
+    children: snapshot.map((data) => _buildListItem(context, data, nameProfile, idProfile)).toList(),
   );
 }
 
-Widget _buildListItem(BuildContext context, DocumentSnapshot data, int id_profile) {
+Widget _buildListItem(BuildContext context, DocumentSnapshot data, String nameProfile, String idProfile) {
   var recordTmp;
   // title = nameProfile;
-  if(Record.fromSnapshot(data).id!=id_profile) return Container();
+  print('amnnaiaa');
+  print(idProfile);
+  if(Record.fromSnapshot(data).id!=idProfile) return Container();
   var record = Record.fromSnapshot(data);
 
   // if(recordTot.id==id_accesso){
@@ -370,7 +390,7 @@ class Record {
   final String post;
   final int agePatient;
   final int numComment;
-  final int id;
+  final String id;
 
   final List comments;
   final List hashtags;

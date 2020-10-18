@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'feedPage.dart';
@@ -54,8 +55,8 @@ class _CommentState extends State<Comment>{
     print(record);
     this.reference = reference;
     this.comments = comments;
-    this.votatoLike = record['idVotersLike'].contains(id_accesso) ? true : false;
-    this.votatoDislike = record['idVotersDislike'].contains(id_accesso) ? true : false;
+    this.votatoLike = record['idVotersLike'].contains(FirebaseAuth.instance.currentUser.uid) ? true : false;
+    this.votatoDislike = record['idVotersDislike'].contains(FirebaseAuth.instance.currentUser.uid) ? true : false;
   }
 
 
@@ -105,7 +106,7 @@ class _CommentState extends State<Comment>{
                                 // record.updateData({'upvote': upvote});
                                 comments.remove(record);
                                 record['upvote'] = upvote;
-                                record['idVotersLike'].add(id_accesso);
+                                record['idVotersLike'].add(FirebaseAuth.instance.currentUser.uid);
                                 print(record);
                                 comments.add(record);
                                 reference.update({'comments':comments});
@@ -116,7 +117,7 @@ class _CommentState extends State<Comment>{
                                 // reference.updateData({'upvote': upvote});
                                 comments.remove(record);
                                 record['upvote'] = upvote;
-                                record['idVotersLike'].remove(id_accesso);
+                                record['idVotersLike'].remove(FirebaseAuth.instance.currentUser.uid);
                                 print(record);
                                 comments.add(record);
                                 reference.update({'comments':comments});
@@ -143,7 +144,7 @@ class _CommentState extends State<Comment>{
                             downvote++;
                             comments.remove(record);
                             record['downvote'] = downvote;
-                            record['idVotersDislike'].add(id_accesso);
+                            record['idVotersDislike'].add(FirebaseAuth.instance.currentUser.uid);
                             print(record);
                             comments.add(record);
                             reference.update({'comments':comments});
@@ -153,7 +154,7 @@ class _CommentState extends State<Comment>{
                             downvote--;
                             comments.remove(record);
                             record['downvote'] = downvote;
-                            record['idVotersDislike'].remove(id_accesso);
+                            record['idVotersDislike'].remove(FirebaseAuth.instance.currentUser.uid);
                             print(record);
                             comments.add(record);
                             reference.update({'comments':comments});
@@ -280,7 +281,20 @@ class _CommentScreenState extends State<CommentScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('Commenti')),
+      appBar: AppBar(
+          flexibleSpace: Container(
+            decoration: BoxDecoration(
+                gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+            //
+            // leading: IconButton(
+            //   icon: Icon(Icons.menu),
+            //   onPressed: _openDrawer,
+            // ),
+          ),
+          title: Text('Commenti')),
       body: Column(
         children: [
           Flexible(
@@ -330,8 +344,14 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   void _handleSubmitted_tmp(comment){
-    FirebaseFirestore.instance.collection("subscribers").doc(id_accesso.toString()).get().then((querySnapshot) {
-      _handleSubmitted(comment, querySnapshot.data()['nameProfile']);});
+    // FirebaseFirestore.instance.collection("subscribers").doc(id_accesso.toString()).get().then((querySnapshot) {
+    //   _handleSubmitted(comment, querySnapshot.data()['nameProfile']);});
+
+    FirebaseFirestore.instance
+        .collection('subscribers').doc(FirebaseAuth.instance.currentUser.uid).get().then((value) =>
+        _handleSubmitted(comment, value['name'] +
+            " " +
+            value['surname']));
   }
 
   void _handleSubmitted(comment, nameProfile) {

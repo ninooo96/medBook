@@ -45,11 +45,12 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   }
 
   Widget _signUpButton() {
+    print('welcome');
     return InkWell(
-      onTap: () {
+      onTap:() {
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => RegisterScreen()));
-      },
+            context, MaterialPageRoute(builder: (context) => RegisterScreen()));},
+
       child: Container(
         width: MediaQuery
             .of(context)
@@ -157,7 +158,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           height: MediaQuery
               .of(context)
               .size
-              .height,
+              .height+20,
           decoration: BoxDecoration(
               borderRadius: BorderRadius.all(Radius.circular(5)),
               boxShadow: <BoxShadow>[
