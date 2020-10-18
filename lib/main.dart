@@ -15,71 +15,126 @@ import 'package:medbook/welcomeScreen.dart';
 //
 //   runApp(MyApp());
 // }
-Future<FirebaseApp> _initialization = Firebase.initializeApp();
+// Future<FirebaseApp> _initialization = Firebase.initializeApp();
 
 final app = Firebase.app('MedBook');
 
 
-void main() => runApp(FirebaseInitializer());
+void main() => runApp(App());
 
-class MyApp extends StatelessWidget {
 
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context2) {
-    final textTheme = Theme.of(context2).textTheme;
-    print('myApp');
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        textTheme:GoogleFonts.latoTextTheme(textTheme).copyWith(
-          bodyText1: GoogleFonts.montserrat(textStyle: textTheme.bodyText1),
-        ),
-      ),
-      debugShowCheckedModeBanner: false,
-      home: WelcomeScreen(),
-    );
-  }
+class App extends StatefulWidget {
+  _AppState createState() => _AppState();
 }
 
-final FirebaseAuth auth = FirebaseAuth.instance;
+class _AppState extends State<App> {
+  // Set default `_initialized` and `_error` state to false
+  bool _initialized = false;
+  bool _error = false;
 
-
-//
-//
-class FirebaseInitializer extends StatelessWidget {
-  @override
-  Widget build(BuildContext context2) {
-    FirebaseAuth.instance
-        .authStateChanges()
-        .listen((User user) {
-      if (user == null) {
-        print('User is currently signed out!');
-      } else {
-        print('User is signed in!');
-      }
-    });
-    return FutureBuilder(
-      // Initialize FlutterFire:
-      future: _initialization,
-      builder: (context2, snapshot) {
-        // Check for errors
-        if (snapshot.hasError) {
-          return SomethingWentWrong();
-        }
-
-        // Once complete, show your application
-        if (snapshot.connectionState == ConnectionState.done) {
-          print('prova1');
-          return MyApp();
-        }
-
-        // Otherwise, show something whilst waiting for initialization to complete
-        return Loading();
-      },
-    );
+  // Define an async function to initialize FlutterFire
+  void initializeFlutterFire() async {
+    try {
+      // Wait for Firebase to initialize and set `_initialized` state to true
+      await Firebase.initializeApp();
+      setState(() {
+        _initialized = true;
+      });
+    } catch(e) {
+      // Set `_error` state to true if Firebase initialization fails
+      setState(() {
+        _error = true;
+      });
+    }
   }
+
+  @override
+  void initState() {
+    initializeFlutterFire();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // Show error message if initialization failed
+    if(_error) {
+      return SomethingWentWrong();
+    }
+
+    // Show a loader until FlutterFire is initialized
+    if (!_initialized) {
+      return Loading();
+    }
+
+    return MaterialApp(
+        home: Scaffold(
+          body: WelcomeScreen()
+    ));
+  }
+
+
+
+
+
+
+// class MyApp extends StatelessWidget {
+//
+//   // This widget is the root of your application.
+//   @override
+//   Widget build(BuildContext context2) {
+//     final textTheme = Theme.of(context2).textTheme;
+//     print('myApp');
+//     return MaterialApp(
+//       title: 'Flutter Demo',
+//       theme: ThemeData(
+//         primarySwatch: Colors.blue,
+//         textTheme:GoogleFonts.latoTextTheme(textTheme).copyWith(
+//           bodyText1: GoogleFonts.montserrat(textStyle: textTheme.bodyText1),
+//         ),
+//       ),
+//       debugShowCheckedModeBanner: false,
+//       home: WelcomeScreen(),
+//     );
+//   }
+// }
+//
+// final FirebaseAuth auth = FirebaseAuth.instance;
+
+
+//
+//
+// class FirebaseInitializer extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context2) {
+//     FirebaseAuth.instance
+//         .authStateChanges()
+//         .listen((User user) {
+//       if (user == null) {
+//         print('User is currently signed out!');
+//       } else {
+//         print('User is signed in!');
+//       }
+//     });
+//     return FutureBuilder(
+//       // Initialize FlutterFire:
+//       future: _initialization,
+//       builder: (context2, snapshot) {
+//         // Check for errors
+//         if (snapshot.hasError) {
+//           return SomethingWentWrong();
+//         }
+//
+//         // Once complete, show your application
+//         if (snapshot.connectionState == ConnectionState.done) {
+//           print('prova1');
+//           return MyApp();
+//         }
+//
+//         // Otherwise, show something whilst waiting for initialization to complete
+//         return Loading();
+//       },
+//     );
+//   }
 
   Widget SomethingWentWrong() {
     print('error');
@@ -88,7 +143,7 @@ class FirebaseInitializer extends StatelessWidget {
 
   Widget Loading() {
     print('loading');
-    return Text('loading');
+    return Container();
   }
 }
 
