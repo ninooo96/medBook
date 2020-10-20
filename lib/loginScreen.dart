@@ -1,12 +1,18 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:medbook/feedPage.dart';
 import 'package:medbook/registerScreen.dart';
 
 // import 'Widget/bezierContainer.dart';
 
 class LoginScreen extends StatefulWidget {
+
+  GoogleSignIn _googleSignIn = GoogleSignIn();
+  var _auth = FirebaseAuth.instance;
   LoginScreen({Key key, this.title}) : super(key: key);
 
   final String title;
@@ -134,10 +140,14 @@ class _LoginScreenState extends State<LoginScreen> {
           height: 30,
         ),
         onPressed: () {
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => FeedPage()));
+          print('loginG1');
+          _loginGoogle();
+          print('loginG2');
+
+          // Navigator.of(context).pop();
+          //   Navigator.of(context).pop();
+          //   Navigator.push(
+          //       context, MaterialPageRoute(builder: (context) => FeedPage()));
           },
 
       ),
@@ -299,13 +309,16 @@ class _LoginScreenState extends State<LoginScreen> {
                   _emailPasswordWidget(),
                   SizedBox(height: 20),
                   _submitButton(),
+                  GestureDetector(
+                    onTap: resetPassword,
+                    child:
                   Container(
                     padding: EdgeInsets.symmetric(vertical: 10),
                     alignment: Alignment.centerRight,
-                    child: Text('Forgot Password ?',
+                    child: Text('Password dimenticata?',
                         style: TextStyle(
                             fontSize: 14, fontWeight: FontWeight.w500)),
-                  ),
+                  )),
                   _divider(),
                   Divider(),
                   _googleButton(),
@@ -326,17 +339,97 @@ class _LoginScreenState extends State<LoginScreen> {
       UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text,
           password: pwdController.text
+
       );
+      // if (userCredential.user.isEmailVerified) return userCredential.user.uid;
+      // else return null;
+      Navigator.of(context).pop();
+      Navigator.of(context).pop();
+      Navigator.push(context, MaterialPageRoute(builder: (context) => FeedPage()));
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
-        print('No user found for that email.');
+        print('Non è registrato nessun utente con questa e-mail');
+
       } else if (e.code == 'wrong-password') {
-        print('Wrong password provided for that user.');
+        print('Password errata');
+        Flushbar(
+          // padding: EdgeInsets.all(10),
+          // borderRadius: 8,
+          //
+          // // backgroundGradient: LinearGradient(
+          // //   colors: [Colors.green.shade800, Colors.greenAccent.shade700],
+          // //   stops: [0.6, 1],
+          // // ),
+          // boxShadows: [
+          //   BoxShadow(
+          //
+          //     color: Colors.black45,
+          //     offset: Offset(6, 6),
+          //     blurRadius: 3,
+          //   ),
+          // ],
+          message: 'Password errata',
+          duration: Duration(seconds: 3),
+        ).show(context);
+
       }
     }
 
-    Navigator.of(context).pop();
-    Navigator.of(context).pop();
-    Navigator.push(context, MaterialPageRoute(builder: (context) => FeedPage()));
+
   }
+
+  Future<UserCredential> _loginGoogle() async {
+     // signInWithGoogle()  {
+      // Trigger the authentication flow
+      final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+
+      // Obtain the auth details from the request
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      // Create a new credential
+      final GoogleAuthCredential credentialG = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+
+
+      // Once signed in, return the UserCredential,
+      UserCredential _user = await FirebaseAuth.instance.signInWithCredential(credentialG);
+      addUser(_user);
+      Navigator.of(context).pop();
+        Navigator.of(context).pop();
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => FeedPage()));
+      return _user;
+    }
+
+
+  addUser(UserCredential user) {
+    // Call the user's CollectionReference to add a new user
+    return  FirebaseFirestore.instance.collection('subscribers')
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .update({
+      'name': user.user.displayName,
+      'id': user.user.uid
+    })
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
+  }
+
+    @override
+    Future<void> resetPassword() async {
+     try {
+        await FirebaseAuth.instance.sendPasswordResetEmail(
+            email: emailController.text);
+      }catch(e){
+        print("Inserisci l'e-mail che hai usato per la registrazione");
+        Flushbar(
+          message: "Inserisci l'e-mail che hai usato per la registrazione",
+          duration: Duration(seconds: 3),
+        ).show(context);
+      }
+    }
+
 }
+

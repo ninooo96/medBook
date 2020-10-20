@@ -56,6 +56,17 @@ class _AppState extends State<App> {
 
   @override
   Widget build(BuildContext context) {
+    FirebaseAuth.instance
+        .authStateChanges()
+        .listen((User user) {
+      if (user == null) {
+        print('User is currently signed out!');
+      } else {
+        print('User is signed in!');
+      }
+    });
+
+
     // Show error message if initialization failed
     if(_error) {
       return SomethingWentWrong();

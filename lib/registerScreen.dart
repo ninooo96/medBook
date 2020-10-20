@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:medbook/feedPage.dart';
@@ -230,11 +231,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
           email: emailController.text,
           password: pwdController.text
       );
+      try {
+        await userCredential.user.sendEmailVerification();
+        return userCredential.user.uid;
+      } catch (e) {
+        print("An error occured while trying to send email        verification");
+        print(e.message);
+      }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'weak-password') {
-        print('The password provided is too weak.');
+        print('La password è troppo semplice');
+        Flushbar(
+          message:'La password è troppo semplice' ,
+          duration: Duration(seconds: 3),
+        );
       } else if (e.code == 'email-already-in-use') {
-        print('The account already exists for that email.');
+        print('Esiste già un account registrato con questa e-mail');
+        Flushbar(
+          message:'Esiste già un account registrato con questa e-mail' ,
+          duration: Duration(seconds: 3),
+        );
       }
     } catch (e) {
       print(e);
@@ -256,8 +272,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return  FirebaseFirestore.instance.collection('subscribers')
         .doc(FirebaseAuth.instance.currentUser.uid)
         .set({
-      'name': nameController.text,
-      'surname': surnameController.text,
+      'name': nameController.text+" "+surnameController.text,
       'id': 3
     })
         .then((value) => print("User Added"))

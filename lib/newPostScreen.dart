@@ -240,9 +240,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   void _sendPost() {
     FirebaseFirestore.instance
         .collection('subscribers').doc(FirebaseAuth.instance.currentUser.uid).get().then((value) =>
-        _sendPost2(value['name'] +
-            " " +
-            value['surname']));
+        _sendPost2(value['name']));
   }
 
   void _sendPost2(nameProfile) async {

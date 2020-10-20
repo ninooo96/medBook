@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -27,6 +28,7 @@ final hashtags = [
   'Urologia'
 ];
 
+Map<String, dynamic> info;
 // String nameProfileid = 'Prova';
 // final dummySnapshot = [
 //   {
@@ -93,14 +95,59 @@ final hashtags = [
 //   },
 // ];
 
+
 class FeedPage extends StatelessWidget {
   // FeedPage() {
   //   Firebase.initializeApp();
   //   // var db = FirebaseFirestore.instance.firestore();
   // }
-  // @override
+  Map<String, dynamic>  getInfo(){
+    return info;
+  }
+
+  // // @override
+  // Widget _info(){
+  //   return FutureBuilder<DocumentSnapshot>(
+  //     future: FirebaseFirestore.instance
+  //         .collection('subscribers')
+  //         .doc(FirebaseAuth.instance.currentUser.uid)
+  //         .get(),
+  //     builder: (BuildContext context,
+  //         AsyncSnapshot<DocumentSnapshot> snapshot) {
+  //       if (snapshot.hasError) {
+  //         return Text("Something went wrong");
+  //       }
+  //
+  //       if (snapshot.connectionState == ConnectionState.done) {
+  //         Map<String, dynamic> user = snapshot.data.data();
+  //         // monthBirth = user['monthBirth'];
+  //         info = {'name': user['name'],
+  //           'provinciaOrdine':user['provinciaOrdine'],
+  //           'dayBirth': user['dayBirth'],
+  //           'monthBirth':user['monthBirth'],
+  //           'yearBirth': user['yearBirth'],
+  //           'numeroOrdine': user['numeroOrdine']
+  //         };
+  //         return Text('ciao');
+  //       }
+  //
+  //       return Text("loading");
+  //     },
+  //   );
+  // }
 
   Widget build(BuildContext context) {
+    FirebaseFirestore.instance.collection('subscribers').doc(FirebaseAuth.instance.currentUser.uid).get().then((user) =>
+    info = {'name': user['name'],
+      'provinciaOrdine':user['provinciaOrdine'],
+      'dayBirth': user['dayBirth'],
+      'monthBirth':user['monthBirth'],
+      'yearBirth': user['yearBirth'],
+      'numOrdine': user['numOrdine'],
+      'specializzazioni' : user['specializzazioni']
+    });
+
+  print(info);
     // Firebase.initializeApp();
     //   // TODO: scrolling di ListView dei post
     return MaterialApp(
@@ -312,9 +359,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
   myProfile(){
     FirebaseFirestore.instance
       .collection('subscribers').doc(FirebaseAuth.instance.currentUser.uid).get().then((value) =>
-      myProfile2(value['name'] +
-          " " +
-          value['surname']));
+      myProfile2(value['name']));
   }
 
   myProfile2(String nameProfileId) {
