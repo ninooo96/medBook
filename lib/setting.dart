@@ -176,9 +176,9 @@ class _SettingState extends State<Setting> {
   String provincia;
   bool changedMonth=false;
   bool changedProvincia = false;
-  bool openNowMonth = true;
-  bool openNowProvincia = true;
   bool openNow = true;
+  // bool openNowProvincia = true;
+  // bool openNow = true;
 
 
   // Widget _backButton() {
@@ -661,7 +661,7 @@ class _SettingState extends State<Setting> {
                     children: [
                       Expanded(
                           child: TextFormField(
-                              onTap: (){openNowMonth = false;},
+                              onTap: (){openNow = false;},
                        controller: _dayController,
                               decoration: InputDecoration(
                                   border: InputBorder.none,
@@ -699,7 +699,7 @@ class _SettingState extends State<Setting> {
                           )),
                       Expanded(
                           child: TextFormField(
-                            onTap: (){openNowProvincia = false;},
+                            onTap: (){openNow = false;},
                             controller: _yearController,
                               decoration: InputDecoration(
                                   border: InputBorder.none,
