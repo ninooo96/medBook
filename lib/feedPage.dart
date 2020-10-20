@@ -105,6 +105,10 @@ class FeedPage extends StatelessWidget {
     return info;
   }
 
+  void setInfo(infoNew){
+    info = infoNew;
+  }
+
   // // @override
   // Widget _info(){
   //   return FutureBuilder<DocumentSnapshot>(
@@ -317,6 +321,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
         textScaleFactor: 1.5,
       ),
       onTap: () {
+        Navigator.of(context).pop();
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => Setting()),
@@ -331,7 +336,6 @@ class _MyFeedPageState extends State<MyFeedPage> {
   }
 
   _logout() {
-    //TODO scollegati da Firebase
     Navigator.of(context).popUntil(ModalRoute.withName('welcome'));
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => WelcomeScreen()));

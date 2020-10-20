@@ -173,6 +173,7 @@ class _MyProfileState extends State<MyProfile> {
     drawerTile.add(ListTile(
       title: Text('Impostazioni',textScaleFactor: 1.5,),
       onTap: (){
+        Navigator.of(context).pop();
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => Setting()),

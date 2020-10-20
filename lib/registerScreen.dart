@@ -232,10 +232,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
           password: pwdController.text
       );
       try {
+        Flushbar(
+          message: "Abbiamo inviato un'email di verifica dell'account, clicca il link per confermare ed esegui l'accesso",
+          duration: Duration(seconds: 4),
+        ).show(context);
+        Future.delayed(Duration(seconds: 5), () {
+          Navigator.of(context).pop();});
         await userCredential.user.sendEmailVerification();
-        return userCredential.user.uid;
+        // CollectionReference users = FirebaseFirestore.instance.collection('subscribers');
+        // print(users.get().then((value) => print(value)));
+        print('prova e-mail');
+        FirebaseFirestore.instance.collection('subscribers')
+            .doc(FirebaseAuth.instance.currentUser.uid)
+            .set({
+          'name': nameController.text + " " + surnameController.text,
+        });
+
+        // return userCredential.user.uid;
       } catch (e) {
-        print("An error occured while trying to send email        verification");
+        print("An error occured while trying to send email verification");
         print(e.message);
       }
     } on FirebaseAuthException catch (e) {
@@ -253,29 +268,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       }
     } catch (e) {
+      print('ciaoooo');
       print(e);
     }
 
-    CollectionReference users = FirebaseFirestore.instance.collection('subscribers');
-    print(users.get().then((value) => print(value)));
 
-
-
-    addUser();
-    Navigator.of(context).pop();
-    Navigator.of(context).pop();
-    Navigator.push(context, MaterialPageRoute(builder: (context) => FeedPage()));
+    // Navigator.of(context).pop();
+    // Navigator.push(context, MaterialPageRoute(builder: (context) => FeedPage()));
   }
 
-  addUser() {
-    // Call the user's CollectionReference to add a new user
-    return  FirebaseFirestore.instance.collection('subscribers')
-        .doc(FirebaseAuth.instance.currentUser.uid)
-        .set({
-      'name': nameController.text+" "+surnameController.text,
-      'id': 3
-    })
-        .then((value) => print("User Added"))
-        .catchError((error) => print("Failed to add user: $error"));
-  }
+
 }

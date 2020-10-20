@@ -343,9 +343,17 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       // if (userCredential.user.isEmailVerified) return userCredential.user.uid;
       // else return null;
-      Navigator.of(context).pop();
-      Navigator.of(context).pop();
-      Navigator.push(context, MaterialPageRoute(builder: (context) => FeedPage()));
+      if(userCredential.user.emailVerified) {
+        DocumentSnapshot ds = await FirebaseFirestore.instance.collection(
+            "subscribers").doc(FirebaseAuth.instance.currentUser.uid).get();
+        if (!ds.exists) addUser2();
+        // Navigator.of(context).pop();
+
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => FeedPage()));
+      }
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         print('Non è registrato nessun utente con questa e-mail');
@@ -396,7 +404,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // Once signed in, return the UserCredential,
       UserCredential _user = await FirebaseAuth.instance.signInWithCredential(credentialG);
-      addUser(_user);
+      DocumentSnapshot ds = await FirebaseFirestore.instance.collection("subscribers").doc(FirebaseAuth.instance.currentUser.uid).get();
+      // if(!ds.exists) addUser(_user);
+      if(_user.user.emailVerified) {
+        DocumentSnapshot ds = await FirebaseFirestore.instance.collection(
+            "subscribers").doc(FirebaseAuth.instance.currentUser.uid).get();
+        if (!ds.exists) addUser(_user);
+        // Navigator.of(context).pop();
+      }
       Navigator.of(context).pop();
         Navigator.of(context).pop();
         Navigator.push(
@@ -409,9 +424,15 @@ class _LoginScreenState extends State<LoginScreen> {
     // Call the user's CollectionReference to add a new user
     return  FirebaseFirestore.instance.collection('subscribers')
         .doc(FirebaseAuth.instance.currentUser.uid)
-        .update({
+        .set({
       'name': user.user.displayName,
-      'id': user.user.uid
+      'id': user.user.uid,
+      'dayBirth': ' ',
+      'monthBirth': ' ',
+      'yearBirth' : ' ',
+      'numOrdine': ' ',
+      'provinciaOrdine':' ',
+      'specializzazioni': ' '
     })
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));
@@ -430,6 +451,24 @@ class _LoginScreenState extends State<LoginScreen> {
         ).show(context);
       }
     }
+
+  addUser2() {
+    // Call the user's CollectionReference to add a new user
+    return  FirebaseFirestore.instance.collection('subscribers')
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .set({
+      // 'name': FirebaseAuth.instance.currentUser.displayName,//nameController.text+" "+surnameController.text,
+      'id': FirebaseAuth.instance.currentUser.uid,
+      'dayBirth': ' ',
+      'monthBirth': ' ',
+      'yearBirth' : ' ',
+      'numOrdine': ' ',
+      'provinciaOrdine':' ',
+      'specializzazioni': ' '
+    })
+        .then((value) => print("User Added"))
+        .catchError((error) => print("Failed to add user: $error"));
+  }
 
 }
 

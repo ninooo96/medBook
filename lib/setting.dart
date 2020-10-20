@@ -21,8 +21,11 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:medbook/feedPage.dart';
+import 'package:medbook/welcomeScreen.dart';
 
 class Setting extends StatefulWidget {
   Setting({Key key, this.title}) : super(key: key);
@@ -45,6 +48,7 @@ class _SettingState extends State<Setting> {
   final _yearController = TextEditingController();
   bool cambiaPassword = false;
   List<String> _months = [
+    ' ',
     'Gennaio',
     'Febbraio',
     'Marzo',
@@ -60,126 +64,127 @@ class _SettingState extends State<Setting> {
   ];
 
   List<String> provinces = [
+    " ",
     "Agrigento",
-        "Alessandria",
-        "Ancona",
-        "Aosta",
-        "Ascoli Piceno",
-        "L'Aquila",
-        "Arezzo",
-        "Asti",
-        "Avellino",
-        "Bari",
-        "Bergamo",
-        "Biella",
-        "Belluno",
-        "Benevento",
-        "Bologna",
-        "Brindisi",
-        "Brescia",
-        "Barletta-Andria-Trani",
-        "Bolzano",
-        "Cagliari",
-        "Campobasso",
-        "Caserta",
-        "Chieti",
-        "Carbonia-Iglesias",
-        "Caltanissetta",
-        "Cuneo",
-        "Como",
-        "Cremona",
-        "Cosenza",
-        "Catania",
-        "Catanzaro",
-        "Enna",
-        "Forlì-Cesena",
-        "Ferrara",
-        "Foggia",
-        "Firenze",
-        "Fermo",
-        "Frosinone",
-        "Genova",
-        "Gorizia",
-        "Grosseto",
-        "Imperia",
-        "Isernia",
-        "Crotone",
-        "Lecco",
-        "Lecce",
-        "Livorno",
-        "Lodi",
-        "Latina",
-        "Lucca",
-        "Monza e Brianza",
-        "Macerata",
-        "Messina",
-        "Milano",
-        "Mantova",
-        "Modena",
-        "Massa e Carrara",
-        "Matera",
-        "Napoli",
-        "Novara",
-        "Nuoro",
-        "Ogliastra",
-        "Oristano",
-        "Olbia-Tempio",
-        "Palermo",
-        "Piacenza",
-        "Padova",
-        "Pescara",
-        "Perugia",
-        "Pisa",
-        "Pordenone",
-        "Prato",
-        "Parma",
-        "Pistoia",
-        "Pesaro and Urbino",
-        "Pavia",
-        "Potenza",
-        "Ravenna",
-        "Reggio Calabria",
-        "Reggio Emilia",
-        "Ragusa",
-        "Rieti",
-        "Roma",
-        "Rimini",
-        "Rovigo",
-        "Salerno",
-        "Siena",
-        "Sondrio",
-        "La Spezia",
-        "Siracusa",
-        "Sassari",
-        "Savona",
-        "Taranto",
-        "Teramo",
-        "Trento",
-        "Torino",
-        "Trapani",
-        "Terni",
-        "Trieste",
-        "Treviso",
-        "Udine",
-        "Varese",
-        "Verbano-Cusio-Ossola",
-        "Vercelli",
-        "Venezia",
-        "Vicenza",
-        "Verona",
-        "Medio Campidano",
-        "Viterbo",
-        "Vibo Valentia",
+    "Alessandria",
+    "Ancona",
+    "Aosta",
+    "Ascoli Piceno",
+    "L'Aquila",
+    "Arezzo",
+    "Asti",
+    "Avellino",
+    "Bari",
+    "Bergamo",
+    "Biella",
+    "Belluno",
+    "Benevento",
+    "Bologna",
+    "Brindisi",
+    "Brescia",
+    "Barletta-Andria-Trani",
+    "Bolzano",
+    "Cagliari",
+    "Campobasso",
+    "Caserta",
+    "Chieti",
+    "Carbonia-Iglesias",
+    "Caltanissetta",
+    "Cuneo",
+    "Como",
+    "Cremona",
+    "Cosenza",
+    "Catania",
+    "Catanzaro",
+    "Enna",
+    "Forlì-Cesena",
+    "Ferrara",
+    "Foggia",
+    "Firenze",
+    "Fermo",
+    "Frosinone",
+    "Genova",
+    "Gorizia",
+    "Grosseto",
+    "Imperia",
+    "Isernia",
+    "Crotone",
+    "Lecco",
+    "Lecce",
+    "Livorno",
+    "Lodi",
+    "Latina",
+    "Lucca",
+    "Monza e Brianza",
+    "Macerata",
+    "Messina",
+    "Milano",
+    "Mantova",
+    "Modena",
+    "Massa e Carrara",
+    "Matera",
+    "Napoli",
+    "Novara",
+    "Nuoro",
+    "Ogliastra",
+    "Oristano",
+    "Olbia-Tempio",
+    "Palermo",
+    "Piacenza",
+    "Padova",
+    "Pescara",
+    "Perugia",
+    "Pisa",
+    "Pordenone",
+    "Prato",
+    "Parma",
+    "Pistoia",
+    "Pesaro and Urbino",
+    "Pavia",
+    "Potenza",
+    "Ravenna",
+    "Reggio Calabria",
+    "Reggio Emilia",
+    "Ragusa",
+    "Rieti",
+    "Roma",
+    "Rimini",
+    "Rovigo",
+    "Salerno",
+    "Siena",
+    "Sondrio",
+    "La Spezia",
+    "Siracusa",
+    "Sassari",
+    "Savona",
+    "Taranto",
+    "Teramo",
+    "Trento",
+    "Torino",
+    "Trapani",
+    "Terni",
+    "Trieste",
+    "Treviso",
+    "Udine",
+    "Varese",
+    "Verbano-Cusio-Ossola",
+    "Vercelli",
+    "Venezia",
+    "Vicenza",
+    "Verona",
+    "Medio Campidano",
+    "Viterbo",
+    "Vibo Valentia",
   ];
   Map<String, dynamic> info = FeedPage().getInfo();
   String monthBirth; //= FirebaseAuth.instance.currentUser.providerData.;
   String provincia;
-  bool changedMonth=false;
+  bool changedMonth = false;
   bool changedProvincia = false;
   bool openNow = true;
+
   // bool openNowProvincia = true;
   // bool openNow = true;
-
 
   // Widget _backButton() {
   //   return InkWell(
@@ -222,8 +227,8 @@ class _SettingState extends State<Setting> {
               decoration: InputDecoration(
                   hintText: isPassword
                       ? cambiaPassword
-                      ? 'Scrivi la tua nuova password'
-                      : ''
+                          ? 'Scrivi la tua nuova password'
+                          : ''
                       : '',
                   enabled: isEnabled,
                   border: InputBorder.none,
@@ -236,12 +241,9 @@ class _SettingState extends State<Setting> {
 
   Widget _submitButton() {
     return GestureDetector(
-      onTap: _updateUserInfo,
+        onTap: _updateUserInfo,
         child: Container(
-          width: MediaQuery
-              .of(context)
-              .size
-              .width,
+          width: MediaQuery.of(context).size.width,
           padding: EdgeInsets.symmetric(vertical: 15),
           alignment: Alignment.center,
           decoration: BoxDecoration(
@@ -359,74 +361,71 @@ class _SettingState extends State<Setting> {
 
   @override
   Widget build(BuildContext context) {
-    final height = MediaQuery
-        .of(context)
-        .size
-        .height;
+    final height = MediaQuery.of(context).size.height;
     // provincia = info['provinciaOrdine'];
 
-    if(openNow) {
-      _nameController.text = FirebaseAuth.instance.currentUser.displayName;
+    if (openNow) {
+      _nameController.text = info['name'];
       _emailController.text = FirebaseAuth.instance.currentUser.email;
       _dayController.text = info['dayBirth'].toString();
       _yearController.text = info['yearBirth'].toString();
       _specializzazioniController.text = info['specializzazioni'];
       _numOrdineController.text = info['numOrdine'].toString();
     }
-      return Scaffold(
-        appBar: AppBar(
-          title: Text('Impostazioni'),
-          actions: <Widget>[
-            PopupMenuButton<String>(
-                onSelected: handleClick,
-                itemBuilder: (BuildContext context) {
-                  return {'Cambia password'}.map((String choice) {
-                    return PopupMenuItem<String>(
-                        value: choice, child: Text(choice));
-                  }).toList();
-                })
-          ],
-        ),
-        body: Container(
-          height: height,
-          child: Stack(
-            children: <Widget>[
-              // Positioned(
-              //   top: -MediaQuery.of(context).size.height * .15,
-              //   right: -MediaQuery.of(context).size.width * .4,
-              //   child: BezierContainer(),
-              // ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Impostazioni'),
+        actions: <Widget>[
+          PopupMenuButton<String>(
+              onSelected: handleClick,
+              itemBuilder: (BuildContext context) {
+                return {'Cambia password', 'Elimina utente'}
+                    .map((String choice) {
+                  return PopupMenuItem<String>(
+                      value: choice, child: Text(choice));
+                }).toList();
+              })
+        ],
+      ),
+      body: Container(
+        height: height,
+        child: Stack(
+          children: <Widget>[
+            // Positioned(
+            //   top: -MediaQuery.of(context).size.height * .15,
+            //   right: -MediaQuery.of(context).size.width * .4,
+            //   child: BezierContainer(),
+            // ),
 
-              Container(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      // SizedBox(height: height * 0.15),
-                      // _title(),
-                      SizedBox(
-                        height: 30,
-                      ),
-                      _emailPasswordWidget(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      _submitButton(),
-                      SizedBox(height: height * .05),
-                      // _loginAccountLabel(),
-                    ],
-                  ),
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    // SizedBox(height: height * 0.15),
+                    // _title(),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    _emailPasswordWidget(),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    _submitButton(),
+                    SizedBox(height: height * .05),
+                    // _loginAccountLabel(),
+                  ],
                 ),
               ),
-              // Positioned(top: 40, left: 0, child: _backButton()),
-            ],
-          ),
+            ),
+            // Positioned(top: 40, left: 0, child: _backButton()),
+          ],
         ),
-      );
-    }
-
+      ),
+    );
+  }
 
 // _registerUser() async {
 //   try {
@@ -596,22 +595,53 @@ class _SettingState extends State<Setting> {
           cambiaPassword = true;
           // print(cambiaPassword);
           break;
+
+        case 'Elimina utente':
+          showDialog(
+              context: context,
+              builder: (context) {
+                return AlertDialog(
+                  title: Text("Sicuro di voler eliminare l'account?"),
+                  content: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      FlatButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                          child: Text(
+                            'No',
+                            textScaleFactor: 1.5,
+                          )),
+                      FlatButton(
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                            _deleteAccount();
+                          },
+                          child: Text(
+                            'Sì',
+                            textScaleFactor: 1.5,
+                          ))
+                    ],
+                  ),
+                );
+              });
       }
     });
   }
 
   // Widget _dateBirth() {
-    // try {
-    //   FirebaseFirestore.instance
-    //       .collection('subscribers')
-    //       .doc(FirebaseAuth.instance.currentUser.uid)
-    //       .get()
-    //       .then((user) =>
-    //       _dateBirth2(
-    //           user['dayBirth'], user['monthBirth'], user['yearBirth']));
-    // } catch (e){
-    //   _dateBirthAssente();
-    // }
+  // try {
+  //   FirebaseFirestore.instance
+  //       .collection('subscribers')
+  //       .doc(FirebaseAuth.instance.currentUser.uid)
+  //       .get()
+  //       .then((user) =>
+  //       _dateBirth2(
+  //           user['dayBirth'], user['monthBirth'], user['yearBirth']));
+  // } catch (e){
+  //   _dateBirthAssente();
+  // }
 
   //   return FutureBuilder<DocumentSnapshot>(
   //     future: FirebaseFirestore.instance
@@ -640,7 +670,7 @@ class _SettingState extends State<Setting> {
   Widget _dateBirth() {
     // print(day.toString() + ' ' + month + ' ' + year.toString());
 
-    if(!changedMonth) monthBirth = info['monthBirth'];
+    if (!changedMonth) monthBirth = info['monthBirth'];
     print(monthBirth);
     return Container(
         margin: EdgeInsets.symmetric(vertical: 10),
@@ -655,61 +685,64 @@ class _SettingState extends State<Setting> {
                 height: 10,
               ),
               Container(
-                // height: MediaQuery.of(context).size.height,
+                  // height: MediaQuery.of(context).size.height,
 
                   child: Row(
-                    children: [
-                      Expanded(
-                          child: TextFormField(
-                              onTap: (){openNow = false;},
-                       controller: _dayController,
-                              decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  fillColor: Color(0xfff3f3f4),
-                                  filled: true))),
-                      Container(
-                          height: 30,
-                          child: VerticalDivider(
-                            color: Colors.grey,
-                            thickness: 2,
-                          )),
-                      DropdownButton(
-                        // hint: Text('Please choose a location'),
-                        // Not necessary for Option 1
+                children: [
+                  Expanded(
+                      child: TextFormField(
+                          onTap: () {
+                            openNow = false;
+                          },
+                          controller: _dayController,
+                          decoration: InputDecoration(
+                              border: InputBorder.none,
+                              fillColor: Color(0xfff3f3f4),
+                              filled: true))),
+                  Container(
+                      height: 30,
+                      child: VerticalDivider(
+                        color: Colors.grey,
+                        thickness: 2,
+                      )),
+                  DropdownButton(
+                    // hint: Text('Please choose a location'),
+                    // Not necessary for Option 1
 
+                    value: monthBirth,
+                    onChanged: (newValue) {
+                      changedMonth = true;
+                      setState(() {
+                        monthBirth = newValue;
+                      });
+                    },
+                    items: _months.map((monthBirth) {
+                      return DropdownMenuItem(
+                        child: new Text(monthBirth),
                         value: monthBirth,
-                        onChanged: (newValue) {
-                          changedMonth =true;
-                          setState(() {
-                            monthBirth = newValue;
-                          });
-                        },
-                        items: _months.map((monthBirth) {
-                          return DropdownMenuItem(
-                            child: new Text(monthBirth),
-                            value: monthBirth,
-                          );
-                        }).toList(),
-                      ),
-                      Container(
-                          height: 30,
-                          child: VerticalDivider(
-                            color: Colors.grey,
-                            thickness: 2,
-                          )),
-                      Expanded(
-                          child: TextFormField(
-                            onTap: (){openNow = false;},
-                            controller: _yearController,
-                              decoration: InputDecoration(
-                                  border: InputBorder.none,
-                                  fillColor: Color(0xfff3f3f4),
-                                  filled: true))),
-                    ],
-                  ))
+                      );
+                    }).toList(),
+                  ),
+                  Container(
+                      height: 30,
+                      child: VerticalDivider(
+                        color: Colors.grey,
+                        thickness: 2,
+                      )),
+                  Expanded(
+                      child: TextFormField(
+                          onTap: () {
+                            openNow = false;
+                          },
+                          controller: _yearController,
+                          decoration: InputDecoration(
+                              border: InputBorder.none,
+                              fillColor: Color(0xfff3f3f4),
+                              filled: true))),
+                ],
+              ))
             ]));
   }
-
 
   // Widget _provinciaOrdine() {
   //   return FutureBuilder<DocumentSnapshot>(
@@ -736,8 +769,7 @@ class _SettingState extends State<Setting> {
   // }
 
   Widget _provinciaOrdine() {
-
-    if(!changedProvincia) provincia = info['provinciaOrdine'];
+    if (!changedProvincia) provincia = info['provinciaOrdine'];
     print(provincia);
     return Container(
         margin: EdgeInsets.symmetric(vertical: 10),
@@ -751,7 +783,6 @@ class _SettingState extends State<Setting> {
               SizedBox(
                 height: 10,
               ),
-
               DropdownButton(
                 // hint: Text('Please choose a location'),
                 // Not necessary for Option 1
@@ -760,7 +791,6 @@ class _SettingState extends State<Setting> {
                 onChanged: (newValue) {
                   changedProvincia = true;
                   setState(() {
-
                     provincia = newValue;
                   });
                 },
@@ -774,30 +804,168 @@ class _SettingState extends State<Setting> {
             ]));
   }
 
-
-
-
-
-
   _updateUserInfo() {
-    if(cambiaPassword){
+    if (cambiaPassword) {
       //TODO cambio password
     }
-
-
-    return  FirebaseFirestore.instance.collection('subscribers')
-        .doc(FirebaseAuth.instance.currentUser.uid)
-        .update({
+    Map<String, dynamic> newInfo = {
       'name': _nameController.text,
       'dayBirth': _dayController.text,
       'monthBirth': monthBirth,
       'yearBirth': _yearController.text,
-      'specializzazioni':_specializzazioniController.text,
-      'numOrdine' : _numOrdineController.text,
+      'specializzazioni': _specializzazioniController.text,
+      'numOrdine': _numOrdineController.text,
       'provinciaOrdine': provincia
-    })
+    };
+    FeedPage().setInfo(newInfo);
+
+    Flushbar(
+      message: "Informazioni aggiornate",
+      duration: Duration(seconds: 3),
+    ).show(context);
+
+    return FirebaseFirestore.instance
+        .collection('subscribers')
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .update(newInfo)
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));
+  }
 
+  _deleteAccount() {
+    try {
+
+      CollectionReference posts = FirebaseFirestore.instance.collection('feed');
+
+
+
+      // Future<void> deletePosts() {
+      //   return posts
+      //       // .doc(FirebaseAuth.instance.currentUser.uid)
+      //       .where()
+      //       .delete()
+      //       .then((value) => print("User Deleted"))
+      //       .catchError((error) => print("Failed to delete user: $error"));
+      // }
+      // deleteUser();
+
+      posts
+          .where('id', isEqualTo: FirebaseAuth.instance.currentUser.uid)
+          .get()
+          .then((value) {
+        print(value);
+        value.docs.forEach((element) {
+          element.reference.delete();
+        });
+      });
+      deleteUser();
+      FirebaseAuth.instance.currentUser.delete();
+      Navigator.of(context).popUntil(ModalRoute.withName('welcome'));
+      Navigator.push(
+          context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
+      //TODO close app and remove all data
+    } catch (e) {
+      if (e.code == 'requires-recent-login') {
+        print(
+            'The user must reauthenticate before this operation can be executed.');
+        showDialog(
+            context: context,
+            builder: (context) {
+              UserInfo userInfo =
+                  FirebaseAuth.instance.currentUser.providerData[0];
+              TextEditingController _emailReauthController =
+                  TextEditingController();
+              TextEditingController _passwordReauthController =
+                  TextEditingController();
+
+              if (userInfo.providerId == 'password') {
+                return AlertDialog(
+                  title: Text(
+                      'È necessario effettuare nuovamente il login con il tuo account.'),
+                  content: Column(
+                    children: [
+                      _entryField('E-mail', _emailReauthController),
+                      _entryField('Password', _passwordReauthController),
+                      Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          FlatButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                              child: Text(
+                                'Annulla',
+                                textScaleFactor: 1.5,
+                              )),
+                          FlatButton(
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                                _deleteAccountAfterReauth(
+                                    _emailReauthController.text,
+                                    _passwordReauthController.text);
+                              },
+                              child: Text(
+                                'Ok',
+                                textScaleFactor: 1.5,
+                              ))
+                        ],
+                      ),
+                    ],
+                  ),
+                );
+              } else {
+                return AlertDialog(
+                    title: Text(
+                        'È necessario effettuare nuovamente il login con il tuo account.'),
+                    content: IconButton(
+                      icon: Image.asset(
+                        'assets/images/logo_google.png',
+                        width: 30,
+                        height: 30,
+                      ),
+                      onPressed: () async {
+                        final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+
+                        // Obtain the auth details from the request
+                        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+                        // Create a new credential
+                        final GoogleAuthCredential credentialG = GoogleAuthProvider.credential(
+                          accessToken: googleAuth.accessToken,
+                          idToken: googleAuth.idToken,
+                        );
+
+                      },
+                    ));
+              }
+            });
+      }
+    }
+  }
+
+  _deleteAccountAfterReauth(String email, String pwd) async {
+    // Create a credential
+    UserCredential credential = await FirebaseAuth.instance
+        .signInWithEmailAndPassword(email: email, password: pwd);
+// Reauthenticate
+    await FirebaseAuth.instance.currentUser
+        .reauthenticateWithCredential(credential.credential);
+
+    deleteUser();
+    FirebaseAuth.instance.currentUser.delete();
+    Navigator.of(context).popUntil(ModalRoute.withName('welcome'));
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
+  }
+
+  Future<void> deleteUser() {
+    CollectionReference users =
+    FirebaseFirestore.instance.collection('subscribers');
+    return users
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .delete()
+        .then((value) => print("User Deleted"))
+        .catchError((error) => print("Failed to delete user: $error"));
   }
 }
