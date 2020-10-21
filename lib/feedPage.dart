@@ -157,6 +157,7 @@ class FeedPage extends StatelessWidget {
     return MaterialApp(
       routes: {
         'welcome': (context) => WelcomeScreen(),
+        'myProfile' : (context) =>MyProfile(info['name'], info['id'])
       },
       title: 'MedBook',
       theme: ThemeData(primaryColor: Colors.orange),

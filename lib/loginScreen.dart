@@ -432,7 +432,7 @@ class _LoginScreenState extends State<LoginScreen> {
       'yearBirth' : ' ',
       'numOrdine': ' ',
       'provinciaOrdine':' ',
-      'specializzazioni': ' '
+      'specializzazioni': []
     })
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));

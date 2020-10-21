@@ -19,11 +19,16 @@
 // //     );
 // //   }
 
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:image_picker/image_picker.dart';
+
+// import 'package:image_picker_ui/image_picker_handler.dart';
 import 'package:medbook/feedPage.dart';
 import 'package:medbook/welcomeScreen.dart';
 
@@ -47,6 +52,7 @@ class _SettingState extends State<Setting> {
   final _dayController = TextEditingController();
   final _yearController = TextEditingController();
   bool cambiaPassword = false;
+
   List<String> _months = [
     ' ',
     'Gennaio',
@@ -182,6 +188,47 @@ class _SettingState extends State<Setting> {
   bool changedMonth = false;
   bool changedProvincia = false;
   bool openNow = true;
+
+  //user_image
+  File _image;
+
+  // AnimationController _controllerImage;
+  // ImagePickerHandler imagePicker;
+
+  _imgFromCamera() async {
+    PickedFile image = await ImagePicker().getImage(
+        source: ImageSource.camera, imageQuality: 50);
+    setState(() {
+      _image = File(image.path);
+    });
+  }
+
+  _imgFromGallery() async {
+    PickedFile image = await ImagePicker().getImage(
+        source: ImageSource.gallery, imageQuality: 50);
+
+    setState(() {
+      _image = File(image.path);
+    });
+  }
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   _controllerImage = new AnimationController(
+  //     vsync: this,
+  //     duration: const Duration(milliseconds: 500),
+  //   );
+  //
+  //   imagePicker = new ImagePickerHandler(this, _controllerImage);
+  //   imagePicker.build(0xFFEE6969, 0xFFFFFFFF, false);
+  // }
+  //
+  // @override
+  // void dispose() {
+  //   _controllerImage.dispose();
+  //   super.dispose();
+  // }
 
   // bool openNowProvincia = true;
   // bool openNow = true;
@@ -343,14 +390,16 @@ class _SettingState extends State<Setting> {
     return Column(
       children: <Widget>[
         // Row(children: [
+
+        _buildBodyHeader(),
         _entryField("Nome", _nameController),
         // ]),
         _entryField("Email", _emailController, isEnabled: false),
 
-        _entryField("Password", _pwdController,
-            isPassword: true, isEnabled: cambiaPassword),
-        _entryField('Conferma password', _pwdConfirmationController,
-            isPassword: true, isEnabled: cambiaPassword),
+        // _entryField("Password", _pwdController,
+        //     isPassword: true, isEnabled: cambiaPassword),
+        // _entryField('Conferma password', _pwdConfirmationController,
+        //     isPassword: true, isEnabled: cambiaPassword),
         _dateBirth(),
         _provinciaOrdine(),
         _entryField('Numero', _numOrdineController),
@@ -369,11 +418,25 @@ class _SettingState extends State<Setting> {
       _emailController.text = FirebaseAuth.instance.currentUser.email;
       _dayController.text = info['dayBirth'].toString();
       _yearController.text = info['yearBirth'].toString();
-      _specializzazioniController.text = info['specializzazioni'];
+      _specializzazioniController.text = info['specializzazioni']
+          .toString()
+          .substring(1, info['specializzazioni'].toString().length - 1);
       _numOrdineController.text = info['numOrdine'].toString();
     }
     return Scaffold(
       appBar: AppBar(
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+          //
+          // leading: IconButton(
+          //   icon: Icon(Icons.menu),
+          //   onPressed: _openDrawer,
+          // ),
+        ),
         title: Text('Impostazioni'),
         actions: <Widget>[
           PopupMenuButton<String>(
@@ -593,6 +656,17 @@ class _SettingState extends State<Setting> {
       switch (value) {
         case 'Cambia password':
           cambiaPassword = true;
+          UserInfo userInfo = FirebaseAuth.instance.currentUser.providerData[0];
+          if (cambiaPassword && userInfo.providerId == 'google.com') {
+            Flushbar(
+              message:
+                  "Non è possibile cambiare la password da qui se hai fatto l'accesso con Google",
+              duration: Duration(seconds: 5),
+            ).show(context);
+            setState(() {
+              cambiaPassword = false;
+            });
+          }
           // print(cambiaPassword);
           break;
 
@@ -805,15 +879,45 @@ class _SettingState extends State<Setting> {
   }
 
   _updateUserInfo() {
-    if (cambiaPassword) {
-      //TODO cambio password
+    UserInfo userInfo = FirebaseAuth.instance.currentUser.providerData[0];
+    if (cambiaPassword && userInfo.providerId == 'google.com') {
+      Flushbar(
+        message:
+            "Non è possibile cambiare la password da qui se hai fatto l'accesso con Google",
+        duration: Duration(seconds: 5),
+      ).show(context);
+      setState(() {
+        cambiaPassword = false;
+      });
+    }
+    if (cambiaPassword && userInfo.providerId == 'password') {
+      @override
+      Future<void> resetPassword() async {
+        try {
+          await FirebaseAuth.instance.sendPasswordResetEmail(
+              email: FirebaseAuth.instance.currentUser.email);
+        } catch (e) {
+          print(
+              "Abbiamo inviato un'e-mail alla tua casella di posta con il link per reimpostare a password");
+          Flushbar(
+            message:
+                "Abbiamo inviato un'e-mail alla tua casella di posta con il link per reimpostare a password",
+            duration: Duration(seconds: 5),
+          ).show(context);
+          Future.delayed(Duration(seconds: 6), () {
+            Navigator.of(context).pop();
+          });
+        }
+      }
+
+      resetPassword();
     }
     Map<String, dynamic> newInfo = {
       'name': _nameController.text,
       'dayBirth': _dayController.text,
       'monthBirth': monthBirth,
       'yearBirth': _yearController.text,
-      'specializzazioni': _specializzazioniController.text,
+      'specializzazioni': [_specializzazioniController.text],
       'numOrdine': _numOrdineController.text,
       'provinciaOrdine': provincia
     };
@@ -834,10 +938,7 @@ class _SettingState extends State<Setting> {
 
   _deleteAccount() {
     try {
-
       CollectionReference posts = FirebaseFirestore.instance.collection('feed');
-
-
 
       // Future<void> deletePosts() {
       //   return posts
@@ -925,17 +1026,19 @@ class _SettingState extends State<Setting> {
                         height: 30,
                       ),
                       onPressed: () async {
-                        final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
+                        final GoogleSignInAccount googleUser =
+                            await GoogleSignIn().signIn();
 
                         // Obtain the auth details from the request
-                        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+                        final GoogleSignInAuthentication googleAuth =
+                            await googleUser.authentication;
 
                         // Create a new credential
-                        final GoogleAuthCredential credentialG = GoogleAuthProvider.credential(
+                        final GoogleAuthCredential credentialG =
+                            GoogleAuthProvider.credential(
                           accessToken: googleAuth.accessToken,
                           idToken: googleAuth.idToken,
                         );
-
                       },
                     ));
               }
@@ -961,11 +1064,114 @@ class _SettingState extends State<Setting> {
 
   Future<void> deleteUser() {
     CollectionReference users =
-    FirebaseFirestore.instance.collection('subscribers');
+        FirebaseFirestore.instance.collection('subscribers');
     return users
         .doc(FirebaseAuth.instance.currentUser.uid)
         .delete()
         .then((value) => print("User Deleted"))
         .catchError((error) => print("Failed to delete user: $error"));
   }
+
+  String _specializzazioni() {
+    print(info['specializzazioni'].toList() == []);
+    if (info['specializzazioni'].length == 0) {
+      return ' ';
+    } else {
+      return '\n\nSpecializzato in: ' +
+          info['specializzazioni']
+              .toString()
+              .substring(1, info['specializzazioni'].toString().length - 1);
+    }
+  }
+
+  void _showPicker(context) {
+    showModalBottomSheet(
+        context: context,
+        builder: (BuildContext bc) {
+          return SafeArea(
+            child: Container(
+              child: new Wrap(
+                children: <Widget>[
+                  new ListTile(
+                      leading: new Icon(Icons.photo_library),
+                      title: new Text('Photo Library'),
+                      onTap: () {
+                        _imgFromGallery();
+                        Navigator.of(context).pop();
+                      }),
+                  new ListTile(
+                    leading: new Icon(Icons.photo_camera),
+                    title: new Text('Camera'),
+                    onTap: () {
+                      _imgFromCamera();
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        });
+  }
+
+  Widget _buildBodyHeader() {
+    // if (buildedHeader) {
+    //   return Container();
+    // } else {
+    //   buildedHeader = true;
+    // print(_controllerImage.value);
+    return Container(
+        height: 150,
+        child: ListTile(
+          leading: GestureDetector(
+              onTap: () => _showPicker(context),
+              child: CircleAvatar(
+              radius: 55,
+              backgroundColor: Color(0xffFDCF09),
+              child: _image != null
+                  ? ClipRRect(
+                      //quello con 2 R ha una forma circolare
+                      borderRadius: BorderRadius.circular(50),
+                      child: Image.file(_image,
+                          width: 100, height: 100, fit: BoxFit.fitHeight),
+                    )
+                  : Container(
+                      decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(50)),
+                      width: 100,
+                      height: 100,
+                      child: Icon(
+                        Icons.camera_alt,
+                        color: Colors.grey[800],
+                      ))
+              // CircleAvatar(radius: 50,child: Image.asset('assets/images/logo_google.png')),
+              // Image.asset('assets/images/logo_google.png')
+
+              // icon: Icon(_image == null ? Icons.account_circle_outlined : ExactAssetImage(_image.path) , size: 100.0),
+              )),
+          title: info['provinciaOrdine'] == ' '
+              ? Text('')
+              : Text('Ordine della provincia di \n' + info['provinciaOrdine']),
+          subtitle: (info['dayBirth'] == ' ' &&
+                  info['monthBirth'] == ' ' &&
+                  info['yearBirth'] == ' ')
+              ? Text('')
+              : Text('\nData di nascita: \n' +
+                  info['dayBirth'].toString() +
+                  '/' +
+                  info['monthBirth'] +
+                  '/' +
+                  info['yearBirth'].toString() +
+                  _specializzazioni()),
+          isThreeLine: true,
+        ));
+  }
+
+// @override
+// userImage(File _image) {
+//   setState(() {
+//     this._image = _image;
+//   });
+// }
 }

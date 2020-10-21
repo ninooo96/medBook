@@ -1,24 +1,24 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:medbook/feedPage.dart';
 import 'package:medbook/welcomeScreen.dart';
+
 import 'commentScreen.dart';
-import 'setting.dart';
 import 'newPostScreen.dart';
+import 'setting.dart';
 
 // String nameProfile;
-
 
 class MyProfile extends StatefulWidget {
   // String title ;
   var idProfile;
   var nameProfile;
-  MyProfile(nameProfile, idProfile){
+
+  MyProfile(nameProfile, idProfile) {
     this.nameProfile = nameProfile;
     this.idProfile = idProfile;
-
   }
+
 //   String getTitle(){
 //     return title;
 // }
@@ -26,28 +26,36 @@ class MyProfile extends StatefulWidget {
   @override
   _MyProfileState createState() => _MyProfileState(nameProfile, idProfile);
 
-
-  // nameProfile(){
-  //   for(var elem in dummySnapshot){
-  //     if(elem['id'] == id_accesso) {
-  //       print(elem['nameProfile']);
-  //       return elem['nameProfile'];
-  //     }
-  //     return '404';
-  //   }
-  // }
+// nameProfile(){
+//   for(var elem in dummySnapshot){
+//     if(elem['id'] == id_accesso) {
+//       print(elem['nameProfile']);
+//       return elem['nameProfile'];
+//     }
+//     return '404';
+//   }
+// }
 }
 
 class _MyProfileState extends State<MyProfile> {
   var idProfile;
   var nameProfile;
-  _MyProfileState(nameProfile, id){
+  bool buildedHeader = false;
+
+  _MyProfileState(nameProfile, id) {
     this.idProfile = id;
     this.nameProfile = nameProfile;
   }
 
+
+
   @override
   Widget build(BuildContext context) {
+    // var route = ModalRoute.withName('myProfile');
+    // print(route.toString());
+    // if(route!=null){
+    //   print(route.settings.name);
+    // }
     return _build(context, nameProfile, idProfile);
     // return StreamBuilder<QuerySnapshot>(
     //   stream: FirebaseFirestore.instance.collection('subscribers').snapshots(),
@@ -60,7 +68,7 @@ class _MyProfileState extends State<MyProfile> {
     // );
   }
 
-  Widget _build(BuildContext context, String nameProfile,  String idProfile){
+  Widget _build(BuildContext context, String nameProfile, String idProfile) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -72,24 +80,25 @@ class _MyProfileState extends State<MyProfile> {
       ),
       drawer: Drawer(
           child: Column(
-            children: <Widget> [
-              drawDrawerHeader(),
-              ListView(
-                  scrollDirection: Axis.vertical,
-                  shrinkWrap: true,
-                  children: _drawerTile(nameProfile, idProfile)
-              ),
-              Expanded(
-                  child: Align(
-                      alignment: FractionalOffset.bottomCenter,
-                      child: ListTile(
-                        title: Text('Esci',textScaleFactor: 1.5,),
-                        tileColor: Colors.red,
-                        onTap: _logout,
-                      )))
-            ],
-          )
-      ),
+        children: <Widget>[
+          drawDrawerHeader(),
+          ListView(
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              children: _drawerTile(nameProfile, idProfile)),
+          Expanded(
+              child: Align(
+                  alignment: FractionalOffset.bottomCenter,
+                  child: ListTile(
+                    title: Text(
+                      'Esci',
+                      textScaleFactor: 1.5,
+                    ),
+                    tileColor: Colors.red,
+                    onTap: _logout,
+                  )))
+        ],
+      )),
       appBar: CustomAppBar(
         appBar: AppBar(
           //
@@ -116,7 +125,6 @@ class _MyProfileState extends State<MyProfile> {
               icon: Icon(Icons.notifications),
               onPressed: _postWithMyHashtags,
             ),
-
           ],
         ),
         // onTap: () {
@@ -126,7 +134,10 @@ class _MyProfileState extends State<MyProfile> {
         //   );
         // },
       ),
-      body: _buildBody(context, nameProfile, idProfile),
+      body: Column(children: [
+          _buildBodyHeader(),
+      _buildBody(context, nameProfile, idProfile),
+      ])
     );
   }
 
@@ -134,20 +145,23 @@ class _MyProfileState extends State<MyProfile> {
     return Container(
       height: 90.0,
       child: DrawerHeader(
-        // child: Text('Specializzazioni',
-        //     textScaleFactor: 1.8,
-        //     textAlign: TextAlign.left,
-        //     style: TextStyle(color: Colors.white)),
+          // child: Text('Specializzazioni',
+          //     textScaleFactor: 1.8,
+          //     textAlign: TextAlign.left,
+          //     style: TextStyle(color: Colors.white)),
           decoration: BoxDecoration(color: Colors.orange),
           padding: EdgeInsets.symmetric(vertical: 25)),
     );
   }
 
-  _drawerTile(String nameProfile, String idProfile){
+  _drawerTile(String nameProfile, String idProfile) {
     List<Widget> drawerTile = [];
     drawerTile.add(ListTile(
-      title: Text('Home', textScaleFactor: 1.5,),
-      onTap: (){
+      title: Text(
+        'Home',
+        textScaleFactor: 1.5,
+      ),
+      onTap: () {
         Navigator.of(context).pop();
         Navigator.of(context).pop();
         Navigator.of(context).pop();
@@ -157,22 +171,33 @@ class _MyProfileState extends State<MyProfile> {
         );
       },
     ));
-    drawerTile.add(Divider(thickness: 2,));
+    drawerTile.add(Divider(
+      thickness: 2,
+    ));
     drawerTile.add(ListTile(
-      title: Text('Il mio profilo', textScaleFactor: 1.5,),
-      onTap: (){
+      title: Text(
+        'Il mio profilo',
+        textScaleFactor: 1.5,
+      ),
+      onTap: () {
         Navigator.of(context).pop();
         Navigator.of(context).pop();
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => MyProfile(nameProfile, idProfile)),
+          MaterialPageRoute(
+              builder: (context) => MyProfile(nameProfile, idProfile)),
         );
       },
     ));
-    drawerTile.add(Divider(thickness: 2,));
+    drawerTile.add(Divider(
+      thickness: 2,
+    ));
     drawerTile.add(ListTile(
-      title: Text('Impostazioni',textScaleFactor: 1.5,),
-      onTap: (){
+      title: Text(
+        'Impostazioni',
+        textScaleFactor: 1.5,
+      ),
+      onTap: () {
         Navigator.of(context).pop();
         Navigator.push(
           context,
@@ -180,17 +205,20 @@ class _MyProfileState extends State<MyProfile> {
         );
       },
     ));
-    drawerTile.add(Divider(thickness: 2,));
+    drawerTile.add(Divider(
+      thickness: 2,
+    ));
 
     return drawerTile;
   }
 
-  _logout(){
+  _logout() {
     //TODO scollegati da Firebase
     Navigator.of(context).popUntil(ModalRoute.withName('welcome'));
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => WelcomeScreen()));
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
   }
+
   void _postWithMyHashtags() {
     print("ciao Anto");
     //TODO pagina con i post di cui ho ricevuto la notifica perchè con il mio hashtag
@@ -200,7 +228,6 @@ class _MyProfileState extends State<MyProfile> {
     //TODO funzione di ricerca
   }
 
-
   _openDrawer() {}
 
   _newPost() {
@@ -209,113 +236,189 @@ class _MyProfileState extends State<MyProfile> {
       MaterialPageRoute(builder: (context) => NewPostScreen()),
     );
   }
-}
 
-Widget _buildBody(BuildContext context, String nameProfile, String idProfile) {
-  //TODO: estrai snapshot dal Cloud Firebase
-  // List<Map> snapshot = dummySnapshot;
-  // return _buildList(context, snapshot);
-  return StreamBuilder<QuerySnapshot>(
-    stream: FirebaseFirestore.instance.collection('feed').orderBy('timestamp', descending:true).snapshots(),
-    builder: (context, snapshot) {
-      if (!snapshot.hasData) return LinearProgressIndicator();
-      print('OK');
-      return _buildList(context, snapshot.data.docs, nameProfile, idProfile);
-    },
-  );
-}
+  String _specializzazioni() {
+    print(info['specializzazioni'].toList() == []);
+    if (info['specializzazioni'].length == 0) {
+      return ' ';
+    } else {
+      return '\n\nSpecializzato in: ' +
+          info['specializzazioni']
+              .toString()
+              .substring(1, info['specializzazioni'].toString().length - 1);
+    }
+  }
 
+// Widget _buildBodyList(
+//     BuildContext context, String nameProfile, String idProfile) {
+//   return Column(
+//     children: [
+//       _buildBodyHeader(),
+//       _buildBodyList(context, nameProfile, idProfile)
+//     ],
+//   );
+// }
+
+  Widget _buildBodyHeader() {
+    // if (buildedHeader) {
+    //   return Container();
+    // } else {
+    //   buildedHeader = true;
+      return Container(
+          height: 150,
+          child: ListTile(
+            leading: Icon(Icons.account_circle_outlined, size: 100.0),
+            title: info['provinciaOrdine'] == ' '
+                ? Text('')
+                : Text(
+                    'Ordine della provincia di \n' + info['provinciaOrdine']),
+            subtitle: (info['dayBirth'] == ' ' &&
+                    info['monthBirth'] == ' ' &&
+                    info['yearBirth'] == ' ')
+                ? Text('')
+                : Text('\nData di nascita: \n' +
+                    info['dayBirth'].toString() +
+                    '/' +
+                    info['monthBirth'] +
+                    '/' +
+                    info['yearBirth'].toString() +
+                    _specializzazioni()),
+            isThreeLine: true,
+          ));
+
+  }
+
+  Widget _buildBody(BuildContext context, String nameProfile, String idProfile) {
+    //TODO: estrai snapshot dal Cloud Firebase
+    // List<Map> snapshot = dummySnapshot;
+    // return _buildList(context, snapshot);
+
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('feed')
+          .orderBy('timestamp', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return LinearProgressIndicator();
+        print('OK');
+        return _buildList(
+            context, snapshot.data.docs, nameProfile, idProfile);
+      },
+    );
+  }
 
 // Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot2) {
 
-  // return StreamBuilder<QuerySnapshot>(
-  //   stream: FirebaseFirestore.instance.collection('subscribers').snapshots(),
-  //   builder: (context, snapshot) {
-  //     if (!snapshot.hasData) return LinearProgressIndicator();
-  //     print('OK2');
-  //     // print(snapshot.data.docs[id_accesso-1]['nameProfile']);
-  //     return  _buildList2(context, snapshot2, snapshot.data.docs[id_profile-1]['nameProfile'], id_profile);
-  //   },
-  // );
-  //   print(FirebaseFirestore.instance.collection("subscribers").get());//doc(id_accesso.toString()).get()[0]());
-      // return _buildList2(context, snapshot, querySnapshot.data()['nameProfile']);
-  // }
+// return StreamBuilder<QuerySnapshot>(
+//   stream: FirebaseFirestore.instance.collection('subscribers').snapshots(),
+//   builder: (context, snapshot) {
+//     if (!snapshot.hasData) return LinearProgressIndicator();
+//     print('OK2');
+//     // print(snapshot.data.docs[id_accesso-1]['nameProfile']);
+//     return  _buildList2(context, snapshot2, snapshot.data.docs[id_profile-1]['nameProfile'], id_profile);
+//   },
+// );
+//   print(FirebaseFirestore.instance.collection("subscribers").get());//doc(id_accesso.toString()).get()[0]());
+// return _buildList2(context, snapshot, querySnapshot.data()['nameProfile']);
+// }
 
-
-Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot, String nameProfile, String idProfile) {
-  // var snapshot2 = snapshot.where((id) => id==id_accesso);
-  // print(snapshot2);
+  Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot,
+      String nameProfile, String idProfile) {
+    // var snapshot2 = snapshot.where((id) => id==id_accesso);
+    // print(snapshot2);
 //
-  return ListView(
-    padding: const EdgeInsets.only(top: 5.0),
-    //da giocarci dopo che visualizzo un post
-  //     final record = Record.fromMap(data);
-  // // print(record);
-  // if( record.id==2){
-  //   print(record.post);
-    children: snapshot.map((data) => _buildListItem(context, data, nameProfile, idProfile)).toList(),
-  );
-}
+    return Expanded(child: ListView(
+      padding: const EdgeInsets.only(top: 5.0),
+      //da giocarci dopo che visualizzo un post
+      //     final record = Record.fromMap(data);
+      // // print(record);
+      // if( record.id==2){
+      //   print(record.post);
+      children: snapshot
+          .map((data) => _buildListItem(
+              context, data, nameProfile, idProfile))
+          .toList(),
+    ));
+  }
 
-Widget _buildListItem(BuildContext context, DocumentSnapshot data, String nameProfile, String idProfile) {
-  var recordTmp;
-  // title = nameProfile;
-  print('amnnaiaa');
-  print(idProfile);
-  if(Record.fromSnapshot(data).id!=idProfile) return Container();
-  var record = Record.fromSnapshot(data);
+  Widget _buildListItem(BuildContext context, DocumentSnapshot data,
+      String nameProfile, String idProfile) {
+    var recordTmp;
+    // title = nameProfile;
+    print('amnnaiaa');
+    print(idProfile);
+    if (Record.fromSnapshot(data).id != idProfile) return Container();
+    var record = Record.fromSnapshot(data);
 
-  // if(recordTot.id==id_accesso){
-  //   recordTmp = recordTot;
-  // }
-  // final record = recordTmp;
-  print(record);
-  return Padding(
-    // key: ValueKey(record.nameProfile),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
-      child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          child: Column(children: <Widget>[
-            ListTile(
-              leading: Icon(Icons.account_circle_outlined, size: 50.0),
-              title: Text(record.nameProfile),
-            ),
-            ListTile(
-                title: Text('Età: ' +
-                    (record.agePatient).toString() +
-                    ', Sesso: ' +
-                    (record.sexPatient)+
-                    (record.hashtags.length == 0 ? '':"\n# "+record.hashtags.toString().substring(1, record.hashtags.toString().length - 1))+ ""
-                    "\n\n"+ record.post)),
-            ListTile(
-              title: record.comments.first.length > 0
-                  ? record.comments.first.length > 1
-                  ? Text(record.comments.length.toString() + ' commenti')
-                  : Text(record.comments.toString() + ' commento')
-                  : Text('Non ci sono commenti'),
-              onTap: () {addComment(context,record.comments, record.reference, 0);},
-            ),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Flexible(
-                    child: ListTile(
-                      onTap: (){addComment(context, record.comments, record.reference, 1);},
+    // if(recordTot.id==id_accesso){
+    //   recordTmp = recordTot;
+    // }
+    // final record = recordTmp;
+    print(record);
+    return
+      Padding(
+          // key: ValueKey(record.nameProfile),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
+          child: Container(
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.grey),
+                borderRadius: BorderRadius.circular(15.0),
+              ),
+              child: Column(children: <Widget>[
+                ListTile(
+                  leading: Icon(Icons.account_circle_outlined, size: 50.0),
+                  title: Text(record.nameProfile),
+                ),
+                ListTile(
+                    title: Text('Età: ' +
+                        (record.agePatient).toString() +
+                        ', Sesso: ' +
+                        (record.sexPatient) +
+                        (record.hashtags.length == 0
+                            ? ''
+                            : "\n# " +
+                                record.hashtags.toString().substring(
+                                    1, record.hashtags.toString().length - 1)) +
+                        ""
+                            "\n\n" +
+                        record.post)),
+                ListTile(
+                  title: record.comments.first.length > 0
+                      ? record.comments.first.length > 1
+                          ? Text(
+                              record.comments.length.toString() + ' commenti')
+                          : Text(record.comments.toString() + ' commento')
+                      : Text('Non ci sono commenti'),
+                  onTap: () {
+                    addComment(context, record.comments, record.reference, 0);
+                  },
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Flexible(
+                        child: ListTile(
+                      onTap: () {
+                        addComment(
+                            context, record.comments, record.reference, 1);
+                      },
                       title: Center(child: Text('Commenta')),
                     )),
-                Container(height: 30, child: VerticalDivider(color: Colors.grey, thickness: 2,)),
-                Flexible(
-                    child: ListTile(
-                        onTap: _activeNotifications,
-                        title: Center(child: Text('Segui'))))
-              ],
-            )
-          ])));
-}
+                    Container(
+                        height: 30,
+                        child: VerticalDivider(
+                          color: Colors.grey,
+                          thickness: 2,
+                        )),
+                    Flexible(
+                        child: ListTile(
+                            onTap: _activeNotifications,
+                            title: Center(child: Text('Segui'))))
+                  ],
+                )
+              ])))
+    ;
+  }
 
 // void addComment(context, record, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
 //   print('Ciao Lele' + record.length.toString(), );
@@ -351,39 +454,37 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data, String namePr
 //   }
 //
 // }
-void addComment(context, List<dynamic> record1, reference, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
-  print('Ciao Lele' + record1.length.toString() );
-  List<Map<String,dynamic>> record = new List<Map<String,dynamic>>();// la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
-  print(nuovoCommento);
-  // print(record1.first.length);
-  if(record1.first.length!=0) {
-    record1.forEach((data) =>
-        record.add({
-          'nameProfile': data['nameProfile'],
-          'comment': data['comment'],
-          'upvote': data['upvote'],
-          'downvote': data['downvote'],
-          'idVotersLike': data['idVotersLike'],
-          'idVotersDislike': data['idVotersDislike']
-        }));
+  void addComment(context, List<dynamic> record1, reference, nuovoCommento) {
+    //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
+    print('Ciao Lele' + record1.length.toString());
+    List<Map<String, dynamic>> record = new List<
+        Map<String,
+            dynamic>>(); // la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
+    print(nuovoCommento);
+    // print(record1.first.length);
+    if (record1.first.length != 0) {
+      record1.forEach((data) => record.add({
+            'nameProfile': data['nameProfile'],
+            'comment': data['comment'],
+            'upvote': data['upvote'],
+            'downvote': data['downvote'],
+            'idVotersLike': data['idVotersLike'],
+            'idVotersDislike': data['idVotersDislike']
+          }));
+    }
+
+    // if(record.length==0)
+    //   record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0, 'idVotersLike':[0], 'idVotersDislike':[0]}];
+    // print(record);
+    if (record1.first.length != 0 || nuovoCommento == 1) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => CommentScreen(record, reference)),
+      );
+    }
   }
-
-
-  // if(record.length==0)
-  //   record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0, 'idVotersLike':[0], 'idVotersDislike':[0]}];
-  // print(record);
-  if(record1.first.length != 0 || nuovoCommento==1) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => CommentScreen(record, reference)),
-    );
-  }
-
 }
-
-
-
-
 
 class Record {
   final String nameProfile;
@@ -398,7 +499,6 @@ class Record {
 
   final DocumentReference reference;
 
-
   Record.fromMap(Map<String, dynamic> map, {this.reference})
       : nameProfile = map['nameProfile'],
         sexPatient = map['sexPatient'],
@@ -411,8 +511,6 @@ class Record {
 
   Record.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data(), reference: snapshot.reference);
-
-
 
   String toString() => "Record<$nameProfile:$post>";
 }
@@ -433,11 +531,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Size get preferredSize => new Size.fromHeight(kToolbarHeight);
 }
 
-
-
 void _activeNotifications() {}
 
-String _visualizeComments(record){
-  print(record.comments.map((data)=> data['comment'].toString()));
-  return record.comments.map((data)=> data['comment'][0].toString());
+String _visualizeComments(record) {
+  print(record.comments.map((data) => data['comment'].toString()));
+  return record.comments.map((data) => data['comment'][0].toString());
 }
