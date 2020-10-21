@@ -1,7 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:medbook/feedPage.dart';
+
 // import 'package:medbook/feedPage.dart';
 import 'package:medbook/welcomeScreen.dart';
 
@@ -19,9 +20,7 @@ import 'package:medbook/welcomeScreen.dart';
 
 final app = Firebase.app('MedBook');
 
-
 void main() => runApp(App());
-
 
 class App extends StatefulWidget {
   _AppState createState() => _AppState();
@@ -31,6 +30,9 @@ class _AppState extends State<App> {
   // Set default `_initialized` and `_error` state to false
   bool _initialized = false;
   bool _error = false;
+  bool isSignedIn = false;
+
+
 
   // Define an async function to initialize FlutterFire
   void initializeFlutterFire() async {
@@ -40,35 +42,41 @@ class _AppState extends State<App> {
       setState(() {
         _initialized = true;
       });
-    } catch(e) {
+    } catch (e) {
       // Set `_error` state to true if Firebase initialization fails
       setState(() {
         _error = true;
       });
     }
+
+
+
+    FirebaseAuth.instance.authStateChanges().listen((User user) {
+      if (user == null) {
+        print('User is currently signed out!');
+        isSignedIn = false;
+      } else {
+        print('User is signed in!');
+
+        isSignedIn = true;
+
+      }
+    });
   }
 
   @override
   void initState() {
     initializeFlutterFire();
     super.initState();
+
   }
 
   @override
   Widget build(BuildContext context) {
-    FirebaseAuth.instance
-        .authStateChanges()
-        .listen((User user) {
-      if (user == null) {
-        print('User is currently signed out!');
-      } else {
-        print('User is signed in!');
-      }
-    });
 
 
     // Show error message if initialization failed
-    if(_error) {
+    if (_error) {
       return SomethingWentWrong();
     }
 
@@ -76,17 +84,10 @@ class _AppState extends State<App> {
     if (!_initialized) {
       return Loading();
     }
+      return MaterialApp(
+          home: Scaffold(body: isSignedIn ? FeedPage() : WelcomeScreen()));
 
-    return MaterialApp(
-        home: Scaffold(
-          body: WelcomeScreen()
-    ));
   }
-
-
-
-
-
 
 // class MyApp extends StatelessWidget {
 //
@@ -110,7 +111,6 @@ class _AppState extends State<App> {
 // }
 //
 // final FirebaseAuth auth = FirebaseAuth.instance;
-
 
 //
 //
