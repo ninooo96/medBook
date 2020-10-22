@@ -23,6 +23,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -196,20 +197,37 @@ class _SettingState extends State<Setting> {
   // ImagePickerHandler imagePicker;
 
   _imgFromCamera() async {
-    PickedFile image = await ImagePicker().getImage(
-        source: ImageSource.camera, imageQuality: 50);
+    PickedFile image = await ImagePicker()
+        .getImage(source: ImageSource.camera, imageQuality: 50);
     setState(() {
       _image = File(image.path);
     });
   }
 
   _imgFromGallery() async {
-    PickedFile image = await ImagePicker().getImage(
-        source: ImageSource.gallery, imageQuality: 50);
+    PickedFile image = await ImagePicker()
+        .getImage(source: ImageSource.gallery, imageQuality: 50);
 
     setState(() {
       _image = File(image.path);
-    });
+
+      // CollectionReference users = FirebaseFirestore.instance.collection('subscribers');
+
+      // Future<void> updateUser() {
+      //   return _image.readAsBytes()
+      //       .then((bytes) => bytes.buffer.asUint8List())
+      //       .then((avatar) {
+      //     return users
+      //         .doc(FirebaseAuth.instance.currentUser.uid)
+      //         .update({'image': Blob(avatar)});
+      //   })
+      //       .then((value) => print("User Updated"))
+      //       .catchError((error) => print("Failed to update user: $error"));
+      // }
+      // updateUser();
+    }
+    );
+    uploadPic(context);
   }
 
   // @override
@@ -387,6 +405,8 @@ class _SettingState extends State<Setting> {
   // }
 
   Widget _emailPasswordWidget() {
+    print(info);
+    if(info['profileImgUrl']!=' ') downloadPic();
     return Column(
       children: <Widget>[
         // Row(children: [
@@ -408,8 +428,88 @@ class _SettingState extends State<Setting> {
     );
   }
 
+  Future uploadPic(BuildContext context) async {
+    // String fileName = basename(_image.path);
+    StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(
+        "profileImages/${FirebaseAuth.instance.currentUser.uid}/profileImage.jpg");
+    // firebaseStorageRef.delete();
+    StorageUploadTask uploadTask = firebaseStorageRef.putFile(_image);
+    StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
+    setState(() {
+      print("Profile Picture uploaded");
+
+      // Scaffold.of(context).showSnackBar(SnackBar(content: Text('Profile Picture Uploaded')));
+    });
+
+    StorageReference ref = FirebaseStorage.instance.ref();
+    StorageTaskSnapshot addImg =
+    await ref.child("profileImages/${FirebaseAuth.instance.currentUser.uid}/profileImage.jpg").putFile(_image).onComplete;
+    if (addImg.error == null) {
+      print("added to Firebase Storage");
+
+      String downloadUrl = await addImg.ref.getDownloadURL();
+      await FirebaseFirestore.instance.collection('subscribers').doc(FirebaseAuth.instance.currentUser.uid)
+          .update({'profileImgUrl' : downloadUrl});
+      // FeedPage().setInfo({'profileImgUrl': downloadUrl});
+      FeedPage().getInfo().update('profileImgUrl', (value) => downloadUrl);
+    }
+  }
+
+   downloadPic() {
+     var imageRef = FirebaseStorage.instance.ref().child("profileImages/${FirebaseAuth.instance.currentUser.uid}/profileImage.jpg");
+     final Directory tempDir = Directory.systemTemp;
+     final File tempImageFile = File('${tempDir.path}/samplefilepath');
+     final StorageFileDownloadTask downloadTask = imageRef.writeToFile(tempImageFile);
+     _image = tempImageFile;
+     // downloadTask.future.then((snapshot) =>
+     //     setState(()
+     // {
+     //   _image = tempImageFile;
+     // }
+     //     ));
+           //
+    // //actual downloading stuff
+    // final StorageReference ref = FirebaseStorage.instance.ref().child("profileImages/${FirebaseAuth.instance.currentUser.uid}/profileImage");
+    // final StorageFileDownloadTask downloadTask = ref.writeToFile(file);
+    // // print(image);
+    // final int byteNumber = (await downloadTask.future).totalByteCount;
+    // print(byteNumber);
+    // image = file;
+
+
+  }
+
+  //
+  // try {
+  //   print(firebase_storage.FirebaseStorage.instance.ref().child('profileImages').child(FirebaseAuth.instance.currentUser.uid).child('imageProfile.JPG'));
+  //   await firebase_storage.FirebaseStorage.instance
+  //       .ref()
+  //       .child('profileImages')
+  //       .child(FirebaseAuth.instance.currentUser.uid)
+  //       .child('imageProfile.JPG')
+  //       .getStorage (file);
+  // } catch (e) {
+  //   print('exception');
+  //   print(e);
+  // e.g, e.code == 'canceled'
+  // }
+
   @override
   Widget build(BuildContext context) {
+    // uploadPic(context);
+
+    // var blob = info['image'];
+    // print('ciaoo1);');
+    //   var image = Base64Codec().decode(blob.toString());
+    // print('ciaoo2');
+
+    // _image = FileImage(FirebaseImage('gs://bucket123/userIcon123.jpg'));//image
+    // print('prova1');
+    // Uint8List image = Base64Codec().decode(info['image']);
+    // print(info['image']);
+    // _image = writeAsBytes(info['image'].bytes);
+    // _image = File(Image.memory(info['image'].))
+    // _image= File.fromRawPath(image);
     final height = MediaQuery.of(context).size.height;
     // provincia = info['provinciaOrdine'];
 
@@ -923,6 +1023,7 @@ class _SettingState extends State<Setting> {
     };
     FeedPage().setInfo(newInfo);
 
+
     Flushbar(
       message: "Informazioni aggiornate",
       duration: Duration(seconds: 3),
@@ -1072,15 +1173,16 @@ class _SettingState extends State<Setting> {
         .catchError((error) => print("Failed to delete user: $error"));
   }
 
-  String _specializzazioni() {
+  ListTile _specializzazioni() {
     print(info['specializzazioni'].toList() == []);
     if (info['specializzazioni'].length == 0) {
-      return ' ';
+      return ListTile(title: Text(' '));
     } else {
-      return '\n\nSpecializzato in: ' +
-          info['specializzazioni']
-              .toString()
-              .substring(1, info['specializzazioni'].toString().length - 1);
+      return ListTile(
+          dense: true,
+          title: Text('Specializzato in: ' +
+              info['specializzazioni'].toString().substring(
+                  1, info['specializzazioni'].toString().length - 1)));
     }
   }
 
@@ -1122,18 +1224,30 @@ class _SettingState extends State<Setting> {
     // print(_controllerImage.value);
     return Container(
         height: 150,
-        child: ListTile(
-          leading: GestureDetector(
+        child: Row(children: [
+          GestureDetector(
               onTap: () => _showPicker(context),
-              child: CircleAvatar(
-              radius: 55,
-              backgroundColor: Color(0xffFDCF09),
               child: _image != null
-                  ? ClipRRect(
+                  ? CircleAvatar(
                       //quello con 2 R ha una forma circolare
-                      borderRadius: BorderRadius.circular(50),
-                      child: Image.file(_image,
-                          width: 100, height: 100, fit: BoxFit.fitHeight),
+                      // borderRadius: BorderRadius.circular(50),
+
+                      radius: 50,
+                      // child: Image.network(info['profileImgUrl']),
+                      backgroundImage: NetworkImage(info['profileImgUrl']),
+                      // ? ClipRRect(
+                      //     //quello con 2 R ha una forma circolare
+                      //     // borderRadius: BorderRadius.circular(50),
+                      //
+                      //     child: Image(
+                      //         image: FileImage(_image),
+                      //         width: 500,
+                      //         height: 500,
+                      //         fit: BoxFit.fitHeight),
+                      // radius: 1000,
+                      //       backgroundImage: FileImage(_image)
+                      // Image.file(_image,
+                      //     width: 100, height: 100, fit: BoxFit.fitHeight),
                     )
                   : Container(
                       decoration: BoxDecoration(
@@ -1149,23 +1263,91 @@ class _SettingState extends State<Setting> {
               // Image.asset('assets/images/logo_google.png')
 
               // icon: Icon(_image == null ? Icons.account_circle_outlined : ExactAssetImage(_image.path) , size: 100.0),
-              )),
-          title: info['provinciaOrdine'] == ' '
-              ? Text('')
-              : Text('Ordine della provincia di \n' + info['provinciaOrdine']),
-          subtitle: (info['dayBirth'] == ' ' &&
-                  info['monthBirth'] == ' ' &&
-                  info['yearBirth'] == ' ')
-              ? Text('')
-              : Text('\nData di nascita: \n' +
-                  info['dayBirth'].toString() +
-                  '/' +
-                  info['monthBirth'] +
-                  '/' +
-                  info['yearBirth'].toString() +
-                  _specializzazioni()),
-          isThreeLine: true,
-        ));
+              ),
+          Flexible(
+              child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              info['provinciaOrdine'] == ' '
+                  ? ListTile(
+                      dense: true,
+                      title: Text(''),
+                    )
+                  : ListTile(
+                      dense: true,
+                      title: Text(
+                        'Ordine della provincia di \n' +
+                            info['provinciaOrdine'],
+                        textScaleFactor: 1.5,
+                      )),
+              (info['dayBirth'] == ' ' &&
+                      info['monthBirth'] == ' ' &&
+                      info['yearBirth'] == ' ')
+                  ? ListTile(dense: true, title: Text(''))
+                  : ListTile(
+                      dense: true,
+                      title: Text(
+                        'Data di nascita: ' +
+                            info['dayBirth'].toString() +
+                            '/' +
+                            info['monthBirth'] +
+                            '/' +
+                            info['yearBirth'].toString(),
+                      )),
+              _specializzazioni(),
+            ],
+            // ]
+            //   leading: Container(
+            //     width:100,
+            // alignment: Alignment.centerLeft,
+            // child: GestureDetector(
+            //       onTap: () => _showPicker(context),
+            //
+            //       child:
+            //       _image != null
+            //           ? ClipRRect(
+            //               //quello con 2 R ha una forma circolare
+            //               // borderRadius: BorderRadius.circular(50),
+            //
+            //           child: Image(image: FileImage(_image),width: 500, height: 500,fit: BoxFit.fitHeight),
+            //         // radius: 1000,
+            //         //       backgroundImage: FileImage(_image)
+            //               // Image.file(_image,
+            //               //     width: 100, height: 100, fit: BoxFit.fitHeight),
+            //             )
+            //           : Container(
+            //               decoration: BoxDecoration(
+            //                   color: Colors.grey[200],
+            //                   borderRadius: BorderRadius.circular(50)),
+            //               width: 100,
+            //               height: 100,
+            //               child: Icon(
+            //                 Icons.camera_alt,
+            //                 color: Colors.grey[800],
+            //               ))
+            //       // CircleAvatar(radius: 50,child: Image.asset('assets/images/logo_google.png')),
+            //       // Image.asset('assets/images/logo_google.png')
+            //
+            //       // icon: Icon(_image == null ? Icons.account_circle_outlined : ExactAssetImage(_image.path) , size: 100.0),
+            //       )),
+            // title: info['provinciaOrdine'] == ' '
+            //     ? Text('')
+            //     : Text(
+            //         'Ordine della provincia di \n' + info['provinciaOrdine']),
+            // subtitle: (info['dayBirth'] == ' ' &&
+            //         info['monthBirth'] == ' ' &&
+            //         info['yearBirth'] == ' ')
+            //     ? Text('')
+            //     : Text('\nData di nascita: \n' +
+            //         info['dayBirth'].toString() +
+            //         '/' +
+            //         info['monthBirth'] +
+            //         '/' +
+            //         info['yearBirth'].toString() +
+            //         _specializzazioni()),
+            // isThreeLine: true,
+          ))
+        ]));
   }
 
 // @override

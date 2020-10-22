@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:medbook/welcomeScreen.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 import 'commentScreen.dart';
 import 'myProfile.dart';
@@ -141,6 +142,8 @@ class FeedPage extends StatelessWidget {
   // }
 
   Widget build(BuildContext context) {
+    firebase_storage.FirebaseStorage storage =
+        firebase_storage.FirebaseStorage.instance;
     FirebaseFirestore.instance.collection('subscribers').doc(FirebaseAuth.instance.currentUser.uid).get().then((user) =>
     info = {'name': user['name'],
       'provinciaOrdine':user['provinciaOrdine'],
@@ -148,7 +151,9 @@ class FeedPage extends StatelessWidget {
       'monthBirth':user['monthBirth'],
       'yearBirth': user['yearBirth'],
       'numOrdine': user['numOrdine'],
-      'specializzazioni' : user['specializzazioni']
+      'specializzazioni' : user['specializzazioni'],
+      'image' : user['image'],
+      'profileImgUrl' : user['profileImgUrl']// non è user
     });
 
   print(info);
@@ -423,7 +428,7 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
           ),
           child: Column(children: <Widget>[
             ListTile(
-              leading: Icon(Icons.account_circle_outlined, size: 50.0),
+              leading: Image.network(info['profileImgUrl']),
               title: Text(record.nameProfile),
               subtitle: Text(record.timestamp),
               onTap: () {
