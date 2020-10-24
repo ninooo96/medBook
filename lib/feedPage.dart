@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:medbook/record.dart';
 import 'package:intl/intl.dart';
 import 'package:medbook/postTile.dart';
+import 'package:medbook/search.dart';
 import 'package:medbook/user.dart' as userMedbook;
 import 'package:medbook/user.dart';
 import 'package:medbook/welcomeScreen.dart';
@@ -161,7 +162,7 @@ class FeedPage extends StatelessWidget {
       'id': FirebaseAuth.instance.currentUser.uid
     });
 
-  print(info);
+  // print(info);
     // Firebase.initializeApp();
     //   // TODO: scrolling di ListView dei post
     return MaterialApp(
@@ -361,7 +362,10 @@ class _MyFeedPageState extends State<MyFeedPage> {
   }
 
   void _search() {
-    //TODO funzione di ricerca
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SearchScreen()),
+    );
   }
 
   _openDrawer() {}
@@ -410,7 +414,7 @@ Widget _buildBody(BuildContext context) {
 }
 
 Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
-  print(snapshot);
+  // print(snapshot);
   return ListView(
     padding: const EdgeInsets.only(top: 5.0),
     //da giocarci dopo che visualizzo un post
@@ -424,7 +428,7 @@ String profileImageOnPost(String id) {
   FirebaseFirestore.instance.collection('subscribers').doc(id).get().then((
       value) =>
   tmp = value['profileImgUrl']);
-  print(tmp+ 'boh');
+  // print(tmp+ 'boh');
   return tmp;
 }
 
@@ -433,7 +437,7 @@ Future<bool> profileImageUrl(Map<String,dynamic> record) async {
   await FirebaseFirestore.instance.collection('subscribers').doc(record['id']).get().then(
           (value) =>
   record.update('profileImgUrl', (value2) => value['profileImgUrl']));
-  print(record['profileImgUrl']+' PROVAAAA');
+  // print(record['profileImgUrl']+' PROVAAAA');
 
 
 }
@@ -467,14 +471,15 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
 
   Map<String, dynamic> tmp = data.data();
   profileImageUrl(tmp);
+
   final record = Record.fromSnapshot(data);
 
-  print(record.sexPatient); // record.map((data)=> print(data[1]));
-  print(record.profileImgUrl);
-  return PostTile(record);
-  // profileImageOnPost(record);
+  // print(record.sexPatient); // record.map((data)=> print(data[1]));
+  print(record.comments);
+
+  return PostTile( data, context);
   // return Padding(
-  //     // key: ValueKey(record.nameProfile),
+  //   // key: ValueKey(record.nameProfile),
   //     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
   //     child: Container(
   //         decoration: BoxDecoration(
@@ -483,15 +488,20 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
   //         ),
   //         child: Column(children: <Widget>[
   //           ListTile(
-  //             leading: record.profileImgUrl!=' ' ? Icon(Icons.account_circle_outlined,size: 50) : urlImageProfile(record),// ClipRRect(borderRadius: BorderRadius.circular(20),clipBehavior: Clip.hardEdge, child: Image.network(record.profileImgUrl, height: 50, width:50),),
+  //             leading: record.profileImgUrl==' ' ? Icon(Icons.account_circle_outlined,size: 50) : ClipRRect(borderRadius: BorderRadius.circular(20),clipBehavior: Clip.hardEdge, child: Image.network(record.profileImgUrl, height: 50, width:50)),
   //             title: Text(record.nameProfile),
   //             subtitle: Text(record.timestamp),
   //             onTap: () {
-  //               Navigator.push(
-  //                 context,
-  //                 MaterialPageRoute(
-  //                     builder: (context) => MyProfile(record.nameProfile, record.id.toString())),
-  //               );
+  //               var snap = FirebaseFirestore.instance.collection('subscribers').doc(record.id).get().then((value) {
+  //                 UserMB user = UserMB.fromSnapshot(value);
+  //                 Navigator.push(
+  //                   context,
+  //                   MaterialPageRoute(
+  //                       builder: (context) => MyProfile(user)),//.nameProfile, record.id.toString())),
+  //                 );
+  //               });
+  //
+  //
   //             },
   //           ),
   //           ListTile(
@@ -503,19 +513,23 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
   //                   (record.hashtags.length == 0
   //                       ? ''
   //                       : "\n# " +
-  //                           record.hashtags.toString().substring(
-  //                               1, record.hashtags.toString().length - 1)) +
+  //                       record.hashtags.toString().substring(
+  //                           1, record.hashtags.toString().length - 1)) +
   //                   ""
   //                       "\n\n" +
   //                   record.post)),
   //           ListTile(
   //             title: record.comments.first.length > 0
   //                 ? record.comments.first.length > 1
-  //                     ? Text(record.comments.length.toString() + ' commenti')
-  //                     : Text(record.comments.length.toString() + ' commento')
+  //                 ? Text(record.comments.length.toString() + ' commenti')
+  //                 : Text(record.comments.length.toString() + ' commento')
   //                 : Text('Non ci sono commenti'),
   //             onTap: () {
-  //               addComment(context, record.comments, record.reference, 0);
+  //
+  //               setState(() {
+  //                 addComment(context, record.comments, record.reference, 0);
+  //                 print(record.comments);
+  //               });
   //             },
   //           ),
   //           Row(
@@ -523,11 +537,11 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
   //             children: <Widget>[
   //               Flexible(
   //                   child: ListTile(
-  //                 onTap: () {
-  //                   addComment(context, record.comments, record.reference, 1);
-  //                 },
-  //                 title: Center(child: Text('Commenta')),
-  //               )),
+  //                     onTap: () {
+  //                       addComment(context, record.comments, record.reference, 1);
+  //                     },
+  //                     title: Center(child: Text('Commenta')),
+  //                   )),
   //               Container(
   //                   height: 30,
   //                   child: VerticalDivider(
@@ -536,12 +550,47 @@ Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
   //                   )),
   //               Flexible(
   //                   child: ListTile(
-  //                       onTap: _activeNotifications,
+  //                     // onTap: _activeNotifications,
   //                       title: Center(child: Text('Segui'))))
   //             ],
   //           )
   //         ])));
 }
+
+  // void addComment(context, List<dynamic> record1, reference, nuovoCommento) {
+  //   //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
+  //   // print('Ciao Lele' + record1.length.toString() );
+  //   List<Map<String, dynamic>> record2 = new List<
+  //       Map<String,
+  //           dynamic>>(); // la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
+  //   // print(nuovoCommento);
+  //   // print(record1.first.length);
+  //   if (record1.first.length != 0) {
+  //     record1.forEach((data) =>
+  //         record2.add({
+  //           'nameProfile': data['nameProfile'],
+  //           'comment': data['comment'],
+  //           'upvote': data['upvote'],
+  //           'downvote': data['downvote'],
+  //           'idVotersLike': data['idVotersLike'],
+  //           'idVotersDislike': data['idVotersDislike'],
+  //           'profileImgUrl': data['profileImgUrl']
+  //         }));
+  //   }
+  //
+  //   // if(record.length==0)
+  //   //   record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0, 'idVotersLike':[0], 'idVotersDislike':[0]}];
+  //   // print(record);
+  //   if (record1.first.length != 0 || nuovoCommento == 1) {
+  //     // record1 = record;
+  //     // Navigator.of(context).pop();
+  //     Navigator.push(
+  //       context,
+  //       MaterialPageRoute(
+  //           builder: (context) => CommentScreen(record2, reference)),
+  //     );
+  //   }
+  // }
 
 
 
@@ -572,33 +621,4 @@ String _visualizeComments(record) {
   return record.comments.map((data) => data['comment'][0].toString());
 }
 
-void addComment(context, List<dynamic> record1, reference, nuovoCommento) {
-  //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
-  // print('Ciao Lele' + record1.length.toString() );
-  List<Map<String, dynamic>> record = new List<
-      Map<String,
-          dynamic>>(); // la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
-  // print(nuovoCommento);
-  // print(record1.first.length);
-  if (record1.first.length != 0) {
-    record1.forEach((data) => record.add({
-      'nameProfile': data['nameProfile'],
-      'comment': data['comment'],
-      'upvote': data['upvote'],
-      'downvote': data['downvote'],
-      'idVotersLike': data['idVotersLike'],
-      'idVotersDislike': data['idVotersDislike'],
-      'profileImgUrl': data['profileImgUrl']
-    }));
-  }
 
-  // if(record.length==0)
-  //   record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0, 'idVotersLike':[0], 'idVotersDislike':[0]}];
-  // print(record);
-  if (record1.first.length != 0 || nuovoCommento == 1) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => CommentScreen(record, reference)),
-    );
-  }
-}

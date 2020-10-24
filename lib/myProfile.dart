@@ -54,7 +54,6 @@ class _MyProfileState extends State<MyProfile> {
   }
 
 
-
   @override
   Widget build(BuildContext context) {
     // var route = ModalRoute.withName('myProfile');
@@ -74,78 +73,77 @@ class _MyProfileState extends State<MyProfile> {
     // );
   }
 
-  Widget _build(BuildContext context, String nameProfile, String idProfile, UserMB user) {
-
-
+  Widget _build(BuildContext context, String nameProfile, String idProfile,
+      UserMB user) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: () {
-          _newPost();
-        }, //new post page
-        backgroundColor: Colors.orange,
-        splashColor: Colors.yellow,
-      ),
-      drawer: Drawer(
-          child: Column(
-        children: <Widget>[
-          drawDrawerHeader(),
-          ListView(
-              scrollDirection: Axis.vertical,
-              shrinkWrap: true,
-              children: _drawerTile(nameProfile, idProfile)),
-          Expanded(
-              child: Align(
-                  alignment: FractionalOffset.bottomCenter,
-                  child: ListTile(
-                    title: Text(
-                      'Esci',
-                      textScaleFactor: 1.5,
-                    ),
-                    tileColor: Colors.red,
-                    onTap: _logout,
-                  )))
-        ],
-      )),
-      appBar: CustomAppBar(
-        appBar: AppBar(
-          //
-          // leading: IconButton(
-          //   icon: Icon(Icons.menu),
-          //   onPressed: _openDrawer,
-          // ),
-          flexibleSpace: Container(
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.add),
+          onPressed: () {
+            _newPost();
+          }, //new post page
+          backgroundColor: Colors.orange,
+          splashColor: Colors.yellow,
+        ),
+        drawer: Drawer(
+            child: Column(
+              children: <Widget>[
+                drawDrawerHeader(),
+                ListView(
+                    scrollDirection: Axis.vertical,
+                    shrinkWrap: true,
+                    children: _drawerTile(nameProfile, idProfile)),
+                Expanded(
+                    child: Align(
+                        alignment: FractionalOffset.bottomCenter,
+                        child: ListTile(
+                          title: Text(
+                            'Esci',
+                            textScaleFactor: 1.5,
+                          ),
+                          tileColor: Colors.red,
+                          onTap: _logout,
+                        )))
+              ],
+            )),
+        appBar: CustomAppBar(
+          appBar: AppBar(
             //
             // leading: IconButton(
             //   icon: Icon(Icons.menu),
             //   onPressed: _openDrawer,
             // ),
-          ),
-          title: Center(child: Text(user.nameProfile)),
-          actions: [
-            IconButton(icon: Icon(Icons.search), onPressed: _search),
-            IconButton(
-              icon: Icon(Icons.notifications),
-              onPressed: _postWithMyHashtags,
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+              //
+              // leading: IconButton(
+              //   icon: Icon(Icons.menu),
+              //   onPressed: _openDrawer,
+              // ),
             ),
-          ],
+            title: Center(child: Text(user.nameProfile)),
+            actions: [
+              IconButton(icon: Icon(Icons.search), onPressed: _search),
+              IconButton(
+                icon: Icon(Icons.notifications),
+                onPressed: _postWithMyHashtags,
+              ),
+            ],
+          ),
+          // onTap: () {
+          //   Navigator.push(
+          //     context,
+          //     MaterialPageRoute(builder: (context) => PostTile()),
+          //   );
+          // },
         ),
-        // onTap: () {
-        //   Navigator.push(
-        //     context,
-        //     MaterialPageRoute(builder: (context) => PostTile()),
-        //   );
-        // },
-      ),
-      body: Column(children: [
+        body: Column(children: [
           _buildBodyHeader(user),
-      _buildBody(context, nameProfile, idProfile),
-      ])
+          _buildBody(context, nameProfile, idProfile),
+        ])
     );
   }
 
@@ -153,10 +151,10 @@ class _MyProfileState extends State<MyProfile> {
     return Container(
       height: 90.0,
       child: DrawerHeader(
-          // child: Text('Specializzazioni',
-          //     textScaleFactor: 1.8,
-          //     textAlign: TextAlign.left,
-          //     style: TextStyle(color: Colors.white)),
+        // child: Text('Specializzazioni',
+        //     textScaleFactor: 1.8,
+        //     textAlign: TextAlign.left,
+        //     style: TextStyle(color: Colors.white)),
           decoration: BoxDecoration(color: Colors.orange),
           padding: EdgeInsets.symmetric(vertical: 25)),
     );
@@ -254,7 +252,9 @@ class _MyProfileState extends State<MyProfile> {
           dense: true,
           title: Text('Specializzato in: ' +
               user.specializzazioni.toString().substring(
-                  1, user.specializzazioni.toString().length - 1)));
+                  1, user.specializzazioni
+                  .toString()
+                  .length - 1)));
     }
   }
 
@@ -288,28 +288,28 @@ class _MyProfileState extends State<MyProfile> {
     return Container(
         height: 150,
         child: Row(children: [
-              user.profileImgUrl != ' '
-                  ? CircleAvatar(
+          user.profileImgUrl != ' '
+              ? CircleAvatar(
 
-                radius: 50,
-                // child: Image.network(info['profileImgUrl']),
-                backgroundImage: NetworkImage(user.profileImgUrl),
-              )
-                  : Container(
-                  decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(50)),
-                  width: 100,
-                  height: 100,
-                  child: Icon(
-                    Icons.camera_alt,
-                    color: Colors.grey[800],
-                  ))
-            // CircleAvatar(radius: 50,child: Image.asset('assets/images/logo_google.png')),
-            // Image.asset('assets/images/logo_google.png')
+            radius: 50,
+            // child: Image.network(info['profileImgUrl']),
+            backgroundImage: NetworkImage(user.profileImgUrl),
+          )
+              : Container(
+              decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(50)),
+              width: 100,
+              height: 100,
+              child: Icon(
+                Icons.camera_alt,
+                color: Colors.grey[800],
+              ))
+          // CircleAvatar(radius: 50,child: Image.asset('assets/images/logo_google.png')),
+          // Image.asset('assets/images/logo_google.png')
 
-            // icon: Icon(_image == null ? Icons.account_circle_outlined : ExactAssetImage(_image.path) , size: 100.0),
-    ,
+          // icon: Icon(_image == null ? Icons.account_circle_outlined : ExactAssetImage(_image.path) , size: 100.0),
+          ,
           Flexible(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -336,7 +336,7 @@ class _MyProfileState extends State<MyProfile> {
                         'Data di nascita: ' +
                             user.dayBirth.toString() +
                             '/' +
-                            user.monthBirth+
+                            user.monthBirth +
                             '/' +
                             user.yearBirth.toString(),
                       )),
@@ -345,7 +345,6 @@ class _MyProfileState extends State<MyProfile> {
               ))
         ]));
   }
-
 
 
   // Widget _buildBodyHeader(Record record) {
@@ -377,7 +376,8 @@ class _MyProfileState extends State<MyProfile> {
   //
   // }
 
-  Widget _buildBody(BuildContext context, String nameProfile, String idProfile) {
+  Widget _buildBody(BuildContext context, String nameProfile,
+      String idProfile) {
     //TODO: estrai snapshot dal Cloud Firebase
     // List<Map> snapshot = dummySnapshot;
     // return _buildList(context, snapshot);
@@ -424,7 +424,8 @@ class _MyProfileState extends State<MyProfile> {
       // if( record.id==2){
       //   print(record.post);
       children: snapshot
-          .map((data) => _buildListItem(
+          .map((data) =>
+          _buildListItem(
               context, data, nameProfile, idProfile))
           .toList(),
     ));
@@ -436,7 +437,9 @@ class _MyProfileState extends State<MyProfile> {
     // title = nameProfile;
     print('amnnaiaa');
     print(idProfile);
-    if (Record.fromSnapshot(data).id != idProfile) return Container();
+    if (Record
+        .fromSnapshot(data)
+        .id != idProfile) return Container();
     var record = Record.fromSnapshot(data);
 
     // if(recordTot.id==id_accesso){
@@ -444,69 +447,92 @@ class _MyProfileState extends State<MyProfile> {
     // }
     // final record = recordTmp;
     print(record);
-    return PostTile(record);
-      // Padding(
-      //     // key: ValueKey(record.nameProfile),
-      //     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
-      //     child: Container(
-      //         decoration: BoxDecoration(
-      //           border: Border.all(color: Colors.grey),
-      //           borderRadius: BorderRadius.circular(15.0),
-      //         ),
-      //         child: Column(children: <Widget>[
-      //           ListTile(
-      //             leading: Icon(Icons.account_circle_outlined, size: 50.0),
-      //             title: Text(record.nameProfile),
-      //           ),
-      //           ListTile(
-      //               title: Text('Età: ' +
-      //                   (record.agePatient).toString() +
-      //                   ', Sesso: ' +
-      //                   (record.sexPatient) +
-      //                   (record.hashtags.length == 0
-      //                       ? ''
-      //                       : "\n# " +
-      //                           record.hashtags.toString().substring(
-      //                               1, record.hashtags.toString().length - 1)) +
-      //                   ""
-      //                       "\n\n" +
-      //                   record.post)),
-      //           ListTile(
-      //             title: record.comments.first.length > 0
-      //                 ? record.comments.first.length > 1
-      //                     ? Text(
-      //                         record.comments.length.toString() + ' commenti')
-      //                     : Text(record.comments.toString() + ' commento')
-      //                 : Text('Non ci sono commenti'),
-      //             onTap: () {
-      //               addComment(context, record.comments, record.reference, 0);
-      //             },
-      //           ),
-      //           Row(
-      //             mainAxisAlignment: MainAxisAlignment.center,
-      //             children: <Widget>[
-      //               Flexible(
-      //                   child: ListTile(
-      //                 onTap: () {
-      //                   addComment(
-      //                       context, record.comments, record.reference, 1);
-      //                 },
-      //                 title: Center(child: Text('Commenta')),
-      //               )),
-      //               Container(
-      //                   height: 30,
-      //                   child: VerticalDivider(
-      //                     color: Colors.grey,
-      //                     thickness: 2,
-      //                   )),
-      //               Flexible(
-      //                   child: ListTile(
-      //                       onTap: _activeNotifications,
-      //                       title: Center(child: Text('Segui'))))
-      //             ],
-      //           )
-      //         ])))
-
+    return PostTile(data, context);
+    // return Padding(
+    //   // key: ValueKey(record.nameProfile),
+    //     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
+    //     child: Container(
+    //         decoration: BoxDecoration(
+    //           border: Border.all(color: Colors.grey),
+    //           borderRadius: BorderRadius.circular(15.0),
+    //         ),
+    //         child: Column(children: <Widget>[
+    //           ListTile(
+    //             leading: record.profileImgUrl == ' ' ? Icon(
+    //                 Icons.account_circle_outlined, size: 50) : ClipRRect(
+    //                 borderRadius: BorderRadius.circular(20),
+    //                 clipBehavior: Clip.hardEdge,
+    //                 child: Image.network(
+    //                     record.profileImgUrl, height: 50, width: 50)),
+    //             title: Text(record.nameProfile),
+    //             subtitle: Text(record.timestamp),
+    //             onTap: () {
+    //               var snap = FirebaseFirestore.instance.collection(
+    //                   'subscribers').doc(record.id).get().then((value) {
+    //                 UserMB user = UserMB.fromSnapshot(value);
+    //                 Navigator.push(
+    //                   context,
+    //                   MaterialPageRoute(
+    //                       builder: (context) =>
+    //                           MyProfile(
+    //                               user)), //.nameProfile, record.id.toString())),
+    //                 );
+    //               });
+    //             },
+    //           ),
+    //           ListTile(
+    //               title: Text('Età: ' +
+    //                   (record.agePatient).toString() +
+    //                   (record.sexPatient == 'null'
+    //                       ? ''
+    //                       : (', Sesso: ' + (record.sexPatient))) +
+    //                   (record.hashtags.length == 0
+    //                       ? ''
+    //                       : "\n# " +
+    //                       record.hashtags.toString().substring(
+    //                           1, record.hashtags
+    //                           .toString()
+    //                           .length - 1)) +
+    //                   ""
+    //                       "\n\n" +
+    //                   record.post)),
+    //           ListTile(
+    //             title: record.comments.first.length > 0
+    //                 ? record.comments.first.length > 1
+    //                 ? Text(record.comments.length.toString() + ' commenti')
+    //                 : Text(record.comments.length.toString() + ' commento')
+    //                 : Text('Non ci sono commenti'),
+    //             onTap: () {
+    //               setState(() {
+    //                 addComment(context, record.comments, record.reference, 0);
+    //                 print(record.comments);
+    //               });
+    //             },
+    //           ),
+    //           Row(
+    //             mainAxisAlignment: MainAxisAlignment.center,
+    //             children: <Widget>[
+    //               Flexible(
+    //                   child: ListTile(
+    //                     onTap: () {
+    //                       addComment(
+    //                           context, record.comments, record.reference, 1);
+    //                     },
+    //                     title: Center(child: Text('Commenta')),
+    //                   )),
+    //               Container(
+    //                   height: 30,
+    //                   child: VerticalDivider(
+    //                     color: Colors.grey,
+    //                     thickness: 2,
+    //                   )),
+    //               Flexible(
+    //                   child: ListTile(
+    //                     // onTap: _activeNotifications,
+    //                       title: Center(child: Text('Segui'))))
+    //             ],
+    //           )
+    //         ])));
   }
 
 // void addComment(context, record, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
@@ -543,36 +569,40 @@ class _MyProfileState extends State<MyProfile> {
 //   }
 //
 // }
-  void addComment(context, List<dynamic> record1, reference, nuovoCommento) {
-    //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
-    print('Ciao Lele' + record1.length.toString());
-    List<Map<String, dynamic>> record = new List<
-        Map<String,
-            dynamic>>(); // la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
-    print(nuovoCommento);
-    // print(record1.first.length);
-    if (record1.first.length != 0) {
-      record1.forEach((data) => record.add({
-            'nameProfile': data['nameProfile'],
-            'comment': data['comment'],
-            'upvote': data['upvote'],
-            'downvote': data['downvote'],
-            'idVotersLike': data['idVotersLike'],
-            'idVotersDislike': data['idVotersDislike']
-          }));
-    }
-
-    // if(record.length==0)
-    //   record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0, 'idVotersLike':[0], 'idVotersDislike':[0]}];
-    // print(record);
-    if (record1.first.length != 0 || nuovoCommento == 1) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => CommentScreen(record, reference)),
-      );
-    }
-  }
+//   void addComment(context, List<dynamic> record1, reference, nuovoCommento) {
+//     //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
+//     // print('Ciao Lele' + record1.length.toString() );
+//     List<Map<String, dynamic>> record2 = new List<
+//         Map<String,
+//             dynamic>>(); // la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
+//     // print(nuovoCommento);
+//     // print(record1.first.length);
+//     if (record1.first.length != 0) {
+//       record1.forEach((data) =>
+//           record2.add({
+//             'nameProfile': data['nameProfile'],
+//             'comment': data['comment'],
+//             'upvote': data['upvote'],
+//             'downvote': data['downvote'],
+//             'idVotersLike': data['idVotersLike'],
+//             'idVotersDislike': data['idVotersDislike'],
+//             'profileImgUrl': data['profileImgUrl']
+//           }));
+//     }
+//
+//     // if(record.length==0)
+//     //   record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0, 'idVotersLike':[0], 'idVotersDislike':[0]}];
+//     // print(record);
+//     if (record1.first.length != 0 || nuovoCommento == 1) {
+//       // record1 = record;
+//       // Navigator.of(context).pop();
+//       Navigator.push(
+//         context,
+//         MaterialPageRoute(
+//             builder: (context) => CommentScreen(record2, reference)),
+//       );
+//     }
+//   }
 }
 
 // class Record {

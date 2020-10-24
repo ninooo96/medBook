@@ -29,6 +29,17 @@ class _NewPostScreenState extends State<NewPostScreen> {
           children: [drawDrawerHeader(), _populateHashtags()],
         )),
         appBar: AppBar(
+          // leading: IconButton(
+          //     icon: Icon(Icons.arrow_back_ios),
+          //     onPressed: () {
+          //       Navigator.of(context).pop();
+          //       Navigator.push(
+          //         context,
+          //         MaterialPageRoute(builder: (context) => FeedPage()),
+          //       );
+          //
+          //     }
+          // ),
           flexibleSpace: Container(
             decoration: BoxDecoration(
                 gradient: LinearGradient(

@@ -537,6 +537,7 @@ class _SettingState extends State<Setting> {
           //   icon: Icon(Icons.menu),
           //   onPressed: _openDrawer,
           // ),
+
         ),
         title: Text('Impostazioni'),
         actions: <Widget>[
