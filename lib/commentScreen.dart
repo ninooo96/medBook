@@ -44,12 +44,14 @@ class _CommentState extends State<Comment>{
   bool votatoDislike;
   DocumentReference reference;
   List<Map<String,dynamic>> comments;
+  String profileImgUrl;
 
 
   _CommentState(record, reference, comments){
     this.text = record['comment'];
     this.upvote = record['upvote'];
     this.downvote = record['downvote'];
+    this.profileImgUrl = record['profileImgUrl'];
     this.record = record;
     print('quale record?');
     print(record);
@@ -76,7 +78,7 @@ class _CommentState extends State<Comment>{
         child: Column(
           children: <Widget>[
             ListTile(
-              leading: Icon(Icons.account_circle_outlined, size: 50.0),
+              leading: profileImgUrl==' '|| profileImgUrl==null ? Icon(Icons.account_circle_outlined,size: 50) : ClipRRect(borderRadius: BorderRadius.circular(20),clipBehavior: Clip.hardEdge, child: Image.network(profileImgUrl, height: 50, width:50)),
               title: Text(
                 record['nameProfile'],
                 textScaleFactor: 1.2,
@@ -349,9 +351,7 @@ class _CommentScreenState extends State<CommentScreen> {
 
     FirebaseFirestore.instance
         .collection('subscribers').doc(FirebaseAuth.instance.currentUser.uid).get().then((value) =>
-        _handleSubmitted(comment, value['name'] +
-            " " +
-            value['surname']));
+        _handleSubmitted(comment, value['name'] ));
   }
 
   void _handleSubmitted(comment, nameProfile) {
@@ -366,7 +366,8 @@ class _CommentScreenState extends State<CommentScreen> {
       'upvote': 0,
       'downvote': 0,
       'idVotersLike':[],
-      'idVotersDislike': []
+      'idVotersDislike': [],
+      'profileImgUrl': info['profileImgUrl']
     };
 
     comment.add(newEntry);

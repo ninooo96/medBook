@@ -282,7 +282,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
       'comments': [Map()],
       'id': FirebaseAuth.instance.currentUser.uid,
       'timestamp': timeTmp.toUtc(),
-      'hashtags': hashtagPost
+      'hashtags': hashtagPost,
+      'profileImgUrl' : info['profileImgUrl']
+
     };
     await FirebaseFirestore.instance
         .collection('feed')

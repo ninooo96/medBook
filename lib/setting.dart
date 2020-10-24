@@ -202,6 +202,7 @@ class _SettingState extends State<Setting> {
     setState(() {
       _image = File(image.path);
     });
+    uploadPic(context);
   }
 
   _imgFromGallery() async {
@@ -1019,7 +1020,8 @@ class _SettingState extends State<Setting> {
       'yearBirth': _yearController.text,
       'specializzazioni': [_specializzazioniController.text],
       'numOrdine': _numOrdineController.text,
-      'provinciaOrdine': provincia
+      'provinciaOrdine': provincia,
+      'profileImgUrl' : info['profileImgUrl']
     };
     FeedPage().setInfo(newInfo);
 

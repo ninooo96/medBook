@@ -2,7 +2,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:medbook/record.dart';
 import 'package:intl/intl.dart';
+import 'package:medbook/postTile.dart';
+import 'package:medbook/user.dart' as userMedbook;
+import 'package:medbook/user.dart';
 import 'package:medbook/welcomeScreen.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
@@ -153,7 +157,8 @@ class FeedPage extends StatelessWidget {
       'numOrdine': user['numOrdine'],
       'specializzazioni' : user['specializzazioni'],
       'image' : user['image'],
-      'profileImgUrl' : user['profileImgUrl']// non è user
+      'profileImgUrl' : user['profileImgUrl'],// non è user
+      'id': FirebaseAuth.instance.currentUser.uid
     });
 
   print(info);
@@ -162,7 +167,7 @@ class FeedPage extends StatelessWidget {
     return MaterialApp(
       routes: {
         'welcome': (context) => WelcomeScreen(),
-        'myProfile' : (context) =>MyProfile(info['name'], info['id'])
+        // 'myProfile' : (context) =>MyProfile(Record.fromMap(info))//info['name'], info['id'])
       },
       title: 'MedBook',
       theme: ThemeData(primaryColor: Colors.orange),
@@ -182,9 +187,11 @@ class MyFeedPage extends StatefulWidget {
 }
 
 class _MyFeedPageState extends State<MyFeedPage> {
+  String _profileImageUrl=' ';
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -369,20 +376,20 @@ class _MyFeedPageState extends State<MyFeedPage> {
   myProfile(){
     FirebaseFirestore.instance
       .collection('subscribers').doc(FirebaseAuth.instance.currentUser.uid).get().then((value) =>
-      myProfile2(value['name']));
+      myProfile2(UserMB.fromSnapshot(value)));
   }
 
-  myProfile2(String nameProfileId) {
+  myProfile2(UserMB user) {
 
     Navigator.of(context).pop();
     Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => MyProfile(nameProfileId, FirebaseAuth.instance.currentUser.uid),
+          builder: (context) => MyProfile(user),
         )
     );
   }
-}
+
 
 Widget _buildBody(BuildContext context) {
   //TODO: estrai snapshot dal Cloud Firebase
@@ -412,153 +419,135 @@ Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
   );
 }
 
+String profileImageOnPost(String id) {
+  String tmp = ' ';
+  FirebaseFirestore.instance.collection('subscribers').doc(id).get().then((
+      value) =>
+  tmp = value['profileImgUrl']);
+  print(tmp+ 'boh');
+  return tmp;
+}
+
+Future<bool> profileImageUrl(Map<String,dynamic> record) async {
+  // print(record['id']);
+  await FirebaseFirestore.instance.collection('subscribers').doc(record['id']).get().then(
+          (value) =>
+  record.update('profileImgUrl', (value2) => value['profileImgUrl']));
+  print(record['profileImgUrl']+' PROVAAAA');
+
+
+}
+
+urlImageProfile(UserMB record){
+    CollectionReference users = FirebaseFirestore.instance.collection('subscribers');
+
+    return FutureBuilder<DocumentSnapshot>(
+      future: users.doc(record.id).get(),
+      builder:
+          (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+
+        // if (snapshot.hasError) {
+        //   return Text("Something went wrong");
+        // }
+
+          Map<String, dynamic> data = snapshot.data.data();
+          // return Text("Full Name: ${data['full_name']} ${data['last_name']}");
+          ClipRRect(borderRadius: BorderRadius.circular(20),clipBehavior: Clip.hardEdge, child: Image.network(record.profileImgUrl, height: 50, width:50),);
+
+
+        // return Text("loading");
+      },
+    );
+  }
+
+
 Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
   // final record = Record.fromMap(data);
   // print('provaaa');
 
+  Map<String, dynamic> tmp = data.data();
+  profileImageUrl(tmp);
   final record = Record.fromSnapshot(data);
+
   print(record.sexPatient); // record.map((data)=> print(data[1]));
-  return Padding(
-      // key: ValueKey(record.nameProfile),
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
-      child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.grey),
-            borderRadius: BorderRadius.circular(15.0),
-          ),
-          child: Column(children: <Widget>[
-            ListTile(
-              leading: Image.network(info['profileImgUrl']),
-              title: Text(record.nameProfile),
-              subtitle: Text(record.timestamp),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => MyProfile(record.nameProfile, record.id.toString())),
-                );
-              },
-            ),
-            ListTile(
-                title: Text('Età: ' +
-                    (record.agePatient).toString() +
-                    (record.sexPatient == 'null'
-                        ? ''
-                        : (', Sesso: ' + (record.sexPatient))) +
-                    (record.hashtags.length == 0
-                        ? ''
-                        : "\n# " +
-                            record.hashtags.toString().substring(
-                                1, record.hashtags.toString().length - 1)) +
-                    ""
-                        "\n\n" +
-                    record.post)),
-            ListTile(
-              title: record.comments.first.length > 0
-                  ? record.comments.first.length > 1
-                      ? Text(record.comments.length.toString() + ' commenti')
-                      : Text(record.comments.length.toString() + ' commento')
-                  : Text('Non ci sono commenti'),
-              onTap: () {
-                addComment(context, record.comments, record.reference, 0);
-              },
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Flexible(
-                    child: ListTile(
-                  onTap: () {
-                    addComment(context, record.comments, record.reference, 1);
-                  },
-                  title: Center(child: Text('Commenta')),
-                )),
-                Container(
-                    height: 30,
-                    child: VerticalDivider(
-                      color: Colors.grey,
-                      thickness: 2,
-                    )),
-                Flexible(
-                    child: ListTile(
-                        onTap: _activeNotifications,
-                        title: Center(child: Text('Segui'))))
-              ],
-            )
-          ])));
+  print(record.profileImgUrl);
+  return PostTile(record);
+  // profileImageOnPost(record);
+  // return Padding(
+  //     // key: ValueKey(record.nameProfile),
+  //     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
+  //     child: Container(
+  //         decoration: BoxDecoration(
+  //           border: Border.all(color: Colors.grey),
+  //           borderRadius: BorderRadius.circular(15.0),
+  //         ),
+  //         child: Column(children: <Widget>[
+  //           ListTile(
+  //             leading: record.profileImgUrl!=' ' ? Icon(Icons.account_circle_outlined,size: 50) : urlImageProfile(record),// ClipRRect(borderRadius: BorderRadius.circular(20),clipBehavior: Clip.hardEdge, child: Image.network(record.profileImgUrl, height: 50, width:50),),
+  //             title: Text(record.nameProfile),
+  //             subtitle: Text(record.timestamp),
+  //             onTap: () {
+  //               Navigator.push(
+  //                 context,
+  //                 MaterialPageRoute(
+  //                     builder: (context) => MyProfile(record.nameProfile, record.id.toString())),
+  //               );
+  //             },
+  //           ),
+  //           ListTile(
+  //               title: Text('Età: ' +
+  //                   (record.agePatient).toString() +
+  //                   (record.sexPatient == 'null'
+  //                       ? ''
+  //                       : (', Sesso: ' + (record.sexPatient))) +
+  //                   (record.hashtags.length == 0
+  //                       ? ''
+  //                       : "\n# " +
+  //                           record.hashtags.toString().substring(
+  //                               1, record.hashtags.toString().length - 1)) +
+  //                   ""
+  //                       "\n\n" +
+  //                   record.post)),
+  //           ListTile(
+  //             title: record.comments.first.length > 0
+  //                 ? record.comments.first.length > 1
+  //                     ? Text(record.comments.length.toString() + ' commenti')
+  //                     : Text(record.comments.length.toString() + ' commento')
+  //                 : Text('Non ci sono commenti'),
+  //             onTap: () {
+  //               addComment(context, record.comments, record.reference, 0);
+  //             },
+  //           ),
+  //           Row(
+  //             mainAxisAlignment: MainAxisAlignment.center,
+  //             children: <Widget>[
+  //               Flexible(
+  //                   child: ListTile(
+  //                 onTap: () {
+  //                   addComment(context, record.comments, record.reference, 1);
+  //                 },
+  //                 title: Center(child: Text('Commenta')),
+  //               )),
+  //               Container(
+  //                   height: 30,
+  //                   child: VerticalDivider(
+  //                     color: Colors.grey,
+  //                     thickness: 2,
+  //                   )),
+  //               Flexible(
+  //                   child: ListTile(
+  //                       onTap: _activeNotifications,
+  //                       title: Center(child: Text('Segui'))))
+  //             ],
+  //           )
+  //         ])));
 }
 
-void addComment(context, List<dynamic> record1, reference, nuovoCommento) {
-  //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
-  // print('Ciao Lele' + record1.length.toString() );
-  List<Map<String, dynamic>> record = new List<
-      Map<String,
-          dynamic>>(); // la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
-  // print(nuovoCommento);
-  // print(record1.first.length);
-  if (record1.first.length != 0) {
-    record1.forEach((data) => record.add({
-          'nameProfile': data['nameProfile'],
-          'comment': data['comment'],
-          'upvote': data['upvote'],
-          'downvote': data['downvote'],
-          'idVotersLike': data['idVotersLike'],
-          'idVotersDislike': data['idVotersDislike']
-        }));
-  }
 
-  // if(record.length==0)
-  //   record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0, 'idVotersLike':[0], 'idVotersDislike':[0]}];
-  // print(record);
-  if (record1.first.length != 0 || nuovoCommento == 1) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => CommentScreen(record, reference)),
-    );
-  }
+
 }
 
-// }
 
-class Record {
-  final String nameProfile;
-  final String sexPatient;
-  final String post;
-  final int agePatient;
-  final int numComment;
-  final String id;
-  final String timestamp;
-
-  final List comments;
-  final List hashtags;
-  final DocumentReference reference;
-
-  Record.fromMap(Map<String, dynamic> map, {this.reference})
-      : nameProfile = map['nameProfile'],
-        sexPatient = map['sexPatient'],
-        agePatient = map['agePatient'],
-        post = map['post'],
-        numComment = map['numComment'],
-        id = map['id'],
-        timestamp = getTimestamp(map['timestamp']),
-        hashtags = map['hashtags'],
-        comments = map['comments'];
-
-  Record.fromSnapshot(DocumentSnapshot snapshot)
-      : this.fromMap(snapshot.data(),
-            reference: snapshot.reference); //prende solo il primo post
-
-  String toString() => "Record<$nameProfile:$post>";
-
-  static String getTimestamp(Timestamp timestamp) {
-    var time = timestamp.toDate();
-    // print(time);
-    final f = new DateFormat('dd/MM/yyyy').add_Hm();
-    return f.format(time);
-    // formatDate(time, [yyyy, '-', mm, '-', dd]);
-    // return (time.day.toString()+"/"+time.month.toString()+"/"+time.year.toString()+" - "+time.hour.toString()+":"+time.minute);
-  }
-}
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onTap;
@@ -581,4 +570,35 @@ void _activeNotifications() {}
 String _visualizeComments(record) {
   print(record.comments.map((data) => data['comment'].toString()));
   return record.comments.map((data) => data['comment'][0].toString());
+}
+
+void addComment(context, List<dynamic> record1, reference, nuovoCommento) {
+  //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
+  // print('Ciao Lele' + record1.length.toString() );
+  List<Map<String, dynamic>> record = new List<
+      Map<String,
+          dynamic>>(); // la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
+  // print(nuovoCommento);
+  // print(record1.first.length);
+  if (record1.first.length != 0) {
+    record1.forEach((data) => record.add({
+      'nameProfile': data['nameProfile'],
+      'comment': data['comment'],
+      'upvote': data['upvote'],
+      'downvote': data['downvote'],
+      'idVotersLike': data['idVotersLike'],
+      'idVotersDislike': data['idVotersDislike'],
+      'profileImgUrl': data['profileImgUrl']
+    }));
+  }
+
+  // if(record.length==0)
+  //   record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0, 'idVotersLike':[0], 'idVotersDislike':[0]}];
+  // print(record);
+  if (record1.first.length != 0 || nuovoCommento == 1) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => CommentScreen(record, reference)),
+    );
+  }
 }
