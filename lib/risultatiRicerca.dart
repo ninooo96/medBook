@@ -7,12 +7,15 @@ import 'package:medbook/record.dart';
 class RisultatiRicerca extends StatefulWidget {
   String nameRicerca;
   String hashtag;
-  RisultatiRicerca(String nameRicerca, String hashtag){
+
+  RisultatiRicerca(String nameRicerca, String hashtag) {
     this.nameRicerca = nameRicerca;
     this.hashtag = hashtag;
   }
+
   @override
-  _RisultatiRicercaState createState() => _RisultatiRicercaState(nameRicerca, hashtag);
+  _RisultatiRicercaState createState() =>
+      _RisultatiRicercaState(nameRicerca, hashtag);
 }
 
 class _RisultatiRicercaState extends State<RisultatiRicerca> {
@@ -29,16 +32,17 @@ class _RisultatiRicercaState extends State<RisultatiRicerca> {
     return Scaffold(
       appBar: CustomAppBar(
           appBar: AppBar(
-            flexibleSpace: Container(
-              decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                      begin: Alignment.centerLeft,
-                      end: Alignment.centerRight,
-                      colors: [Color(0xfffbb448), Color(0xfff7892b)])),
-            ),
-            title: Text('Risultati ricerca'),
-          )),
-      body: _buildBody(context),);
+        flexibleSpace: Container(
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+        ),
+        title: Text('Risultati ricerca'),
+      )),
+      body: _buildBody(context),
+    );
   }
 
   titleCase(str) {
@@ -46,54 +50,102 @@ class _RisultatiRicercaState extends State<RisultatiRicerca> {
     for (var i = 0; i < splitStr.length; i++) {
       // You do not need to check if i is larger than splitStr length, as your for does that for you
       // Assign it back to the array
-      splitStr[i] =
-          splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
+      splitStr[i] = splitStr[i][0].toUpperCase() + splitStr[i].substring(1);
     }
     // Directly return the joined string
     return splitStr.join(' ').toString();
   }
 
   Widget _buildBody(BuildContext context) {
-    var stream = FirebaseFirestore.instance
-        .collection('user');
+    var stream = FirebaseFirestore.instance.collection('feed');
     if (nameRicerca != '' && hashtag != '') {
       var nameRicerca2 = titleCase(nameRicerca);
-      var hashtag2 = hashtag.replaceAll('.', '');
-      List<String> hashtagList = hashtag2.contains(',') ?
-      hashtag.split(",") : [hashtag];
-      return StreamBuilder<QuerySnapshot>(
-        stream: stream.where('nameProfile', isEqualTo: nameRicerca2)
-            .where('hashtags', arrayContainsAny: hashtagList)
-            .orderBy('timestamp', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return LinearProgressIndicator();
-          print(snapshot.data.docs);
-          return _buildList(context, snapshot.data.docs);
-        },
-      );
-    }
-
-    else if(nameRicerca!=''){
+      var tmp = titleCase(hashtag);
+      var hashtag2 = tmp.replaceAll('.', '');
+      List<String> hashtagList =
+          hashtag2.contains(',') ? hashtag2.split(",") : [hashtag2];
+      if (nameRicerca2.split(' ').length == 1) {
+        print('prova-hashtag-nameRicerca');
+        return StreamBuilder<QuerySnapshot>(
+          stream: stream
+              .where('name', isEqualTo: nameRicerca2)
+              .where('hashtags', arrayContainsAny: hashtagList)
+              .orderBy('timestamp', descending: true)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return LinearProgressIndicator();
+            if (snapshot.data.docs.length != 0)
+              return _buildList(context, snapshot.data.docs);
+            else {
+              return StreamBuilder<QuerySnapshot>(
+                  stream: stream
+                      .where('surname', isEqualTo: nameRicerca2)
+                      .where('hashtags', arrayContainsAny: hashtagList)
+                      .orderBy('timestamp', descending: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return LinearProgressIndicator();
+                    return _buildList(context, snapshot.data.docs);
+                  });
+            }
+          },
+        );
+      } else {
+        return StreamBuilder<QuerySnapshot>(
+            stream: stream
+                .where('nameProfile', isEqualTo: nameRicerca2)
+                .where('hashtags', arrayContainsAny: hashtagList)
+                .orderBy('timestamp', descending: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return LinearProgressIndicator();
+              return _buildList(context, snapshot.data.docs);
+            });
+      }
+    } else if (nameRicerca != '') {
       var nameRicerca2 = titleCase(nameRicerca);
-      List<String> hashtagList = hashtag.contains(',') ?
-      hashtag.split(",") : [hashtag];
-      return StreamBuilder<QuerySnapshot>(
-        stream: stream.where('nameProfile', isEqualTo: nameRicerca2)
-            .orderBy('timestamp', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return LinearProgressIndicator();
-          print(snapshot.data.docs);
-          return _buildList(context, snapshot.data.docs);
-        },
-      );
-    }
-
-    else if(hashtag!=''){
-      var hashtag2 = hashtag.replaceAll('.', '');
-      List<String> hashtagList = hashtag2.contains(',') ?
-      hashtag.split(",") : [hashtag];
+      print('prova-nameRicerca ' + nameRicerca2);
+      if (nameRicerca2.split(' ').length == 1) {
+        print('prova-hashtag-nameRicerca');
+        return StreamBuilder<QuerySnapshot>(
+          stream: stream
+              .where('name', isEqualTo: nameRicerca2)
+              .orderBy('timestamp', descending: true)
+              .snapshots(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) return LinearProgressIndicator();
+            if (snapshot.data.docs.length != 0)
+              return _buildList(context, snapshot.data.docs);
+            else {
+              return StreamBuilder<QuerySnapshot>(
+                  stream: stream
+                      .where('surname', isEqualTo: nameRicerca2)
+                      .orderBy('timestamp', descending: true)
+                      .snapshots(),
+                  builder: (context, snapshot) {
+                    if (!snapshot.hasData) return LinearProgressIndicator();
+                    return _buildList(context, snapshot.data.docs);
+                  });
+            }
+          },
+        );
+      } else {
+        return StreamBuilder<QuerySnapshot>(
+            stream: stream
+                .where('nameProfile', isEqualTo: nameRicerca2)
+                .orderBy('timestamp', descending: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) return LinearProgressIndicator();
+              return _buildList(context, snapshot.data.docs);
+            });
+      }
+    } else if (hashtag != '') {
+      var tmp = titleCase(hashtag);
+      var hashtag2 = tmp.replaceAll('.', '');
+      List<String> hashtagList =
+          hashtag2.contains(',') ? hashtag2.split(",") : [hashtag2];
+      print(hashtagList);
       return StreamBuilder<QuerySnapshot>(
         stream: stream
             .where('hashtags', arrayContainsAny: hashtagList)
@@ -108,7 +160,8 @@ class _RisultatiRicercaState extends State<RisultatiRicerca> {
     }
   }
 
-  Widget _buildList(BuildContext context, List<QueryDocumentSnapshot> snapshot) {
+  Widget _buildList(
+      BuildContext context, List<QueryDocumentSnapshot> snapshot) {
     return ListView(
       padding: const EdgeInsets.only(top: 5.0),
       //da giocarci dopo che visualizzo un post
@@ -117,15 +170,13 @@ class _RisultatiRicercaState extends State<RisultatiRicerca> {
     );
   }
 
-  _buildListItem(BuildContext context, QueryDocumentSnapshot data) {
+  Widget _buildListItem(BuildContext context, QueryDocumentSnapshot data) {
     final record = Record.fromSnapshot(data);
     print(record);
-    return PostTile( data, context);
+    return PostTile(data, context);
   }
-
-
-
 }
+
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onTap;
   final AppBar appBar;
@@ -141,5 +192,3 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Size get preferredSize => new Size.fromHeight(kToolbarHeight);
 }
-
-

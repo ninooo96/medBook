@@ -287,6 +287,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
         timeTmp.second.toString();
     var newPost = {
       'nameProfile': nameProfile,
+      'name': nameProfile.split(' ')[0],
+      'surname': nameProfile.split(' ').sublist(1).join(' '),
       'post': _textController.text,
       'agePatient': age,
       'sexPatient': sexPatient.toString(),

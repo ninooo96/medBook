@@ -85,7 +85,7 @@ class SearchScreen extends StatelessWidget {
             //   height: 10,
             // ),
             _entryField('Hashtag', _ricercaHashtag, 'Es.: Cardiologia, Dermatologia, Ortopedia'),
-            _entryField('Parola chiave', _ricercaGenerale, 'Inserisci una parola chiave'),
+            // _entryField('Parola chiave', _ricercaGenerale, 'Inserisci una parola chiave'),
             // Row(
             //   mainAxisAlignment: MainAxisAlignment.end,
             //   children: [IconButton(icon: Icon(Icons.send,size: 40,), onPressed: null)],
@@ -98,7 +98,7 @@ class SearchScreen extends StatelessWidget {
 
   Widget _submitButton(context) {
     return GestureDetector(
-        onTap: _search(context),
+        onTap: () {_search(context);},
         child: Container(
       padding: EdgeInsets.symmetric(vertical: 15),
       alignment: Alignment.center,
@@ -135,8 +135,9 @@ class SearchScreen extends StatelessWidget {
     return splitStr.join(' ').toString();
   }
 
-  _search(context) {
+  Widget _search(context) {
     if(_ricercaUtente.text!='' || _ricercaHashtag.text!=''){
+      // print(_ricercaUtente.text.split(' ').length);
       Navigator.push(
           context,
           MaterialPageRoute(
