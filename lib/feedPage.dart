@@ -168,6 +168,8 @@ class FeedPage extends StatelessWidget {
     return MaterialApp(
       routes: {
         'welcome': (context) => WelcomeScreen(),
+        'feed': (context) => FeedPage(),
+        // 'myProfile': (context) => MyProfile
         // 'myProfile' : (context) =>MyProfile(Record.fromMap(info))//info['name'], info['id'])
       },
       title: 'MedBook',

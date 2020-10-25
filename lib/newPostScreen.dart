@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'feedPage.dart';
 
@@ -275,16 +276,20 @@ class _NewPostScreenState extends State<NewPostScreen> {
     }
     // var timestampTmp = Timestamp.fromMillisecondsSinceEpoch(DateTime.now().millisecondsSinceEpoch);
     print(hashtagPost);
-    var timeTmp = DateTime.now().toUtc();
-    var timestamp = timeTmp.day.toString() +
-        timeTmp.month.toString() +
-        timeTmp.year.toString() +
-        "-" +
-        (timeTmp.hour).toString() +
-        ":" +
-        timeTmp.minute.toString() +
-        ":" +
-        timeTmp.second.toString();
+    var timeTmp = Timestamp.now();
+    // var timestamp = timeTmp.day.toString() +
+    //     timeTmp.month.toString() +
+    //     timeTmp.year.toString() +
+    //     "-" +
+    //     (timeTmp.hour).toString() +
+    //     ":" +
+    //     timeTmp.minute.toString() +
+    //     ":" +
+    //     timeTmp.second.toString();
+    var time = timeTmp.toDate();
+    // print(time);
+    final f = new DateFormat('dd/MM/yyyy').add_Hms();
+    var timestamp =  f.format(time);
     var newPost = {
       'nameProfile': nameProfile,
       'name': nameProfile.split(' ')[0],
@@ -294,7 +299,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
       'sexPatient': sexPatient.toString(),
       'comments': [Map()],
       'id': FirebaseAuth.instance.currentUser.uid,
-      'timestamp': timeTmp.toUtc(),
+      'timestamp': timeTmp,
       'hashtags': hashtagPost,
       'profileImgUrl' : info['profileImgUrl']
 
@@ -305,7 +310,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
             "_" +
         FirebaseAuth.instance.currentUser.uid +
             "-" +
-            timestamp)
+            timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
         .set(newPost);
     Navigator.of(context).pop();
     //TODO send post to firebase
