@@ -13,21 +13,21 @@ class Comment extends StatefulWidget implements Comparable {
   DocumentReference reference;
   List<Map<String, dynamic>> comments;
   String idPost;
-  List<Comment> _comments;
+  // List<Comment> _comments;
 
   // Record record;
-  Comment(idPost, record, reference, comments, _comments) {
+  Comment(idPost, record, reference, comments) {
     this.record = record;
     this.reference = reference;
     this.comments = comments;
     this.idPost = idPost;
-    this._comments = _comments;
+    // this._comments = _comments;
     // else
     //   this.record =[{'comments':[{'nameProfile':'','comment':'','upvote':0,'downvote':0}]}];
   }
 
   @override
-  _CommentState createState() => _CommentState(idPost, record, reference, comments, _comments);
+  _CommentState createState() => _CommentState(idPost, record, reference, comments);
 
   @override
   int compareTo(other) {
@@ -53,9 +53,10 @@ class _CommentState extends State<Comment> {
   String profileImgUrl;
   String id;
   String idPost;
-  List<Comment> _comments;
+  bool deleted = false;
+  // List<Comment> _comments;
 
-  _CommentState(idPost, record, reference, comments, _comments) {
+  _CommentState(idPost, record, reference, comments) {
     this.text = record['comment'];
     this.id = record['id'];
     this.upvote = record['upvote'];
@@ -65,7 +66,7 @@ class _CommentState extends State<Comment> {
     print('quale record?');
     print(record);
     this.reference = reference;
-    this._comments = _comments;
+    // this._comments = _comments;
     this.comments = comments;
     this.idPost = idPost;
     this.votatoLike =
@@ -101,18 +102,19 @@ class _CommentState extends State<Comment> {
                         onPressed: () {
                           // Navigator.of(context).pop();
                           print(record);
-                          // setState(() {
+                          setState(() {
                             comments.remove(record);
-                          //   List<Comment> _comments2 = [];
-                          //   for (var data in comments) {
-                          //     if (data['nameProfile'] != '')
-                          //       _comments2.add(Comment(idPost, data, reference, comments,_comments));
-                          //   }
-                          //   _comments2.sort((a, b) {
-                          //     a.compareTo(b.record);
-                          //   });
-                          //   _comments =_comments2;
-                          // // });
+                          });
+                            // List<Comment> _comments2 = [];
+                            // for (var data in comments) {
+                            //   if (data['nameProfile'] != '')
+                            //     _comments2.add(Comment(idPost, data, reference, comments));
+                            // }
+                            // _comments2.sort((a, b) {
+                            //   a.compareTo(b.record);
+                            // });
+                            // _comments =_comments2;
+                          // });
                           if(comments.isEmpty)
                             reference.update({'comments': [{}]});
                           else {
@@ -120,18 +122,21 @@ class _CommentState extends State<Comment> {
                             reference.update({'comments': comments});
                           }
                           Navigator.of(context).pop();
-                          Navigator.of(context).reassemble();
-                          print(Navigator.of(context).canPop());
+                          setState(() {
+                            deleted = true;
+                          });
+                          // Navigator.of(context).reassemble();
+                          // print(Navigator.of(context).canPop());
                           // if(Navigator.of(context).canPop() ) {
 
 
                           // }
                             // Navigator.of(context).pop();
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => CommentScreen(idPost, comments, reference)),//.nameProfile, record.id.toString())),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(
+                            //       builder: (context) => CommentScreen(idPost, comments, reference)),//.nameProfile, record.id.toString())),
+                            // );
               //
               // });
                           // // DateTime date = record.t
@@ -158,7 +163,7 @@ class _CommentState extends State<Comment> {
   @override
   Widget build(BuildContext context) {
     // print(text+' prova1');
-    return Padding(
+    return deleted ? Container() : Padding(
       padding: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 5.0),
       child: Container(
         decoration: BoxDecoration(
@@ -392,7 +397,7 @@ class _CommentScreenState extends State<CommentScreen> {
     //TODO read data from Firebase
     for (var data in comment) {
       if (data['nameProfile'] != '')
-        _comments.add(Comment(idPost, data, reference, comments, _comments));
+        _comments.add(Comment(idPost, data, reference, comments));
     }
     _comments.sort((a, b) {
       return a.compareTo(b.record);
@@ -407,6 +412,19 @@ class _CommentScreenState extends State<CommentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // setState(() {
+
+    // _comments = [];
+    // for (var data in comments) {
+    //   Comment tmp = Comment(idPost, data, reference, comments);
+    //   if (!_comments.contains(tmp))
+    //
+    //     _comments.add(tmp);
+    // }
+    // _comments.sort((a, b) {
+    //   return a.compareTo(b.record);
+    // });
+    // });
     return Scaffold(
       appBar: AppBar(
           flexibleSpace: Container(
@@ -509,10 +527,10 @@ class _CommentScreenState extends State<CommentScreen> {
       'id': FirebaseAuth.instance.currentUser.uid
     };
 
-    comment.add(newEntry);
+    comments.add(newEntry);
     reference.update({'comments': comment});
     setState(() {
-      _comments.add(Comment(idPost, newEntry, reference, comments, _comments));
+      _comments.add(Comment(idPost, newEntry, reference, comments));
     });
     // _focusNode.requestFocus();
     _textController.clear();
