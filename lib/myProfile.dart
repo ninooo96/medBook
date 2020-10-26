@@ -259,8 +259,8 @@ class _MyProfileState extends State<MyProfile> {
   // }
 
   String _specializzazioni() {
-    print(info['specializzazioni'].toList() == []);
-    if (info['specializzazioni'].length == 0) {
+    print(user.specializzazioni == []);
+    if (user.specializzazioni.length == 0) {
       return '';//ListTile(title: Text(' '));
     } else {
       return
@@ -268,8 +268,8 @@ class _MyProfileState extends State<MyProfile> {
         //   dense: true,
         //   title: Text(
         'Specializzato in: ' +
-            info['specializzazioni'].toString().substring(
-                1, info['specializzazioni'].toString().length - 1);
+            user.specializzazioni.toString().substring(
+                1, user.specializzazioni.toString().length - 1);
     }
   }
 
@@ -364,7 +364,7 @@ class _MyProfileState extends State<MyProfile> {
               // mainAxisAlignment: MainAxisAlignment.center,
               // children: [
               title:
-              info['provinciaOrdine'] == ' ' ? Text('')
+              user.provinciaOrdine == ' ' ? Text('')
               // ? ListTile(
               //     dense: true,
               //     title: Text(''),
@@ -375,13 +375,13 @@ class _MyProfileState extends State<MyProfile> {
               //     title:
               Text(
                 'Ordine della provincia di \n' +
-                    info['provinciaOrdine'],
+                    user.provinciaOrdine,
                 textScaleFactor: 1.5,
               ),
               subtitle:
-              (info['dayBirth'] == ' ' &&
-                  info['monthBirth'] == ' ' &&
-                  info['yearBirth'] == ' ') ? Text('')
+              (user.dayBirth == ' ' &&
+                  user.monthBirth == ' ' &&
+                  user.yearBirth == ' ') ? Text('')
               // ? ListTile(dense: true, title: Text(''))
               // : ListTile(
               //     dense: true,
@@ -389,11 +389,11 @@ class _MyProfileState extends State<MyProfile> {
                   :
               Text(
                 '\nData di nascita: ' +
-                    info['dayBirth'].toString() +
+                    user.dayBirth.toString() +
                     '/' +
-                    info['monthBirth'].trim() +
+                    user.monthBirth.trim() +
                     '/' +
-                    info['yearBirth'].toString() +'\n\n'+
+                    user.yearBirth.toString() +'\n\n'+
 
                     _specializzazioni(),textScaleFactor: 1.2,)))
         ],

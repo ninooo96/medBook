@@ -81,6 +81,8 @@ class _CommentState extends State<Comment> {
 
     FirebaseFirestore.instance.collection('subscribers').doc(id).get().then((
         value) {
+      print('ora');
+      print(value.data()['profileImgUrl']);
       setState(() {
         profileImgUrl = value.data()['profileImgUrl'];
       });
