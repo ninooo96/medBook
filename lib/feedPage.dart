@@ -157,7 +157,6 @@ class FeedPage extends StatelessWidget {
       'yearBirth': user['yearBirth'],
       'numOrdine': user['numOrdine'],
       'specializzazioni' : user['specializzazioni'],
-      'image' : user['image'],
       'profileImgUrl' : user['profileImgUrl'],// non è user
       'id': FirebaseAuth.instance.currentUser.uid
     });

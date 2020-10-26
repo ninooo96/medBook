@@ -198,80 +198,25 @@ class _SettingState extends State<Setting> {
 
   _imgFromCamera() async {
     PickedFile image = await ImagePicker()
-        .getImage(source: ImageSource.camera, imageQuality: 50);
-    setState(() {
+        .getImage(source: ImageSource.camera, imageQuality: 100);
+    // setState(() {
       _image = File(image.path);
-    });
+    // });
     uploadPic(context);
   }
 
   _imgFromGallery() async {
     PickedFile image = await ImagePicker()
-        .getImage(source: ImageSource.gallery, imageQuality: 50);
+        .getImage(source: ImageSource.gallery, imageQuality: 100);
 
-    setState(() {
+    // setState(() {
       _image = File(image.path);
 
-      // CollectionReference users = FirebaseFirestore.instance.collection('subscribers');
-
-      // Future<void> updateUser() {
-      //   return _image.readAsBytes()
-      //       .then((bytes) => bytes.buffer.asUint8List())
-      //       .then((avatar) {
-      //     return users
-      //         .doc(FirebaseAuth.instance.currentUser.uid)
-      //         .update({'image': Blob(avatar)});
-      //   })
-      //       .then((value) => print("User Updated"))
-      //       .catchError((error) => print("Failed to update user: $error"));
-      // }
-      // updateUser();
-    }
-    );
+    // }
+    // );
     uploadPic(context);
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   _controllerImage = new AnimationController(
-  //     vsync: this,
-  //     duration: const Duration(milliseconds: 500),
-  //   );
-  //
-  //   imagePicker = new ImagePickerHandler(this, _controllerImage);
-  //   imagePicker.build(0xFFEE6969, 0xFFFFFFFF, false);
-  // }
-  //
-  // @override
-  // void dispose() {
-  //   _controllerImage.dispose();
-  //   super.dispose();
-  // }
-
-  // bool openNowProvincia = true;
-  // bool openNow = true;
-
-  // Widget _backButton() {
-  //   return InkWell(
-  //     onTap: () {
-  //       Navigator.pop(context);
-  //     },
-  //     child: Container(
-  //       padding: EdgeInsets.symmetric(horizontal: 10),
-  //       child: Row(
-  //         children: <Widget>[
-  //           Container(
-  //             padding: EdgeInsets.only(left: 0, top: 10, bottom: 10),
-  //             child: Icon(Icons.keyboard_arrow_left, color: Colors.black),
-  //           ),
-  //           Text('Back',
-  //               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500))
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
 
   Widget _entryField(String title, TextEditingController controller,
       {bool isPassword = false, bool isEnabled = true}) {
@@ -288,6 +233,9 @@ class _SettingState extends State<Setting> {
             height: 10,
           ),
           TextField(
+              onTap: () {
+                openNow = false;
+              },
               controller: controller,
               obscureText: isPassword,
               decoration: InputDecoration(
@@ -332,78 +280,6 @@ class _SettingState extends State<Setting> {
         ));
   }
 
-  // Widget _loginAccountLabel() {
-  //   return InkWell(
-  //     onTap: () {
-  //       Navigator.push(
-  //           context, MaterialPageRoute(builder: (context) => LoginScreen()));
-  //     },
-  //     child: Container(
-  //       margin: EdgeInsets.symmetric(vertical: 20),
-  //       padding: EdgeInsets.all(15),
-  //       alignment: Alignment.bottomCenter,
-  //       child: Row(
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         children: <Widget>[
-  //           Text(
-  //             'Hai già un account?',
-  //             style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-  //           ),
-  //           SizedBox(
-  //             width: 10,
-  //           ),
-  //           new GestureDetector(
-  //               onTap: () {
-  //                 Navigator.of(context).pop();
-  //                 Navigator.push(context,
-  //                     MaterialPageRoute(builder: (context) => LoginScreen()));
-  //               },
-  //               child: Text(
-  //                 'Login',
-  //                 style: TextStyle(
-  //                     color: Color(0xfff79c4f),
-  //                     fontSize: 13,
-  //                     fontWeight: FontWeight.w600),
-  //               )),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // Widget _title() {
-  //   return RichText(
-  //     textAlign: TextAlign.center,
-  //     text: TextSpan(children: [
-  //       TextSpan(
-  //         text: 'Med ',
-  //         style: GoogleFonts.portLligatSans(
-  //           // backgroundColor: Colors.white,
-  //           textStyle: Theme.of(context).textTheme.display1,
-  //           fontSize: 40,
-  //           fontStyle: FontStyle.italic,
-  //           fontWeight: FontWeight.w700,
-  //           color: Colors.orange,
-  //         ),
-  //       ),
-  //       TextSpan(
-  //         text: 'Book',
-  //
-  //         style: GoogleFonts.portLligatSans(
-  //           // backgroundColor: Colors.white,
-  //           textStyle: Theme.of(context).textTheme.display1,
-  //           fontSize: 40,
-  //           fontWeight: FontWeight.w700,
-  //           color: Colors.black,
-  //         ),
-  //         // TextSpan(
-  //         //   text: 'rnz',
-  //         //   style: TextStyle(color: Colors.white, fontSize: 30),
-  //         // ),
-  //       )
-  //     ]),
-  //   );
-  // }
 
   Widget _emailPasswordWidget() {
     print(info);
@@ -434,6 +310,7 @@ class _SettingState extends State<Setting> {
     StorageReference firebaseStorageRef = FirebaseStorage.instance.ref().child(
         "profileImages/${FirebaseAuth.instance.currentUser.uid}/profileImage.jpg");
     // firebaseStorageRef.delete();
+    Future<void> deleteTask = firebaseStorageRef.delete();
     StorageUploadTask uploadTask = firebaseStorageRef.putFile(_image);
     StorageTaskSnapshot taskSnapshot = await uploadTask.onComplete;
     setState(() {
@@ -552,7 +429,7 @@ class _SettingState extends State<Setting> {
               })
         ],
       ),
-      body: Container(
+      body: SingleChildScrollView(child:  Container(
         height: height,
         child: Stack(
           children: <Widget>[
@@ -589,6 +466,7 @@ class _SettingState extends State<Setting> {
           ],
         ),
       ),
+      )
     );
   }
 
@@ -1014,12 +892,24 @@ class _SettingState extends State<Setting> {
 
       resetPassword();
     }
+    List<String> specializzazioni = [];
+    if(_specializzazioniController.text.contains(',')) {
+      List<String> tmp = _specializzazioniController.text.split(', ');
+      for(var elem in tmp){
+        specializzazioni.add(elem[0].toUpperCase()+elem.substring(1));
+      }
+
+    }
+    else if(_specializzazioniController.text.length>2){
+      specializzazioni.add(_specializzazioniController.text[0].toUpperCase()+_specializzazioniController.text.substring(1));
+    }
+
     Map<String, dynamic> newInfo = {
       'name': _nameController.text,
       'dayBirth': _dayController.text,
       'monthBirth': monthBirth,
       'yearBirth': _yearController.text,
-      'specializzazioni': [_specializzazioniController.text],
+      'specializzazioni': specializzazioni,
       'numOrdine': _numOrdineController.text,
       'provinciaOrdine': provincia,
       'profileImgUrl' : info['profileImgUrl']
@@ -1176,17 +1066,30 @@ class _SettingState extends State<Setting> {
         .catchError((error) => print("Failed to delete user: $error"));
   }
 
-  ListTile _specializzazioni() {
+  String _specializzazioni() {
     print(info['specializzazioni'].toList() == []);
     if (info['specializzazioni'].length == 0) {
-      return ListTile(title: Text(' '));
+      return '';//ListTile(title: Text(' '));
     } else {
-      return ListTile(
-          dense: true,
-          title: Text('Specializzato in: ' +
+      return
+        // ListTile(
+        //   dense: true,
+        //   title: Text(
+              'Specializzato in: ' +
               info['specializzazioni'].toString().substring(
-                  1, info['specializzazioni'].toString().length - 1)));
+                  1, info['specializzazioni'].toString().length - 1);
     }
+  }
+
+  titleCase(str) {
+    var splitStr = str.toLowerCase().split(' ');
+    for (var i = 0; i < splitStr.length; i++) {
+      // You do not need to check if i is larger than splitStr length, as your for does that for you
+      // Assign it back to the array
+      splitStr[i] = splitStr[i][0].toUpperCase() + splitStr[i].substring(1);
+    }
+    // Directly return the joined string
+    return splitStr.join(' ').toString();
   }
 
   void _showPicker(context) {
@@ -1225,7 +1128,7 @@ class _SettingState extends State<Setting> {
     // } else {
     //   buildedHeader = true;
     // print(_controllerImage.value);
-    return Container(
+    return  SingleChildScrollView(child: Container(
         height: 150,
         child: Row(children: [
           GestureDetector(
@@ -1267,37 +1170,45 @@ class _SettingState extends State<Setting> {
 
               // icon: Icon(_image == null ? Icons.account_circle_outlined : ExactAssetImage(_image.path) , size: 100.0),
               ),
-          Flexible(
-              child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              info['provinciaOrdine'] == ' '
-                  ? ListTile(
-                      dense: true,
-                      title: Text(''),
-                    )
-                  : ListTile(
-                      dense: true,
-                      title: Text(
+
+          // SingleChildScrollView(
+          Expanded(child:
+              ListTile(dense: true,
+            // mainAxisAlignment: MainAxisAlignment.center,
+            // children: [
+              title:
+              info['provinciaOrdine'] == ' ' ? Text('')
+                  // ? ListTile(
+                  //     dense: true,
+                  //     title: Text(''),
+                  //   )
+                  :
+                  // ListTile(
+                  //     dense: true,
+                  //     title:
+                  Text(
                         'Ordine della provincia di \n' +
                             info['provinciaOrdine'],
                         textScaleFactor: 1.5,
-                      )),
+                      ),
+              subtitle:
               (info['dayBirth'] == ' ' &&
                       info['monthBirth'] == ' ' &&
-                      info['yearBirth'] == ' ')
-                  ? ListTile(dense: true, title: Text(''))
-                  : ListTile(
-                      dense: true,
-                      title: Text(
-                        'Data di nascita: ' +
+                      info['yearBirth'] == ' ') ? Text('')
+                  // ? ListTile(dense: true, title: Text(''))
+                  // : ListTile(
+                  //     dense: true,
+                  //     title:
+              :
+                      Text(
+                        '\nData di nascita: ' +
                             info['dayBirth'].toString() +
                             '/' +
-                            info['monthBirth'] +
+                            info['monthBirth'].trim() +
                             '/' +
-                            info['yearBirth'].toString(),
-                      )),
-              _specializzazioni(),
+                            info['yearBirth'].toString() +'\n\n'+
+
+              _specializzazioni(),textScaleFactor: 1.2,)))
             ],
             // ]
             //   leading: Container(
@@ -1349,8 +1260,8 @@ class _SettingState extends State<Setting> {
             //         info['yearBirth'].toString() +
             //         _specializzazioni()),
             // isThreeLine: true,
-          ))
-        ]));
+          )
+    ));
   }
 
 // @override

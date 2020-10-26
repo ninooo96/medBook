@@ -243,18 +243,33 @@ class _MyProfileState extends State<MyProfile> {
     );
   }
 
-  ListTile _specializzazioni() {
+  // ListTile _specializzazioni() {
+  //   print(info['specializzazioni'].toList() == []);
+  //   if (info['specializzazioni'].length == 0) {
+  //     return ListTile(title: Text(' '));
+  //   } else {
+  //     return ListTile(
+  //         dense: true,
+  //         title: Text('Specializzato in: ' +
+  //             user.specializzazioni.toString().substring(
+  //                 1, user.specializzazioni
+  //                 .toString()
+  //                 .length - 1)));
+  //   }
+  // }
+
+  String _specializzazioni() {
     print(info['specializzazioni'].toList() == []);
     if (info['specializzazioni'].length == 0) {
-      return ListTile(title: Text(' '));
+      return '';//ListTile(title: Text(' '));
     } else {
-      return ListTile(
-          dense: true,
-          title: Text('Specializzato in: ' +
-              user.specializzazioni.toString().substring(
-                  1, user.specializzazioni
-                  .toString()
-                  .length - 1)));
+      return
+        // ListTile(
+        //   dense: true,
+        //   title: Text(
+        'Specializzato in: ' +
+            info['specializzazioni'].toString().substring(
+                1, info['specializzazioni'].toString().length - 1);
     }
   }
 
@@ -285,7 +300,7 @@ class _MyProfileState extends State<MyProfile> {
     // } else {
     //   buildedHeader = true;
     // print(_controllerImage.value);
-    return Container(
+    return SingleChildScrollView(child: Container(
         height: 150,
         child: Row(children: [
           user.profileImgUrl != ' '
@@ -310,40 +325,130 @@ class _MyProfileState extends State<MyProfile> {
 
           // icon: Icon(_image == null ? Icons.account_circle_outlined : ExactAssetImage(_image.path) , size: 100.0),
           ,
-          Flexible(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  info['provinciaOrdine'] == ' '
-                      ? ListTile(
-                    dense: true,
-                    title: Text(''),
-                  )
-                      : ListTile(
-                      dense: true,
-                      title: Text(
-                        'Ordine della provincia di \n' +
-                            user.provinciaOrdine,
-                        textScaleFactor: 1.5,
-                      )),
-                  (user.dayBirth == ' ' &&
-                      user.monthBirth == ' ' &&
-                      user.yearBirth == ' ')
-                      ? ListTile(dense: true, title: Text(''))
-                      : ListTile(
-                      dense: true,
-                      title: Text(
-                        'Data di nascita: ' +
-                            user.dayBirth.toString() +
-                            '/' +
-                            user.monthBirth +
-                            '/' +
-                            user.yearBirth.toString(),
-                      )),
-                  _specializzazioni(),
-                ],
-              ))
-        ]));
+        //   Flexible(
+        //       child: Column(
+        //         mainAxisAlignment: MainAxisAlignment.center,
+        //         children: [
+        //           info['provinciaOrdine'] == ' '
+        //               ? ListTile(
+        //             dense: true,
+        //             title: Text(''),
+        //           )
+        //               : ListTile(
+        //               dense: true,
+        //               title: Text(
+        //                 'Ordine della provincia di \n' +
+        //                     user.provinciaOrdine,
+        //                 textScaleFactor: 1.5,
+        //               )),
+        //           (user.dayBirth == ' ' &&
+        //               user.monthBirth == ' ' &&
+        //               user.yearBirth == ' ')
+        //               ? ListTile(dense: true, title: Text(''))
+        //               : ListTile(
+        //               dense: true,
+        //               title: Text(
+        //                 'Data di nascita: ' +
+        //                     user.dayBirth.toString() +
+        //                     '/' +
+        //                     user.monthBirth +
+        //                     '/' +
+        //                     user.yearBirth.toString(),
+        //               )),
+        //           _specializzazioni(),
+        //         ],
+        //       ))
+        // ]));
+          Expanded(child:
+          ListTile(dense: true,
+              // mainAxisAlignment: MainAxisAlignment.center,
+              // children: [
+              title:
+              info['provinciaOrdine'] == ' ' ? Text('')
+              // ? ListTile(
+              //     dense: true,
+              //     title: Text(''),
+              //   )
+                  :
+              // ListTile(
+              //     dense: true,
+              //     title:
+              Text(
+                'Ordine della provincia di \n' +
+                    info['provinciaOrdine'],
+                textScaleFactor: 1.5,
+              ),
+              subtitle:
+              (info['dayBirth'] == ' ' &&
+                  info['monthBirth'] == ' ' &&
+                  info['yearBirth'] == ' ') ? Text('')
+              // ? ListTile(dense: true, title: Text(''))
+              // : ListTile(
+              //     dense: true,
+              //     title:
+                  :
+              Text(
+                '\nData di nascita: ' +
+                    info['dayBirth'].toString() +
+                    '/' +
+                    info['monthBirth'].trim() +
+                    '/' +
+                    info['yearBirth'].toString() +'\n\n'+
+
+                    _specializzazioni(),textScaleFactor: 1.2,)))
+        ],
+          // ]
+          //   leading: Container(
+          //     width:100,
+          // alignment: Alignment.centerLeft,
+          // child: GestureDetector(
+          //       onTap: () => _showPicker(context),
+          //
+          //       child:
+          //       _image != null
+          //           ? ClipRRect(
+          //               //quello con 2 R ha una forma circolare
+          //               // borderRadius: BorderRadius.circular(50),
+          //
+          //           child: Image(image: FileImage(_image),width: 500, height: 500,fit: BoxFit.fitHeight),
+          //         // radius: 1000,
+          //         //       backgroundImage: FileImage(_image)
+          //               // Image.file(_image,
+          //               //     width: 100, height: 100, fit: BoxFit.fitHeight),
+          //             )
+          //           : Container(
+          //               decoration: BoxDecoration(
+          //                   color: Colors.grey[200],
+          //                   borderRadius: BorderRadius.circular(50)),
+          //               width: 100,
+          //               height: 100,
+          //               child: Icon(
+          //                 Icons.camera_alt,
+          //                 color: Colors.grey[800],
+          //               ))
+          //       // CircleAvatar(radius: 50,child: Image.asset('assets/images/logo_google.png')),
+          //       // Image.asset('assets/images/logo_google.png')
+          //
+          //       // icon: Icon(_image == null ? Icons.account_circle_outlined : ExactAssetImage(_image.path) , size: 100.0),
+          //       )),
+          // title: info['provinciaOrdine'] == ' '
+          //     ? Text('')
+          //     : Text(
+          //         'Ordine della provincia di \n' + info['provinciaOrdine']),
+          // subtitle: (info['dayBirth'] == ' ' &&
+          //         info['monthBirth'] == ' ' &&
+          //         info['yearBirth'] == ' ')
+          //     ? Text('')
+          //     : Text('\nData di nascita: \n' +
+          //         info['dayBirth'].toString() +
+          //         '/' +
+          //         info['monthBirth'] +
+          //         '/' +
+          //         info['yearBirth'].toString() +
+          //         _specializzazioni()),
+          // isThreeLine: true,
+        )
+    ));
   }
 
 

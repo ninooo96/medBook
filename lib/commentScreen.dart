@@ -61,7 +61,8 @@ class _CommentState extends State<Comment> {
     this.id = record['id'];
     this.upvote = record['upvote'];
     this.downvote = record['downvote'];
-    this.profileImgUrl = record['profileImgUrl'];
+
+
     this.record = record;
     print('quale record?');
     print(record);
@@ -77,6 +78,17 @@ class _CommentState extends State<Comment> {
             .contains(FirebaseAuth.instance.currentUser.uid)
         ? true
         : false;
+
+    FirebaseFirestore.instance.collection('subscribers').doc(id).get().then((
+        value) {
+      setState(() {
+        profileImgUrl = value.data()['profileImgUrl'];
+      });
+
+    }
+
+
+    );
   }
 
   void handleClick(String value){
@@ -162,6 +174,8 @@ class _CommentState extends State<Comment> {
 
   @override
   Widget build(BuildContext context) {
+
+
     // print(text+' prova1');
     return deleted ? Container() : Padding(
       padding: const EdgeInsets.symmetric(horizontal: 3.0, vertical: 5.0),
