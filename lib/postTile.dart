@@ -55,16 +55,16 @@ import 'myProfile.dart';
 Widget PostTile(data, context){
   final record = Record.fromSnapshot(data);
 
-  void addComment(context, List<dynamic> record1, reference, nuovoCommento) {
+  void addComment(context, Record record, nuovoCommento) {
     //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
     // print('Ciao Lele' + record1.length.toString() );
     List<Map<String, dynamic>> record2 = new List<
         Map<String,
             dynamic>>(); // la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
     // print(nuovoCommento);
-    // print(record1.first.length);
-    if (record1.first.length != 0) {
-      record1.forEach((data) =>
+    // print(record1.first.length);.comments, record.reference
+    if (record.comments.first.length != 0) {
+      record.comments.forEach((data) =>
           record2.add({
             'nameProfile': data['nameProfile'],
             'comment': data['comment'],
@@ -80,13 +80,13 @@ Widget PostTile(data, context){
     // if(record.length==0)
     //   record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0, 'idVotersLike':[0], 'idVotersDislike':[0]}];
     // print(record);
-    if (record1.first.length != 0 || nuovoCommento == 1) {
+    if (record.comments.first.length != 0 || nuovoCommento == 1) {
       // record1 = record;
       // Navigator.of(context).pop();
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => CommentScreen(record.id, record2, reference)),
+            builder: (context) => CommentScreen(record, record2, record.reference)),
       );
     }
   }
@@ -208,7 +208,7 @@ Widget PostTile(data, context){
                 onTap: () {
 
                   // setState(() {
-                    addComment(context, record.comments, record.reference, 0);
+                    addComment(context, record, 0);
                     print(record.comments);
                   // });
                 },
@@ -219,7 +219,7 @@ Widget PostTile(data, context){
                   Flexible(
                       child: ListTile(
                         onTap: () {
-                          addComment(context, record.comments, record.reference, 1);
+                          addComment(context, record, 1);
                         },
                         title: Center(child: Text('Commenta')),
                       )),

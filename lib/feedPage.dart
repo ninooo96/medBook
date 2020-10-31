@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:medbook/record.dart';
 import 'package:intl/intl.dart';
@@ -100,18 +101,37 @@ Map<String, dynamic> info;
 //     'comments': []
 //   },
 // ];
-
+// Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) {
+//   print('on background $message');
+//   FirebaseMessaging fbm = FirebaseMessaging();
+//
+//   fbm.configure(
+//       onMessage: (msg) {
+//         print(msg);
+//         return;
+//       },
+//       onLaunch: (msg) {
+//         print(msg);
+//         return;
+//       },
+//       onResume: (msg) {
+//         print(msg);
+//         return;
+//       },
+//       onBackgroundMessage: myBackgroundMessageHandler
+//   );
+// }
 
 class FeedPage extends StatelessWidget {
   // FeedPage() {
   //   Firebase.initializeApp();
   //   // var db = FirebaseFirestore.instance.firestore();
   // }
-  Map<String, dynamic>  getInfo(){
+  Map<String, dynamic> getInfo() {
     return info;
   }
 
-  void setInfo(infoNew){
+  void setInfo(infoNew) {
     info = infoNew;
   }
 
@@ -149,19 +169,21 @@ class FeedPage extends StatelessWidget {
   Widget build(BuildContext context) {
     firebase_storage.FirebaseStorage storage =
         firebase_storage.FirebaseStorage.instance;
-    FirebaseFirestore.instance.collection('subscribers').doc(FirebaseAuth.instance.currentUser.uid).get().then((user) =>
+    FirebaseFirestore.instance.collection('subscribers').doc(
+        FirebaseAuth.instance.currentUser.uid).get().then((user) =>
     info = {'name': user['name'],
-      'provinciaOrdine':user['provinciaOrdine'],
+      'provinciaOrdine': user['provinciaOrdine'],
       'dayBirth': user['dayBirth'],
-      'monthBirth':user['monthBirth'],
+      'monthBirth': user['monthBirth'],
       'yearBirth': user['yearBirth'],
       'numOrdine': user['numOrdine'],
-      'specializzazioni' : user['specializzazioni'],
-      'profileImgUrl' : user['profileImgUrl'],// non è user
+      'specializzazioni': user['specializzazioni'],
+      'topic': user['topic'],
+      'profileImgUrl': user['profileImgUrl'], // non è user
       'id': FirebaseAuth.instance.currentUser.uid
     });
 
-  // print(info);
+    // print(info);
     // Firebase.initializeApp();
     //   // TODO: scrolling di ListView dei post
     return MaterialApp(
@@ -180,20 +202,68 @@ class FeedPage extends StatelessWidget {
 
 class MyFeedPage extends StatefulWidget {
   MyFeedPage({Key key, this.title}) : super(key: key);
-
+  final FirebaseMessaging _fcm = FirebaseMessaging();
   final String title;
+
+  FirebaseMessaging getFCM(){
+    return _fcm;
+  }
 
 
   @override
-  _MyFeedPageState createState() => _MyFeedPageState();
+  _MyFeedPageState createState() => _MyFeedPageState(_fcm);
 }
 
 class _MyFeedPageState extends State<MyFeedPage> {
-  String _profileImageUrl=' ';
+  String _profileImageUrl = ' ';
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  FirebaseMessaging _fcm;
+
+  _MyFeedPageState(FirebaseMessaging _fcm){
+    this._fcm = _fcm;
+  }
+
+
+
+  @override
+  void initState() {
+    super.initState();
+
+    // ...
+
+    _fcm.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: ListTile(
+              title: Text(message['notification']['title']),
+              subtitle: Text(message['notification']['body']),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Ok'),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ],
+          ),
+        );
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onLaunch: $message");
+        // TODO optional
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onResume: $message");
+        // TODO optional
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-
+    _fcm.subscribeToTopic('feed');
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),
@@ -288,20 +358,20 @@ class _MyFeedPageState extends State<MyFeedPage> {
 //       " " +
 //       value['surname']));
 // }
-    // FutureBuilder<DocumentSnapshot>(
-    //     future: FirebaseFirestore.instance
-    //         .collection('subscribers')
-    //         .doc(FirebaseAuth.instance.currentUser.uid)
-    //         .get(),
-    //     builder: (BuildContext context,
-    //         AsyncSnapshot<DocumentSnapshot> snapshot) {
-    //       return _drawerTile2(snapshot.data.data()['name'] +
-    //           " " +
-    //           snapshot.data.data()['surname']);
-    //     }
-    // );
+  // FutureBuilder<DocumentSnapshot>(
+  //     future: FirebaseFirestore.instance
+  //         .collection('subscribers')
+  //         .doc(FirebaseAuth.instance.currentUser.uid)
+  //         .get(),
+  //     builder: (BuildContext context,
+  //         AsyncSnapshot<DocumentSnapshot> snapshot) {
+  //       return _drawerTile2(snapshot.data.data()['name'] +
+  //           " " +
+  //           snapshot.data.data()['surname']);
+  //     }
+  // );
   // }
-    _drawerTile(){
+  _drawerTile() {
     List<Widget> drawerTile = [];
     drawerTile.add(ListTile(
       title: Text(
@@ -321,11 +391,11 @@ class _MyFeedPageState extends State<MyFeedPage> {
       thickness: 2,
     ));
     drawerTile.add(ListTile(
-      title: Text(
-        'Il mio profilo',
-        textScaleFactor: 1.5,
-      ),
-      onTap: myProfile
+        title: Text(
+          'Il mio profilo',
+          textScaleFactor: 1.5,
+        ),
+        onTap: myProfile
     ));
     drawerTile.add(Divider(
       thickness: 2,
@@ -378,14 +448,16 @@ class _MyFeedPageState extends State<MyFeedPage> {
     );
   }
 
-  myProfile(){
+  myProfile() {
     FirebaseFirestore.instance
-      .collection('subscribers').doc(FirebaseAuth.instance.currentUser.uid).get().then((value) =>
-      myProfile2(UserMB.fromSnapshot(value)));
+        .collection('subscribers')
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .get()
+        .then((value) =>
+        myProfile2(UserMB.fromSnapshot(value)));
   }
 
   myProfile2(UserMB user) {
-
     Navigator.of(context).pop();
     Navigator.push(
         context,
@@ -396,68 +468,73 @@ class _MyFeedPageState extends State<MyFeedPage> {
   }
 
 
-Widget _buildBody(BuildContext context) {
-  //TODO: estrai snapshot dal Cloud Firebase
-  // List<Map> snapshot = dummySnapshot;
-  //
-  // return _buildList(context, snapshot);
-  return StreamBuilder<QuerySnapshot>(
-    stream: FirebaseFirestore.instance
-        .collection('feed')
-        .orderBy('timestamp', descending: true)
-        .snapshots(),
-    builder: (context, snapshot) {
-      if (!snapshot.hasData) return LinearProgressIndicator();
-      // print('OK');
-      return _buildList(context, snapshot.data.docs);
-    },
-  );
-}
+  Widget _buildBody(BuildContext context) {
+    //TODO: estrai snapshot dal Cloud Firebase
+    // List<Map> snapshot = dummySnapshot;
+    //
+    // return _buildList(context, snapshot);
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection('feed')
+          .orderBy('timestamp', descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return LinearProgressIndicator();
+        // print('OK');
+        return _buildList(context, snapshot.data.docs);
+      },
+    );
+  }
 
-Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
-  // print(snapshot);
-  return ListView(
-    padding: const EdgeInsets.only(top: 5.0),
-    //da giocarci dopo che visualizzo un post
+  Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot) {
+    // print(snapshot);
+    return ListView(
+      padding: const EdgeInsets.only(top: 5.0),
+      //da giocarci dopo che visualizzo un post
 
-    children: snapshot.map((data) => _buildListItem(context, data)).toList(),
-  );
-}
+      children: snapshot.map((data) => _buildListItem(context, data)).toList(),
+    );
+  }
 
-String profileImageOnPost(String id) {
-  String tmp = ' ';
-  FirebaseFirestore.instance.collection('subscribers').doc(id).get().then((
-      value) =>
-  tmp = value['profileImgUrl']);
-  // print(tmp+ 'boh');
-  return tmp;
-}
+  String profileImageOnPost(String id) {
+    String tmp = ' ';
+    FirebaseFirestore.instance.collection('subscribers').doc(id).get().then((
+        value) =>
+    tmp = value['profileImgUrl']);
+    // print(tmp+ 'boh');
+    return tmp;
+  }
 
-Future<bool> profileImageUrl(Map<String,dynamic> record) async {
-  // print(record['id']);
-  await FirebaseFirestore.instance.collection('subscribers').doc(record['id']).get().then(
-          (value) =>
-  record.update('profileImgUrl', (value2) => value['profileImgUrl']));
-  // print(record['profileImgUrl']+' PROVAAAA');
+  Future<bool> profileImageUrl(Map<String, dynamic> record) async {
+    // print(record['id']);
+    await FirebaseFirestore.instance.collection('subscribers')
+        .doc(record['id'])
+        .get()
+        .then(
+            (value) =>
+            record.update('profileImgUrl', (value2) => value['profileImgUrl']));
+    // print(record['profileImgUrl']+' PROVAAAA');
 
 
-}
+  }
 
-urlImageProfile(UserMB record){
-    CollectionReference users = FirebaseFirestore.instance.collection('subscribers');
+  urlImageProfile(UserMB record) {
+    CollectionReference users = FirebaseFirestore.instance.collection(
+        'subscribers');
 
     return FutureBuilder<DocumentSnapshot>(
       future: users.doc(record.id).get(),
       builder:
           (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-
         // if (snapshot.hasError) {
         //   return Text("Something went wrong");
         // }
 
-          Map<String, dynamic> data = snapshot.data.data();
-          // return Text("Full Name: ${data['full_name']} ${data['last_name']}");
-          ClipRRect(borderRadius: BorderRadius.circular(20),clipBehavior: Clip.hardEdge, child: Image.network(record.profileImgUrl, height: 50, width:50),);
+        Map<String, dynamic> data = snapshot.data.data();
+        // return Text("Full Name: ${data['full_name']} ${data['last_name']}");
+        ClipRRect(borderRadius: BorderRadius.circular(20),
+          clipBehavior: Clip.hardEdge,
+          child: Image.network(record.profileImgUrl, height: 50, width: 50),);
 
 
         // return Text("loading");
@@ -466,137 +543,135 @@ urlImageProfile(UserMB record){
   }
 
 
-Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
-  // final record = Record.fromMap(data);
-  // print('provaaa');
+  Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
+    // final record = Record.fromMap(data);
+    // print('provaaa');
 
-  Map<String, dynamic> tmp = data.data();
-  profileImageUrl(tmp);
+    Map<String, dynamic> tmp = data.data();
+    profileImageUrl(tmp);
 
-  final record = Record.fromSnapshot(data);
+    final record = Record.fromSnapshot(data);
 
-  // print(record.sexPatient); // record.map((data)=> print(data[1]));
-  print(record.comments);
+    // print(record.sexPatient); // record.map((data)=> print(data[1]));
+    print(record.comments);
 
-  return PostTile( data, context);
-  // return Padding(
-  //   // key: ValueKey(record.nameProfile),
-  //     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
-  //     child: Container(
-  //         decoration: BoxDecoration(
-  //           border: Border.all(color: Colors.grey),
-  //           borderRadius: BorderRadius.circular(15.0),
-  //         ),
-  //         child: Column(children: <Widget>[
-  //           ListTile(
-  //             leading: record.profileImgUrl==' ' ? Icon(Icons.account_circle_outlined,size: 50) : ClipRRect(borderRadius: BorderRadius.circular(20),clipBehavior: Clip.hardEdge, child: Image.network(record.profileImgUrl, height: 50, width:50)),
-  //             title: Text(record.nameProfile),
-  //             subtitle: Text(record.timestamp),
-  //             onTap: () {
-  //               var snap = FirebaseFirestore.instance.collection('subscribers').doc(record.id).get().then((value) {
-  //                 UserMB user = UserMB.fromSnapshot(value);
-  //                 Navigator.push(
-  //                   context,
-  //                   MaterialPageRoute(
-  //                       builder: (context) => MyProfile(user)),//.nameProfile, record.id.toString())),
-  //                 );
-  //               });
-  //
-  //
-  //             },
-  //           ),
-  //           ListTile(
-  //               title: Text('Età: ' +
-  //                   (record.agePatient).toString() +
-  //                   (record.sexPatient == 'null'
-  //                       ? ''
-  //                       : (', Sesso: ' + (record.sexPatient))) +
-  //                   (record.hashtags.length == 0
-  //                       ? ''
-  //                       : "\n# " +
-  //                       record.hashtags.toString().substring(
-  //                           1, record.hashtags.toString().length - 1)) +
-  //                   ""
-  //                       "\n\n" +
-  //                   record.post)),
-  //           ListTile(
-  //             title: record.comments.first.length > 0
-  //                 ? record.comments.first.length > 1
-  //                 ? Text(record.comments.length.toString() + ' commenti')
-  //                 : Text(record.comments.length.toString() + ' commento')
-  //                 : Text('Non ci sono commenti'),
-  //             onTap: () {
-  //
-  //               setState(() {
-  //                 addComment(context, record.comments, record.reference, 0);
-  //                 print(record.comments);
-  //               });
-  //             },
-  //           ),
-  //           Row(
-  //             mainAxisAlignment: MainAxisAlignment.center,
-  //             children: <Widget>[
-  //               Flexible(
-  //                   child: ListTile(
-  //                     onTap: () {
-  //                       addComment(context, record.comments, record.reference, 1);
-  //                     },
-  //                     title: Center(child: Text('Commenta')),
-  //                   )),
-  //               Container(
-  //                   height: 30,
-  //                   child: VerticalDivider(
-  //                     color: Colors.grey,
-  //                     thickness: 2,
-  //                   )),
-  //               Flexible(
-  //                   child: ListTile(
-  //                     // onTap: _activeNotifications,
-  //                       title: Center(child: Text('Segui'))))
-  //             ],
-  //           )
-  //         ])));
+    return PostTile(data, context);
+    // return Padding(
+    //   // key: ValueKey(record.nameProfile),
+    //     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
+    //     child: Container(
+    //         decoration: BoxDecoration(
+    //           border: Border.all(color: Colors.grey),
+    //           borderRadius: BorderRadius.circular(15.0),
+    //         ),
+    //         child: Column(children: <Widget>[
+    //           ListTile(
+    //             leading: record.profileImgUrl==' ' ? Icon(Icons.account_circle_outlined,size: 50) : ClipRRect(borderRadius: BorderRadius.circular(20),clipBehavior: Clip.hardEdge, child: Image.network(record.profileImgUrl, height: 50, width:50)),
+    //             title: Text(record.nameProfile),
+    //             subtitle: Text(record.timestamp),
+    //             onTap: () {
+    //               var snap = FirebaseFirestore.instance.collection('subscribers').doc(record.id).get().then((value) {
+    //                 UserMB user = UserMB.fromSnapshot(value);
+    //                 Navigator.push(
+    //                   context,
+    //                   MaterialPageRoute(
+    //                       builder: (context) => MyProfile(user)),//.nameProfile, record.id.toString())),
+    //                 );
+    //               });
+    //
+    //
+    //             },
+    //           ),
+    //           ListTile(
+    //               title: Text('Età: ' +
+    //                   (record.agePatient).toString() +
+    //                   (record.sexPatient == 'null'
+    //                       ? ''
+    //                       : (', Sesso: ' + (record.sexPatient))) +
+    //                   (record.hashtags.length == 0
+    //                       ? ''
+    //                       : "\n# " +
+    //                       record.hashtags.toString().substring(
+    //                           1, record.hashtags.toString().length - 1)) +
+    //                   ""
+    //                       "\n\n" +
+    //                   record.post)),
+    //           ListTile(
+    //             title: record.comments.first.length > 0
+    //                 ? record.comments.first.length > 1
+    //                 ? Text(record.comments.length.toString() + ' commenti')
+    //                 : Text(record.comments.length.toString() + ' commento')
+    //                 : Text('Non ci sono commenti'),
+    //             onTap: () {
+    //
+    //               setState(() {
+    //                 addComment(context, record.comments, record.reference, 0);
+    //                 print(record.comments);
+    //               });
+    //             },
+    //           ),
+    //           Row(
+    //             mainAxisAlignment: MainAxisAlignment.center,
+    //             children: <Widget>[
+    //               Flexible(
+    //                   child: ListTile(
+    //                     onTap: () {
+    //                       addComment(context, record.comments, record.reference, 1);
+    //                     },
+    //                     title: Center(child: Text('Commenta')),
+    //                   )),
+    //               Container(
+    //                   height: 30,
+    //                   child: VerticalDivider(
+    //                     color: Colors.grey,
+    //                     thickness: 2,
+    //                   )),
+    //               Flexible(
+    //                   child: ListTile(
+    //                     // onTap: _activeNotifications,
+    //                       title: Center(child: Text('Segui'))))
+    //             ],
+    //           )
+    //         ])));
+  }
+
+// void addComment(context, List<dynamic> record1, reference, nuovoCommento) {
+//   //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
+//   // print('Ciao Lele' + record1.length.toString() );
+//   List<Map<String, dynamic>> record2 = new List<
+//       Map<String,
+//           dynamic>>(); // la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
+//   // print(nuovoCommento);
+//   // print(record1.first.length);
+//   if (record1.first.length != 0) {
+//     record1.forEach((data) =>
+//         record2.add({
+//           'nameProfile': data['nameProfile'],
+//           'comment': data['comment'],
+//           'upvote': data['upvote'],
+//           'downvote': data['downvote'],
+//           'idVotersLike': data['idVotersLike'],
+//           'idVotersDislike': data['idVotersDislike'],
+//           'profileImgUrl': data['profileImgUrl']
+//         }));
+//   }
+//
+//   // if(record.length==0)
+//   //   record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0, 'idVotersLike':[0], 'idVotersDislike':[0]}];
+//   // print(record);
+//   if (record1.first.length != 0 || nuovoCommento == 1) {
+//     // record1 = record;
+//     // Navigator.of(context).pop();
+//     Navigator.push(
+//       context,
+//       MaterialPageRoute(
+//           builder: (context) => CommentScreen(record2, reference)),
+//     );
+//   }
+// }
+
+
 }
-
-  // void addComment(context, List<dynamic> record1, reference, nuovoCommento) {
-  //   //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
-  //   // print('Ciao Lele' + record1.length.toString() );
-  //   List<Map<String, dynamic>> record2 = new List<
-  //       Map<String,
-  //           dynamic>>(); // la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
-  //   // print(nuovoCommento);
-  //   // print(record1.first.length);
-  //   if (record1.first.length != 0) {
-  //     record1.forEach((data) =>
-  //         record2.add({
-  //           'nameProfile': data['nameProfile'],
-  //           'comment': data['comment'],
-  //           'upvote': data['upvote'],
-  //           'downvote': data['downvote'],
-  //           'idVotersLike': data['idVotersLike'],
-  //           'idVotersDislike': data['idVotersDislike'],
-  //           'profileImgUrl': data['profileImgUrl']
-  //         }));
-  //   }
-  //
-  //   // if(record.length==0)
-  //   //   record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0, 'idVotersLike':[0], 'idVotersDislike':[0]}];
-  //   // print(record);
-  //   if (record1.first.length != 0 || nuovoCommento == 1) {
-  //     // record1 = record;
-  //     // Navigator.of(context).pop();
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //           builder: (context) => CommentScreen(record2, reference)),
-  //     );
-  //   }
-  // }
-
-
-
-}
-
 
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {

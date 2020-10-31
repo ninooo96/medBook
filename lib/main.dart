@@ -1,5 +1,7 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:medbook/feedPage.dart';
 
@@ -34,6 +36,7 @@ class _AppState extends State<App> {
 
 
 
+
   // Define an async function to initialize FlutterFire
   void initializeFlutterFire() async {
     try {
@@ -48,7 +51,6 @@ class _AppState extends State<App> {
         _error = true;
       });
     }
-
 
 
     FirebaseAuth.instance.authStateChanges().listen((User user) {
@@ -68,8 +70,9 @@ class _AppState extends State<App> {
   void initState() {
     initializeFlutterFire();
     super.initState();
+    }
 
-  }
+
 
   @override
   Widget build(BuildContext context) {

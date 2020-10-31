@@ -23,6 +23,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
@@ -32,6 +33,8 @@ import 'package:image_picker/image_picker.dart';
 // import 'package:image_picker_ui/image_picker_handler.dart';
 import 'package:medbook/feedPage.dart';
 import 'package:medbook/welcomeScreen.dart';
+
+
 
 class Setting extends StatefulWidget {
   Setting({Key key, this.title}) : super(key: key);
@@ -50,9 +53,12 @@ class _SettingState extends State<Setting> {
   final _pwdConfirmationController = TextEditingController();
   final _numOrdineController = TextEditingController();
   final _specializzazioniController = TextEditingController();
+  final _topicController = TextEditingController();
   final _dayController = TextEditingController();
   final _yearController = TextEditingController();
   bool cambiaPassword = false;
+
+
 
   List<String> _months = [
     ' ',
@@ -184,11 +190,13 @@ class _SettingState extends State<Setting> {
     "Vibo Valentia",
   ];
   Map<String, dynamic> info = FeedPage().getInfo();
+  FirebaseMessaging _fcm = MyFeedPage().getFCM();
   String monthBirth; //= FirebaseAuth.instance.currentUser.providerData.;
   String provincia;
   bool changedMonth = false;
   bool changedProvincia = false;
   bool openNow = true;
+  List tmpTopic;
 
   //user_image
   File _image;
@@ -300,7 +308,8 @@ class _SettingState extends State<Setting> {
         _dateBirth(),
         _provinciaOrdine(),
         _entryField('Numero', _numOrdineController),
-        _entryField('Specializzazioni', _specializzazioniController)
+        _entryField('Specializzazioni', _specializzazioniController),
+        _entryField('Topic di interesse', _topicController)
       ],
     );
   }
@@ -374,6 +383,9 @@ class _SettingState extends State<Setting> {
 
   @override
   Widget build(BuildContext context) {
+    print('prova');
+
+    tmpTopic = info['topic'];
     // uploadPic(context);
 
     // var blob = info['image'];
@@ -388,7 +400,7 @@ class _SettingState extends State<Setting> {
     // _image = writeAsBytes(info['image'].bytes);
     // _image = File(Image.memory(info['image'].))
     // _image= File.fromRawPath(image);
-    final height = MediaQuery.of(context).size.height;
+    final height = MediaQuery.of(context).size.height-50;
     // provincia = info['provinciaOrdine'];
 
     if (openNow) {
@@ -399,6 +411,9 @@ class _SettingState extends State<Setting> {
       _specializzazioniController.text = info['specializzazioni']
           .toString()
           .substring(1, info['specializzazioni'].toString().length - 1);
+      _topicController.text = info['topic']
+          .toString()
+          .substring(1, info['topic'].toString().length - 1);
       _numOrdineController.text = info['numOrdine'].toString();
     }
     return Scaffold(
@@ -858,6 +873,16 @@ class _SettingState extends State<Setting> {
             ]));
   }
 
+  //
+  //
+  // void fcmSubscribe() {
+  //   firebaseMessaging.subscribeToTopic('TopicToListen');
+  // }
+  //
+  // void fcmUnSubscribe() {
+  //   firebaseMessaging.unsubscribeFromTopic('TopicToListen');
+  // }
+
   _updateUserInfo() {
     UserInfo userInfo = FirebaseAuth.instance.currentUser.providerData[0];
     if (cambiaPassword && userInfo.providerId == 'google.com') {
@@ -893,9 +918,11 @@ class _SettingState extends State<Setting> {
       resetPassword();
     }
     List<String> specializzazioni = [];
+    List<String> topic = [];
     if(_specializzazioniController.text.contains(',')) {
       List<String> tmp = _specializzazioniController.text.split(', ');
       for(var elem in tmp){
+        elem = elem.trim();
         specializzazioni.add(elem[0].toUpperCase()+elem.substring(1));
       }
 
@@ -904,12 +931,38 @@ class _SettingState extends State<Setting> {
       specializzazioni.add(_specializzazioniController.text[0].toUpperCase()+_specializzazioniController.text.substring(1));
     }
 
+    if(_topicController.text.contains(',')) {
+      List<String> tmp = _topicController.text.split(', ');
+      for(var elem in tmp){
+        elem = elem.trim();
+        topic.add(elem[0].toUpperCase()+elem.substring(1));
+      }
+
+    }
+    else if(_topicController.text.length>2){
+      topic.add(_topicController.text.trim()[0].toUpperCase()+_topicController.text.trim().substring(1));
+    }
+
+    if(tmpTopic!=' '){
+      for(var top in tmpTopic){
+        _fcm.unsubscribeFromTopic(top.toString());
+      }
+    }
+
+    if(!topic.isEmpty){
+      for(var top in topic){
+        _fcm.subscribeToTopic(top.toString());
+        print(top.toString());
+      }
+    }
+
     Map<String, dynamic> newInfo = {
       'name': _nameController.text,
       'dayBirth': _dayController.text,
       'monthBirth': monthBirth,
       'yearBirth': _yearController.text,
       'specializzazioni': specializzazioni,
+      'topic': topic,
       'numOrdine': _numOrdineController.text,
       'provinciaOrdine': provincia,
       'profileImgUrl' : info['profileImgUrl']

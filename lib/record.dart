@@ -14,6 +14,7 @@ class Record {
   final List comments;
   final List hashtags;
   final DocumentReference reference;
+  final List listTokens;
 
   Record.fromMap(Map<String, dynamic> map, {this.reference})
       : nameProfile = map['nameProfile'],
@@ -25,7 +26,9 @@ class Record {
         timestamp = getTimestamp(map['timestamp']),
         hashtags = map['hashtags'],
         profileImgUrl = map['profileImgUrl'],
+        listTokens = map['tokens'],
         comments = map['comments'];
+
 
   Record.fromSnapshot(DocumentSnapshot snapshot)
       : this.fromMap(snapshot.data(),

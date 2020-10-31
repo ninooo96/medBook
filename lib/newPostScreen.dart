@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -20,6 +21,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   var sexPatient;
   final _etaController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  FirebaseMessaging _fcm = MyFeedPage().getFCM();
 
   @override
   Widget build(BuildContext context) {
@@ -290,6 +292,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
     // print(time);
     final f = new DateFormat('dd/MM/yyyy').add_Hms();
     var timestamp =  f.format(time);
+
     var newPost = {
       'nameProfile': nameProfile,
       'name': nameProfile.split(' ')[0],
@@ -301,7 +304,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
       'id': FirebaseAuth.instance.currentUser.uid,
       'timestamp': timeTmp,
       'hashtags': hashtagPost,
-      'profileImgUrl' : info['profileImgUrl']
+      'profileImgUrl' : info['profileImgUrl'],
+      'listTokens':[Map()]
+
 
     };
     await FirebaseFirestore.instance
@@ -312,6 +317,44 @@ class _NewPostScreenState extends State<NewPostScreen> {
             "-" +
             timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
         .set(newPost);
+    // await FirebaseFirestore.instance
+    //     .collection('feed')
+    //     .doc(nameProfile.toString().toLowerCase().replaceAll(' ', '') +
+    //     "_" +
+    //     FirebaseAuth.instance.currentUser.uid +
+    //     "-" +
+    //     timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
+    //     .collection('tokens').doc(_fcm.getToken()).set({
+    //   'key': _fcm.getToken(),
+    //   'name': nameProfile.split(' ')[0]
+    // }).then((value) => print('ok'));
+
+    _saveDeviceToken() async {
+      // Get the current user
+      // FirebaseUser user = await _auth.currentUser();
+
+      // Get the token for this device
+      String fcmToken = await _fcm.getToken();
+
+      // Save it to Firestore
+      if (fcmToken != null) {
+        FirebaseFirestore.instance
+            .collection('feed')
+            .doc(nameProfile.toString().toLowerCase().replaceAll(' ', '') +
+            "_" +
+            FirebaseAuth.instance.currentUser.uid +
+            "-" +
+            timestamp.toString().replaceAll('/', '').replaceAll(' ', '-')).update({'tokens':[{'name': nameProfile, 'token':fcmToken}]});
+
+        // await tokens.set({
+        //   'token': fcmToken,
+        //   'name': nameProfile, // optional
+        // });
+      }
+    }
+
+    _saveDeviceToken();
+
     Navigator.of(context).pop();
     //TODO send post to firebase
   }

@@ -2,7 +2,9 @@ import 'dart:core';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:medbook/record.dart';
 import 'package:medbook/user.dart';
 
 import 'feedPage.dart';
@@ -367,19 +369,22 @@ class _CommentState extends State<Comment> {
 
 class CommentScreen extends StatefulWidget {
   List<Map<String, dynamic>> comments;
+
   DocumentReference reference;
   String idPost;
+  Record record;
 
-  CommentScreen(idPost, comments, reference) {
+  CommentScreen(Record record, comments, reference) {
     this.comments = comments;
     // print('lista dei commenti?');
     // print(comments);
     this.reference = reference;
-    this.idPost = idPost;
+    this.idPost = record.id;
+    this.record = record;
   }
 
   @override
-  _CommentScreenState createState() => _CommentScreenState(idPost, comments, reference);
+  _CommentScreenState createState() => _CommentScreenState(record, comments, reference);
 }
 
 class _CommentScreenState extends State<CommentScreen> {
@@ -388,19 +393,38 @@ class _CommentScreenState extends State<CommentScreen> {
   final FocusNode _focusNode = FocusNode();
   DocumentReference reference;
   String idPost;
+  Record record;
+  FirebaseMessaging _fcm = MyFeedPage().getFCM();
+  var _listTokens;
+  List<Map<String,dynamic>> listTokens  = new List<
+      Map<String,
+          dynamic>>();
 
   // List<Record> comments = [];
   List<Map<String, dynamic>> comments;
 
-  void setComments(List<Comment> newComments){
-    this._comments=newComments;
+  void setComments(List<Comment> newComments) {
+    this._comments = newComments;
   }
 
+    // Get the current user
+    // FirebaseUser user = await _auth.currentUser();
 
-  _CommentScreenState(idPost, comment, reference) {
+    // Get the token for this device
+    // String fcmToken = await _fcm.getToken();
+
+    // // Save it to Firestore
+    // if (fcmToken != null) {
+
+
+
+
+  _CommentScreenState(record, comment, reference) {
     this.comments = comment;
     this.reference = reference;
-    this.idPost = idPost;
+    this.idPost = record.id;
+    this.record=record;
+
     // this.comments = comment.map((data) => Record.fromMap(data)).toList();
     // comment.map((data)=> print(data['comment']));
     // print('comment');
@@ -425,38 +449,56 @@ class _CommentScreenState extends State<CommentScreen> {
     // comments.map((data)=> print(data));
     // print(_comments);
   }
+  void populateTokens(){
+    var tmp = record.listTokens;
+    listTokens  = new List<
+        Map<String,
+            dynamic>>();
+    tmp.forEach((element) {
+      listTokens.add({
+        'name': element['name'],
+        'token' : element['token']
+      }
+      );
+    });
+}
 
-  @override
-  Widget build(BuildContext context) {
-    // setState(() {
 
-    // _comments = [];
-    // for (var data in comments) {
-    //   Comment tmp = Comment(idPost, data, reference, comments);
-    //   if (!_comments.contains(tmp))
-    //
-    //     _comments.add(tmp);
-    // }
-    // _comments.sort((a, b) {
-    //   return a.compareTo(b.record);
-    // });
-    // });
-    return Scaffold(
-      appBar: AppBar(
-          flexibleSpace: Container(
-            decoration: BoxDecoration(
-                gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [Color(0xfffbb448), Color(0xfff7892b)])),
-            //
+    @override
+    Widget build(BuildContext context) {
+    populateTokens();
+
+
+    print(listTokens);
+      // setState(() {
+
+      // _comments = [];
+      // for (var data in comments) {
+      //   Comment tmp = Comment(idPost, data, reference, comments);
+      //   if (!_comments.contains(tmp))
+      //
+      //     _comments.add(tmp);
+      // }
+      // _comments.sort((a, b) {
+      //   return a.compareTo(b.record);
+      // });
+      // });
+      return Scaffold(
+        appBar: AppBar(
+            flexibleSpace: Container(
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [Color(0xfffbb448), Color(0xfff7892b)])),
+              //
+              // leading: IconButton(
+              //   icon: Icon(Icons.menu),
+              //   onPressed: _openDrawer,
+              // ),
+            ),
             // leading: IconButton(
-            //   icon: Icon(Icons.menu),
-            //   onPressed: _openDrawer,
-            // ),
-          ),
-          // leading: IconButton(
-          //   icon: Icon(Icons.arrow_back_ios),
+            //   icon: Icon(Icons.arrow_back_ios),
             // onPressed: () {
             //   Navigator.of(context).pop();
             //   Navigator.push(
@@ -465,92 +507,112 @@ class _CommentScreenState extends State<CommentScreen> {
             //   );
             //
             // }
-          // ),
-          title: Text('Commenti')),
-      body: Column(
-        children: [
-          Flexible(
-            child: ListView.builder(
-              padding: EdgeInsets.all(8.0),
-              reverse: true,
-              itemBuilder: (_, int index) => _comments[index],
-              itemCount: _comments.length,
-            ),
-          ),
-          Divider(height: 1.0),
-          Container(
-            decoration: BoxDecoration(color: Theme.of(context).cardColor),
-            child: _buildTextComposer(),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTextComposer() {
-    return IconTheme(
-      data: IconThemeData(color: Colors.orange),
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 8.0),
-        child: Row(
+            // ),
+            title: Text('Commenti')),
+        body: Column(
           children: [
             Flexible(
-              child: TextField(
-                controller: _textController,
-                onSubmitted: _handleSubmitted_tmp,
-                decoration:
-                    InputDecoration.collapsed(hintText: 'Invia un commento'),
-                focusNode: _focusNode,
+              child: ListView.builder(
+                padding: EdgeInsets.all(8.0),
+                reverse: true,
+                itemBuilder: (_, int index) => _comments[index],
+                itemCount: _comments.length,
               ),
             ),
+            Divider(height: 1.0),
             Container(
-              margin: EdgeInsets.symmetric(horizontal: 4.0),
-              child: IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: () => _handleSubmitted_tmp(comments)),
-            )
+              decoration: BoxDecoration(color: Theme
+                  .of(context)
+                  .cardColor),
+              child: _buildTextComposer(),
+            ),
           ],
         ),
-      ),
-    );
-  }
+      );
+    }
 
-  void _handleSubmitted_tmp(comment) {
-    // FirebaseFirestore.instance.collection("subscribers").doc(id_accesso.toString()).get().then((querySnapshot) {
-    //   _handleSubmitted(comment, querySnapshot.data()['nameProfile']);});
+    Widget _buildTextComposer() {
+      return IconTheme(
+        data: IconThemeData(color: Colors.orange),
+        child: Container(
+          margin: EdgeInsets.symmetric(horizontal: 8.0),
+          child: Row(
+            children: [
+              Flexible(
+                child: TextField(
+                  controller: _textController,
+                  onSubmitted: _handleSubmitted_tmp,
+                  decoration:
+                  InputDecoration.collapsed(hintText: 'Invia un commento'),
+                  focusNode: _focusNode,
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 4.0),
+                child: IconButton(
+                    icon: const Icon(Icons.send),
+                    onPressed: () => _handleSubmitted_tmp(comments)),
+              )
+            ],
+          ),
+        ),
+      );
+    }
 
-    FirebaseFirestore.instance
-        .collection('subscribers')
-        .doc(FirebaseAuth.instance.currentUser.uid)
-        .get()
-        .then((value) => _handleSubmitted(comment, value['name']));
-  }
+    _saveDeviceToken(reference, nameProfile) async {
+      // Get the current user
+      // FirebaseUser user = await _auth.currentUser();
 
-  void _handleSubmitted(comment, nameProfile) {
-    // _textController.clear();
-    //   Comment comment = Comment(
-    //     );
+      // Get the token for this device
+      String fcmToken = await _fcm.getToken();
 
-    if (_textController.text == '') return;
-    var newEntry = {
-      'nameProfile': nameProfile,
-      'comment': _textController.text,
-      'upvote': 0,
-      'downvote': 0,
-      'idVotersLike': [],
-      'idVotersDislike': [],
-      'profileImgUrl': info['profileImgUrl'],
-      'id': FirebaseAuth.instance.currentUser.uid
-    };
+      // Save it to Firestore
+      if (fcmToken != null) {
+        reference.update({'tokens': listTokens
+        });
+      }
+    }
 
-    comments.add(newEntry);
-    reference.update({'comments': comment});
-    setState(() {
-      _comments.add(Comment(idPost, newEntry, reference, comments));
-    });
-    // _focusNode.requestFocus();
-    _textController.clear();
-    print(comments);
-    //TODO write newEntry to Firebase
-  }
+    void _handleSubmitted_tmp(comment) {
+      // FirebaseFirestore.instance.collection("subscribers").doc(id_accesso.toString()).get().then((querySnapshot) {
+      //   _handleSubmitted(comment, querySnapshot.data()['nameProfile']);});
+
+      FirebaseFirestore.instance
+          .collection('subscribers')
+          .doc(FirebaseAuth.instance.currentUser.uid)
+          .get()
+          .then((value) => _handleSubmitted(comment, value['name']));
+    }
+
+
+    void _handleSubmitted(comment, nameProfile) {
+      // _textController.clear();
+      //   Comment comment = Comment(
+      //     );
+
+      if (_textController.text == '') return;
+      var newEntry = {
+        'nameProfile': nameProfile,
+        'comment': _textController.text,
+        'upvote': 0,
+        'downvote': 0,
+        'idVotersLike': [],
+        'idVotersDislike': [],
+        'profileImgUrl': info['profileImgUrl'],
+        'id': FirebaseAuth.instance.currentUser.uid,
+
+      };
+
+      comments.add(newEntry);
+      reference.update({'comments': comment});
+      _saveDeviceToken(reference, nameProfile);
+      setState(() {
+        _comments.add(Comment(idPost, newEntry, reference, comments));
+      });
+      // _focusNode.requestFocus();
+      _textController.clear();
+      print(comments);
+      //TODO write newEntry to Firebase
+    }
+
 }
