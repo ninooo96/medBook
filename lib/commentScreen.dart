@@ -565,10 +565,21 @@ class _CommentScreenState extends State<CommentScreen> {
 
       // Get the token for this device
       String fcmToken = await _fcm.getToken();
-
+      if(!listTokens.contains({'token': fcmToken,
+      'name': nameProfile,}) ){
+        listTokens.add({'token': fcmToken,
+          'name': nameProfile,});
+      }
       // Save it to Firestore
       if (fcmToken != null) {
         reference.update({'tokens': listTokens
+        });
+        var tokens = reference.collection('tokens')
+            .doc(fcmToken);
+
+        await tokens.set({
+          'token': fcmToken,
+          'name': nameProfile, // optional
         });
       }
     }

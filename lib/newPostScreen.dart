@@ -346,6 +346,20 @@ class _NewPostScreenState extends State<NewPostScreen> {
             "-" +
             timestamp.toString().replaceAll('/', '').replaceAll(' ', '-')).update({'tokens':[{'name': nameProfile, 'token':fcmToken}]});
 
+        var tokens = FirebaseFirestore.instance
+            .collection('feed')
+            .doc(nameProfile.toString().toLowerCase().replaceAll(' ', '') +
+            "_" +
+            FirebaseAuth.instance.currentUser.uid +
+            "-" +
+            timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
+            .collection('tokens')
+            .doc(fcmToken);
+
+        await tokens.set({
+          'token': fcmToken,
+          'name': nameProfile // optional
+        });
         // await tokens.set({
         //   'token': fcmToken,
         //   'name': nameProfile, // optional
