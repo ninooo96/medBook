@@ -209,7 +209,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                     keyboardType: TextInputType.multiline,
                   ),
                 ),
-                
+
                 ListTile(
                   // mainAxisAlignment: MainAxisAlignment.start,
                   // children: [_hashtagRow()],
