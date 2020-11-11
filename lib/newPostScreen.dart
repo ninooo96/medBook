@@ -28,8 +28,12 @@ class _NewPostScreenState extends State<NewPostScreen> {
     return Scaffold(
         key: _scaffoldKey,
         endDrawer: Drawer(
-            child: ListView(
-          children: [drawDrawerHeader(), _populateHashtags()],
+            child: Column(
+          // scrollDirection: Axis.vertical,
+          children: [
+             drawDrawerHeader(),
+            Expanded(child: _populateHashtags())
+          ],
         )),
         appBar: AppBar(
           // leading: IconButton(
@@ -63,13 +67,18 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
   Widget drawDrawerHeader() {
     return Container(
-      height: 100.0,
+      width: double.infinity ,
+      height: 150.0,
       child: DrawerHeader(
-          child: Text('Specializzazioni',
+          child: Text('   Specializzazioni',
               textScaleFactor: 1.8,
               textAlign: TextAlign.left,
               style: TextStyle(color: Colors.white)),
-          decoration: BoxDecoration(color: Colors.orange),
+          decoration: BoxDecoration(
+              gradient: LinearGradient(
+                  begin: Alignment.centerLeft,
+                  end: Alignment.centerRight,
+                  colors: [Color(0xfffbb448), Color(0xfff7892b)])),
           padding: EdgeInsets.symmetric(vertical: 25)),
     );
   }
@@ -95,6 +104,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
         },
       ));
     }
+    print(specializzazioni.length);
+
     return ListView.builder(
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
@@ -129,7 +140,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
                 Row(children: <Widget>[
                   Expanded(
                       child: DropdownButtonFormField<String>(
-                        isDense: true,
+                    isDense: true,
                     decoration: InputDecoration(
                         border: OutlineInputBorder(
                             borderSide: BorderSide(
@@ -174,13 +185,11 @@ class _NewPostScreenState extends State<NewPostScreen> {
                       ),
                   Expanded(
                       child: TextFormField(
-
                     decoration: InputDecoration(
                         border: OutlineInputBorder(
                             borderSide: BorderSide(
-                              color: Colors.black,
+                          color: Colors.black,
                           width: 0.5,
-
                         )),
                         labelText: 'Età'),
                     controller: _etaController,
@@ -200,9 +209,11 @@ class _NewPostScreenState extends State<NewPostScreen> {
                     keyboardType: TextInputType.multiline,
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [_hashtagRow()],
+                
+                ListTile(
+                  // mainAxisAlignment: MainAxisAlignment.start,
+                  // children: [_hashtagRow()],
+                  title: _hashtagRow(),
                 ),
                 Row(
                   children: [
@@ -253,8 +264,10 @@ class _NewPostScreenState extends State<NewPostScreen> {
 
   void _sendPost() {
     FirebaseFirestore.instance
-        .collection('subscribers').doc(FirebaseAuth.instance.currentUser.uid).get().then((value) =>
-        _sendPost2(value['name']));
+        .collection('subscribers')
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .get()
+        .then((value) => _sendPost2(value['name']));
   }
 
   void _sendPost2(nameProfile) async {
@@ -291,7 +304,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
     var time = timeTmp.toDate();
     // print(time);
     final f = new DateFormat('dd/MM/yyyy').add_Hms();
-    var timestamp =  f.format(time);
+    var timestamp = f.format(time);
 
     var newPost = {
       'nameProfile': nameProfile,
@@ -304,16 +317,14 @@ class _NewPostScreenState extends State<NewPostScreen> {
       'id': FirebaseAuth.instance.currentUser.uid,
       'timestamp': timeTmp,
       'hashtags': hashtagPost,
-      'profileImgUrl' : info['profileImgUrl'],
-      'listTokens':[Map()]
-
-
+      'profileImgUrl': info['profileImgUrl'],
+      'listTokens': [Map()]
     };
     await FirebaseFirestore.instance
         .collection('feed')
         .doc(nameProfile.toString().toLowerCase().replaceAll(' ', '') +
             "_" +
-        FirebaseAuth.instance.currentUser.uid +
+            FirebaseAuth.instance.currentUser.uid +
             "-" +
             timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
         .set(newPost);
@@ -341,18 +352,23 @@ class _NewPostScreenState extends State<NewPostScreen> {
         FirebaseFirestore.instance
             .collection('feed')
             .doc(nameProfile.toString().toLowerCase().replaceAll(' ', '') +
-            "_" +
-            FirebaseAuth.instance.currentUser.uid +
-            "-" +
-            timestamp.toString().replaceAll('/', '').replaceAll(' ', '-')).update({'tokens':[{'name': nameProfile, 'token':fcmToken}]});
+                "_" +
+                FirebaseAuth.instance.currentUser.uid +
+                "-" +
+                timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
+            .update({
+          'listTokens': [
+            {'name': nameProfile, 'token': fcmToken}
+          ]
+        });
 
         var tokens = FirebaseFirestore.instance
             .collection('feed')
             .doc(nameProfile.toString().toLowerCase().replaceAll(' ', '') +
-            "_" +
-            FirebaseAuth.instance.currentUser.uid +
-            "-" +
-            timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
+                "_" +
+                FirebaseAuth.instance.currentUser.uid +
+                "-" +
+                timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
             .collection('tokens')
             .doc(fcmToken);
 

@@ -12,6 +12,7 @@ class UserMB {
   final String profileImgUrl;
 
   final List specializzazioni;
+  final List topic;
   final DocumentReference reference;
 
   UserMB.fromMap(Map<String, dynamic> map, {this.reference})
@@ -23,6 +24,7 @@ class UserMB {
         dayBirth = map['dayBirth'],
         yearBirth = map['yearBirth'],
         profileImgUrl = map['profileImgUrl'],
+        topic = map['topic'],
         specializzazioni = map['specializzazioni'];
 
 

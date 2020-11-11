@@ -219,7 +219,7 @@ class _MyProfileState extends State<MyProfile> {
   }
 
   _logout() {
-    //TODO scollegati da Firebase
+    //scollegati da Firebase
     Navigator.of(context).popUntil(ModalRoute.withName('welcome'));
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
@@ -231,7 +231,7 @@ class _MyProfileState extends State<MyProfile> {
   }
 
   void _search() {
-    //TODO funzione di ricerca
+    //TODO funzione di ricerca - da copiare da FeedPage
   }
 
   _openDrawer() {}
@@ -483,7 +483,7 @@ class _MyProfileState extends State<MyProfile> {
 
   Widget _buildBody(BuildContext context, String nameProfile,
       String idProfile) {
-    //TODO: estrai snapshot dal Cloud Firebase
+    //estrai snapshot dal Cloud Firebase
     // List<Map> snapshot = dummySnapshot;
     // return _buildList(context, snapshot);
 
@@ -750,7 +750,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return GestureDetector(onTap: onTap, child: appBar);
   }
 
-  // TODO: implement preferredSize
+  //implement preferredSize
   @override
   Size get preferredSize => new Size.fromHeight(kToolbarHeight);
 }

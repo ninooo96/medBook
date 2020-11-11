@@ -434,7 +434,6 @@ class _CommentScreenState extends State<CommentScreen> {
     //     print(result.data());
     //   });
     // });
-    //TODO read data from Firebase
     for (var data in comment) {
       if (data['nameProfile'] != '')
         _comments.add(Comment(idPost, data, reference, comments));
@@ -623,7 +622,7 @@ class _CommentScreenState extends State<CommentScreen> {
       // _focusNode.requestFocus();
       _textController.clear();
       print(comments);
-      //TODO write newEntry to Firebase
+      //write newEntry to Firebase
     }
 
 }

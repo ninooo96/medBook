@@ -32,7 +32,15 @@ final hashtags = [
   'Psichiatria',
   'Cardiologia',
   'Neurologia',
-  'Urologia'
+  'Urologia',
+  'Oculistica',
+  'Radiodiagnostica',
+  'Nefrologia',
+  'Reumatologia',
+  'Allergologia',
+  'Ginecologia',
+  'Otorinolaringoiatria',
+  'Audiologia'
 ];
 
 Map<String, dynamic> info;
@@ -185,7 +193,7 @@ class FeedPage extends StatelessWidget {
 
     // print(info);
     // Firebase.initializeApp();
-    //   // TODO: scrolling di ListView dei post
+    //   // scrolling di ListView dei post
     return MaterialApp(
       routes: {
         'welcome': (context) => WelcomeScreen(),
@@ -252,11 +260,11 @@ class _MyFeedPageState extends State<MyFeedPage> {
       },
       onLaunch: (Map<String, dynamic> message) async {
         print("onLaunch: $message");
-        // TODO optional
+        // optional
       },
       onResume: (Map<String, dynamic> message) async {
         print("onResume: $message");
-        // TODO optional
+        //  optional
       },
     );
   }
@@ -469,7 +477,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
 
 
   Widget _buildBody(BuildContext context) {
-    //TODO: estrai snapshot dal Cloud Firebase
+    //estrai snapshot dal Cloud Firebase
     // List<Map> snapshot = dummySnapshot;
     //
     // return _buildList(context, snapshot);
@@ -685,7 +693,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return GestureDetector(onTap: onTap, child: appBar);
   }
 
-  // TODO: implement preferredSize
+  // implement preferredSize
   @override
   Size get preferredSize => new Size.fromHeight(kToolbarHeight);
 }

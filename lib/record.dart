@@ -26,7 +26,7 @@ class Record {
         timestamp = getTimestamp(map['timestamp']),
         hashtags = map['hashtags'],
         profileImgUrl = map['profileImgUrl'],
-        listTokens = map['tokens'],
+        listTokens = map['listTokens'],
         comments = map['comments'];
 
 

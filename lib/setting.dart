@@ -1011,7 +1011,7 @@ class _SettingState extends State<Setting> {
       Navigator.of(context).popUntil(ModalRoute.withName('welcome'));
       Navigator.push(
           context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
-      //TODO close app and remove all data
+      //close app and remove all data
     } catch (e) {
       if (e.code == 'requires-recent-login') {
         print(

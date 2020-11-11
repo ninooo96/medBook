@@ -188,7 +188,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     return GestureDetector(onTap: onTap, child: appBar);
   }
 
-  // TODO: implement preferredSize
+  // implement preferredSize
   @override
   Size get preferredSize => new Size.fromHeight(kToolbarHeight);
 }
