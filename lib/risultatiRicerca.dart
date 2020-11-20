@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -53,7 +56,7 @@ class _RisultatiRicercaState extends State<RisultatiRicerca> {
       splitStr[i] = splitStr[i][0].toUpperCase() + splitStr[i].substring(1);
     }
     // Directly return the joined string
-    return splitStr.join(' ').toString();
+    return splitStr.join('').toString();
   }
 
   Widget _buildBody(BuildContext context) {
@@ -146,9 +149,20 @@ class _RisultatiRicercaState extends State<RisultatiRicerca> {
       List<String> hashtagList =
           hashtag2.contains(',') ? hashtag2.split(",") : [hashtag2];
       print(hashtagList);
+
+
+      // StreamController<dynamic> _places;
+      // _places = new StreamController();
+
+      // List<Stream> listStream =[];
+      // for(var stream_tmp in hashtagList){
+      //   listStream.add(FirebaseFirestore.instance.collection('feed').where('hashtags', arrayContainsAny: [stream_tmp]).snapshots());
+      // }
+      // var streams = StreamGroup.merge(listStream);
       return StreamBuilder<QuerySnapshot>(
-        stream: stream
-            .where('hashtags', arrayContainsAny: hashtagList)
+        stream:
+        stream
+            .where('hashtags', arrayContainsAny : hashtagList)
             .orderBy('timestamp', descending: true)
             .snapshots(),
         builder: (context, snapshot) {

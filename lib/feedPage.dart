@@ -188,7 +188,9 @@ class FeedPage extends StatelessWidget {
       'specializzazioni': user['specializzazioni'],
       'topic': user['topic'],
       'profileImgUrl': user['profileImgUrl'], // non è user
+      'token'
       'id': FirebaseAuth.instance.currentUser.uid
+
     });
 
     // print(info);
@@ -271,7 +273,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
 
   @override
   Widget build(BuildContext context) {
-    _fcm.subscribeToTopic('feed');
+    // _fcm.subscribeToTopic('feed');
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         child: Icon(Icons.add),

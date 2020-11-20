@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:medbook/record.dart';
 import 'package:medbook/user.dart';
+import 'package:medbook/utility.dart';
 
 import 'feedPage.dart';
 import 'myProfile.dart';
@@ -394,7 +395,7 @@ class _CommentScreenState extends State<CommentScreen> {
   DocumentReference reference;
   String idPost;
   Record record;
-  FirebaseMessaging _fcm = MyFeedPage().getFCM();
+  // FirebaseMessaging _fcm = MyFeedPage().getFCM();
   var _listTokens;
   List<Map<String,dynamic>> listTokens  = new List<
       Map<String,
@@ -558,30 +559,30 @@ class _CommentScreenState extends State<CommentScreen> {
       );
     }
 
-    _saveDeviceToken(reference, nameProfile) async {
-      // Get the current user
-      // FirebaseUser user = await _auth.currentUser();
-
-      // Get the token for this device
-      String fcmToken = await _fcm.getToken();
-      if(!listTokens.contains({'token': fcmToken,
-      'name': nameProfile,}) ){
-        listTokens.add({'token': fcmToken,
-          'name': nameProfile,});
-      }
-      // Save it to Firestore
-      if (fcmToken != null) {
-        reference.update({'tokens': listTokens
-        });
-        var tokens = reference.collection('tokens')
-            .doc(fcmToken);
-
-        await tokens.set({
-          'token': fcmToken,
-          'name': nameProfile, // optional
-        });
-      }
-    }
+    // _saveDeviceToken(reference, nameProfile) async {
+    //   // Get the current user
+    //   // FirebaseUser user = await _auth.currentUser();
+    //
+    //   // Get the token for this device
+    //   String fcmToken = await _fcm.getToken();
+    //   if(!listTokens.contains({'token': fcmToken,
+    //   'name': nameProfile,}) ){
+    //     listTokens.add({'token': fcmToken,
+    //       'name': nameProfile,});
+    //   }
+    //   // Save it to Firestore
+    //   if (fcmToken != null) {
+    //     reference.update({'tokens': listTokens
+    //     });
+    //     var tokens = reference.collection('tokens')
+    //         .doc(fcmToken);
+    //
+    //     await tokens.set({
+    //       'token': fcmToken,
+    //       'name': nameProfile, // optional
+    //     });
+    //   }
+    // }
 
     void _handleSubmitted_tmp(comment) {
       // FirebaseFirestore.instance.collection("subscribers").doc(id_accesso.toString()).get().then((querySnapshot) {
@@ -615,7 +616,7 @@ class _CommentScreenState extends State<CommentScreen> {
 
       comments.add(newEntry);
       reference.update({'comments': comment});
-      _saveDeviceToken(reference, nameProfile);
+      Utility().saveDeviceToken(reference, nameProfile);
       setState(() {
         _comments.add(Comment(idPost, newEntry, reference, comments));
       });

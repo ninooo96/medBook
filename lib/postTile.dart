@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:medbook/commentScreen.dart';
 import 'package:medbook/record.dart';
 import 'package:medbook/user.dart';
+import 'package:medbook/utility.dart';
 
 import 'feedPage.dart';
 import 'myProfile.dart';
@@ -39,21 +41,64 @@ import 'myProfile.dart';
 //     this.data = data;
 //   }
 //
-  _urlProfileImage(record){
+
+//
+//   @override
+//   Widget build(BuildContext context) {
+class PostTile extends StatefulWidget {
+  var data;
+  var context;
+
+  PostTile(data, context) {
+    this.data = data;
+    this.context = context;
+  }
+
+  @override
+  _PostTileState createState() => _PostTileState(data, context);
+}
+
+class _PostTileState extends State<PostTile> {
+  var data;
+  var context;
+  var record;
+  var _fcm;
+  var containToken = false;
+
+  _PostTileState(data, context) {
+    this.data = data;
+    this.context = context;
+    this.record = Record.fromSnapshot(data);
+    this._fcm = MyFeedPage().getFCM();
+    // _containToken();
+  }
+  @override
+  void initState() {
+    super.initState();
+    // _containToken();
+    _fcm.getToken().then((token){
+      for (var map in record.listTokens) {
+        if (map.containsValue(token)) {
+          setState(() {
+            containToken = true;
+          });
+
+          return;
+        }
+        containToken = false;
+      }
+    });
+  }
+
+  _urlProfileImage() {
     FirebaseFirestore.instance.collection('subscribers')
         .doc(record.id).get().then((user) {
-          record.reference.update({'profileImgUrl': user['profileImgUrl']});
-            // urlImgProfile = user['profileImgUrl'];
-
+      record.reference.update({'profileImgUrl': user['profileImgUrl']});
+      // urlImgProfile = user['profileImgUrl'];
 
 
     });
   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-Widget PostTile(data, context){
-  final record = Record.fromSnapshot(data);
 
   void addComment(context, Record record, nuovoCommento) {
     //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
@@ -86,14 +131,44 @@ Widget PostTile(data, context){
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => CommentScreen(record, record2, record.reference)),
+            builder: (context) =>
+                CommentScreen(record, record2, record.reference)),
       );
     }
   }
 
+  _activateNotifications() async {
+    String fcmToken = await _fcm.getToken();
+    if (!containToken) {
+      Utility().saveDeviceToken(record.reference, info['name'], segui: true);
+      print(record.listTokens);
+      print(record.nameProfile);
+      print(record.reference);
+      setState(() {
+        containToken = true;
+      });
 
-  handleClick( String value) {
-    switch (value){
+      record.listTokens.add({ 'name': info['name'], 'token': fcmToken});
+      //record.listTokens.contains({'token': _fcm.getToken(),      'name': record.nameProfile,});
+      print(containToken);
+    }
+    else {
+      Utility().removeDeviceToken(record.reference, info['name'], segui:true);
+      setState(() {
+        containToken = false;
+      });
+      for(var map in record.listTokens){
+        if(map.containsValue(fcmToken)){
+          record.listTokens.remove(map);
+          break;
+        }
+      }
+      // record.listTokens.remove({'name': info['name'], 'token': fcmToken,});
+    }
+  }
+
+  handleClick(String value) {
+    switch (value) {
       case 'Elimina post':
         showDialog(
             context: context,
@@ -115,12 +190,20 @@ Widget PostTile(data, context){
                         onPressed: () {
                           // DateTime date = record.t
                           // print(record.timestamp.replaceAll('/', '').replaceAll(' ', '-'));
-                          print(record.nameProfile.toLowerCase().replaceAll(' ', '')+'_'+FirebaseAuth.instance.currentUser.uid+'-'+record.timestamp.replaceAll('/', '').replaceAll(' ', '-'));
+                          print(record.nameProfile.toLowerCase().replaceAll(
+                              ' ', '') + '_' +
+                              FirebaseAuth.instance.currentUser.uid + '-' +
+                              record.timestamp.replaceAll('/', '').replaceAll(
+                                  ' ', '-'));
                           Navigator.of(context).pop();
                           FirebaseFirestore.instance.collection('feed')
-                              .doc(record.nameProfile.toLowerCase().replaceAll(' ', '')+'_'+FirebaseAuth.instance.currentUser.uid+'-'+record.timestamp.replaceAll('/', '').replaceAll(' ', '-'))
+                              .doc(record.nameProfile.toLowerCase().replaceAll(
+                              ' ', '') + '_' + FirebaseAuth.instance.currentUser
+                              .uid + '-' + record.timestamp.replaceAll('/', '')
+                              .replaceAll(' ', '-'))
                               .delete().then((value) => print("Post eliminato"))
-                              .catchError((error) => print("Failed to delete post: $error"));
+                              .catchError((error) =>
+                              print("Failed to delete post: $error"));
                           // print(ModalRoute.of(context).settings.name);
                         },
                         child: Text(
@@ -139,12 +222,37 @@ Widget PostTile(data, context){
 
 
     }
-
   }
 
-    // print(urlImgProfile);
+  // print(urlImgProfile);
+  // _containToken()  async {
+  //   var token = await _fcm.getToken();
+  //   for (var map in record.listTokens) {
+  //     if (map.containsValue(token)) {
+  //       containToken = true;
+  //       return;
+  //     }
+  //     containToken = false;
+  //   }
+  //   // containToken = record.listTokens.contains({
+  //   //   'name': record.nameProfile,
+  //   //   'token': token}.);
+  // }
 
-    _urlProfileImage(record);
+
+  @override
+  Widget build(BuildContext context) {
+    _urlProfileImage();
+    // setState(() {
+    // _containToken();
+    // });
+
+    return builder(context);
+  }
+  Widget builder(BuildContext context){
+
+    // print(containToken);
+    // print(record.listTokens);
     return Padding(
       // key: ValueKey(record.nameProfile),
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
@@ -155,34 +263,42 @@ Widget PostTile(data, context){
             ),
             child: Column(children: <Widget>[
               ListTile(
-                leading: record.profileImgUrl==' ' ? Icon(Icons.account_circle_outlined,size: 50) : ClipRRect(borderRadius: BorderRadius.circular(20),clipBehavior: Clip.hardEdge, child: Image.network(record.profileImgUrl, height: 50, width:50)),
+                leading: record.profileImgUrl == ' ' ? Icon(
+                    Icons.account_circle_outlined, size: 50) : ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    clipBehavior: Clip.hardEdge,
+                    child: Image.network(
+                        record.profileImgUrl, height: 50, width: 50)),
                 title: Text(record.nameProfile),
                 trailing: PopupMenuButton<String>(
-                    // enabled: record.id == FirebaseAuth.instance.currentUser.uid,
-                      onSelected: handleClick,
-                      itemBuilder: (BuildContext context) {
-                        return {'Elimina post'}
-                            .map((String choice) {
-                          return PopupMenuItem<String>(
-                            enabled: record.id == FirebaseAuth.instance.currentUser.uid,
+                  // enabled: record.id == FirebaseAuth.instance.currentUser.uid,
+                    onSelected: handleClick,
+                    itemBuilder: (BuildContext context) {
+                      return {'Elimina post'}
+                          .map((String choice) {
+                        return PopupMenuItem<String>(
+                            enabled: record.id == FirebaseAuth.instance
+                                .currentUser.uid,
 
-                          value: choice, child: Text(choice));
-                        }).toList();
-                      }),
+                            value: choice, child: Text(choice));
+                      }).toList();
+                    }),
                 //   icon: Icon(Icons.more_vert),
                 // ),
-                subtitle: Text(record.timestamp),
+                subtitle: Text(
+                    record.timestamp.substring(0, record.timestamp.length - 3)),
                 onTap: () {
-                  FirebaseFirestore.instance.collection('subscribers').doc(record.id).get().then((value) {
+                  FirebaseFirestore.instance.collection('subscribers').doc(
+                      record.id).get().then((value) {
                     UserMB user = UserMB.fromSnapshot(value);
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                          builder: (context) => MyProfile(user)),//.nameProfile, record.id.toString())),
+                          builder: (context) =>
+                              MyProfile(
+                                  user)), //.nameProfile, record.id.toString())),
                     );
                   });
-
-
                 },
               ),
               ListTile(
@@ -195,7 +311,9 @@ Widget PostTile(data, context){
                           ? ''
                           : "\n# " +
                           record.hashtags.toString().substring(
-                              1, record.hashtags.toString().length - 1)) +
+                              1, record.hashtags
+                              .toString()
+                              .length - 1)) +
                       ""
                           "\n\n" +
                       record.post)),
@@ -206,11 +324,10 @@ Widget PostTile(data, context){
                     : Text(record.comments.length.toString() + ' commento')
                     : Text('Non ci sono commenti'),
                 onTap: () {
-
-                  // setState(() {
+                  setState(() {
                     addComment(context, record, 0);
                     print(record.comments);
-                  // });
+                  });
                 },
               ),
               Row(
@@ -231,23 +348,31 @@ Widget PostTile(data, context){
                       )),
                   Flexible(
                       child: ListTile(
-                          // onTap: _activeNotifications,
-                          title: Center(child: Text('Segui'))))
+                          onTap:
+                          _activateNotifications,
+
+
+                          title: Center(child: Text('Segui',
+                            style: containToken
+                                ? TextStyle(color: Colors.green)
+                                : TextStyle(),
+                          ))))
                 ],
               )
             ])));
-
-
-
   }
 
+}
 
 
 deletePost(Record record) {
-    FirebaseFirestore.instance.collection('feed')
-        .doc(record.nameProfile.toLowerCase().trim()+FirebaseAuth.instance.currentUser.uid+record.timestamp)
-        .delete().then((value) => print("User Deleted"))
-        .catchError((error) => print("Failed to delete user: $error"));
+  FirebaseFirestore.instance.collection('feed')
+      .doc(record.nameProfile.toLowerCase().trim() +
+      FirebaseAuth.instance.currentUser.uid + record.timestamp)
+      .delete().then((value) => print("User Deleted"))
+      .catchError((error) => print("Failed to delete user: $error"));
 }
+
+
 
 
