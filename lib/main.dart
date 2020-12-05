@@ -87,7 +87,7 @@ class _AppState extends State<App> {
     if (!_initialized) {
       return Loading();
     }
-      return isSignedIn ? FeedPage() :  MaterialApp(
+   return isSignedIn ? FeedPage() :  MaterialApp(
           home: Scaffold(body: WelcomeScreen()));
 
   }

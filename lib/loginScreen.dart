@@ -415,7 +415,7 @@ class _LoginScreenState extends State<LoginScreen> {
       Navigator.of(context).pop();
         Navigator.of(context).pop();
         Navigator.push(
-            context, MaterialPageRoute(builder: (context) => FeedPage()));
+            context, MaterialPageRoute(builder: (context) => new FeedPage()));
       return _user;
     }
 
@@ -433,7 +433,9 @@ class _LoginScreenState extends State<LoginScreen> {
       'numOrdine': ' ',
       'provinciaOrdine':' ',
       'specializzazioni': [],
-      'profileImgUrl': ' '
+      'profileImgUrl': ' ',
+      'topic' : [],
+      'verified' : ' '
     })
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));
@@ -466,7 +468,9 @@ class _LoginScreenState extends State<LoginScreen> {
       'numOrdine': ' ',
       'provinciaOrdine':' ',
       'specializzazioni': ' ',
-      'profiloImgUrl':' '
+      'profiloImgUrl':' ',
+      'topic' : [],
+      'verified' : ' '
     })
         .then((value) => print("User Added"))
         .catchError((error) => print("Failed to add user: $error"));

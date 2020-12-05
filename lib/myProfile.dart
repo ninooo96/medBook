@@ -76,14 +76,14 @@ class _MyProfileState extends State<MyProfile> {
   Widget _build(BuildContext context, String nameProfile, String idProfile,
       UserMB user) {
     return Scaffold(
-        floatingActionButton: FloatingActionButton(
+        floatingActionButton:FeedPage().getInfo()['verified'] ? FloatingActionButton(
           child: Icon(Icons.add),
           onPressed: () {
             _newPost();
           }, //new post page
           backgroundColor: Colors.orange,
           splashColor: Colors.yellow,
-        ),
+        ) : null,
         drawer: Drawer(
             child: Column(
               children: <Widget>[
@@ -181,6 +181,7 @@ class _MyProfileState extends State<MyProfile> {
       thickness: 2,
     ));
     drawerTile.add(ListTile(
+      enabled: FeedPage().getInfo()['verified'],
       title: Text(
         'Il mio profilo',
         textScaleFactor: 1.5,

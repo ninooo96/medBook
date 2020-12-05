@@ -10,6 +10,7 @@ import 'package:medbook/utility.dart';
 
 import 'feedPage.dart';
 import 'myProfile.dart';
+bool verified = FeedPage().getInfo()['verified'];
 
 class Comment extends StatefulWidget implements Comparable {
   var record; //=[{'nameProfile':'','comment':'','upvote':'0','downvote':0}];
@@ -247,8 +248,8 @@ class _CommentState extends State<Comment> {
                     Flexible(
                         child: IconButton(
                       icon: Icon(Icons.thumb_up),
-                      color: votatoLike ? Colors.green : Colors.grey,
-                      onPressed: () {
+                      color: verified ? votatoLike ? Colors.green : Colors.grey : null,
+                      onPressed: !verified ? null : () {
                         setState(() {
                           if (!votatoLike && !votatoDislike) {
                             upvote++;
@@ -281,9 +282,10 @@ class _CommentState extends State<Comment> {
                     ),
                     Flexible(
                         child: IconButton(
-                      color: votatoDislike ? Colors.red : Colors.grey,
+                      color: verified ? votatoDislike ? Colors.red : Colors.grey : null,
                       icon: Icon(Icons.thumb_down),
-                      onPressed: () {
+
+                      onPressed: !verified ? null : () {
                         setState(() {
                           if (!votatoDislike && !votatoLike) {
                             downvote++;
@@ -532,6 +534,7 @@ class _CommentScreenState extends State<CommentScreen> {
     }
 
     Widget _buildTextComposer() {
+      // print(FeedPage().getInfo()['verified']);
       return IconTheme(
         data: IconThemeData(color: Colors.orange),
         child: Container(
@@ -540,6 +543,7 @@ class _CommentScreenState extends State<CommentScreen> {
             children: [
               Flexible(
                 child: TextField(
+                  enabled: FeedPage().getInfo()['verified'],
                   controller: _textController,
                   onSubmitted: _handleSubmitted_tmp,
                   decoration:

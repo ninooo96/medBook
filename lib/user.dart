@@ -10,6 +10,7 @@ class UserMB {
   final String id;
   final String yearBirth;
   final String profileImgUrl;
+  final bool verified;
 
   final List specializzazioni;
   final List topic;
@@ -25,6 +26,7 @@ class UserMB {
         yearBirth = map['yearBirth'],
         profileImgUrl = map['profileImgUrl'],
         topic = map['topic'],
+        verified = map['verified'],
         specializzazioni = map['specializzazioni'];
 
 

@@ -131,10 +131,36 @@ Map<String, dynamic> info;
 // }
 
 class FeedPage extends StatelessWidget {
+  // Map<String, dynamic> info;
   // FeedPage() {
-  //   Firebase.initializeApp();
-  //   // var db = FirebaseFirestore.instance.firestore();
+  // // // //   Firebase.initializeApp();
+  // // // //   // var db = FirebaseFirestore.instance.firestore();
+  //   initializeInfo();
+  // //   this.info =info;
   // }
+
+  // void initializeInfo() async {
+  //   var infoTmp;
+  //   await FirebaseFirestore.instance.collection('subscribers').doc(
+  //       FirebaseAuth.instance.currentUser.uid).get().then((user) {
+  //   infoTmp = {'name': user['name'],
+  //     'provinciaOrdine': user['provinciaOrdine'],
+  //     'dayBirth': user['dayBirth'],
+  //     'monthBirth': user['monthBirth'],
+  //     'yearBirth': user['yearBirth'],
+  //     'numOrdine': user['numOrdine'],
+  //     'specializzazioni': user['specializzazioni'],
+  //     'topic': user['topic'],
+  //     'profileImgUrl': user['profileImgUrl'], // non è user
+  //     'verified': user['verified'],
+  //     'id': FirebaseAuth.instance.currentUser.uid
+  //
+  //   };
+  //
+  //   });
+  //   setInfo(infoTmp);
+  // }
+
   Map<String, dynamic> getInfo() {
     return info;
   }
@@ -175,23 +201,24 @@ class FeedPage extends StatelessWidget {
   // }
 
   Widget build(BuildContext context) {
+    // initializeInfo();
     firebase_storage.FirebaseStorage storage =
         firebase_storage.FirebaseStorage.instance;
-    FirebaseFirestore.instance.collection('subscribers').doc(
-        FirebaseAuth.instance.currentUser.uid).get().then((user) =>
-    info = {'name': user['name'],
-      'provinciaOrdine': user['provinciaOrdine'],
-      'dayBirth': user['dayBirth'],
-      'monthBirth': user['monthBirth'],
-      'yearBirth': user['yearBirth'],
-      'numOrdine': user['numOrdine'],
-      'specializzazioni': user['specializzazioni'],
-      'topic': user['topic'],
-      'profileImgUrl': user['profileImgUrl'], // non è user
-      'token'
-      'id': FirebaseAuth.instance.currentUser.uid
-
-    });
+    // FirebaseFirestore.instance.collection('subscribers').doc(
+    //     FirebaseAuth.instance.currentUser.uid).get().then((user) =>
+    // info = {'name': user['name'],
+    //   'provinciaOrdine': user['provinciaOrdine'],
+    //   'dayBirth': user['dayBirth'],
+    //   'monthBirth': user['monthBirth'],
+    //   'yearBirth': user['yearBirth'],
+    //   'numOrdine': user['numOrdine'],
+    //   'specializzazioni': user['specializzazioni'],
+    //   'topic': user['topic'],
+    //   'profileImgUrl': user['profileImgUrl'], // non è user
+    //   'verified': user['verified'],
+    //   'id': FirebaseAuth.instance.currentUser.uid
+    //
+    // });
 
     // print(info);
     // Firebase.initializeApp();
@@ -228,17 +255,44 @@ class _MyFeedPageState extends State<MyFeedPage> {
   String _profileImageUrl = ' ';
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   FirebaseMessaging _fcm;
+  // bool verified = true;
 
   _MyFeedPageState(FirebaseMessaging _fcm){
+
+
     this._fcm = _fcm;
+    // print(FeedPage().getInfo());
   }
 
+  void initializeInfo() async {
+    var infoTmp;
+    await FirebaseFirestore.instance.collection('subscribers').doc(
+        FirebaseAuth.instance.currentUser.uid).get().then((user) {
+      infoTmp = {'name': user['name'],
+        'provinciaOrdine': user['provinciaOrdine'],
+        'dayBirth': user['dayBirth'],
+        'monthBirth': user['monthBirth'],
+        'yearBirth': user['yearBirth'],
+        'numOrdine': user['numOrdine'],
+        'specializzazioni': user['specializzazioni'],
+        'topic': user['topic'],
+        'profileImgUrl': user['profileImgUrl'], // non è user
+        'verified': user['verified'],
+        'id': FirebaseAuth.instance.currentUser.uid
 
+      };
+
+    });
+    setState(() {
+      FeedPage().setInfo(infoTmp);
+    });
+
+  }
 
   @override
   void initState() {
     super.initState();
-
+    initializeInfo();
     // ...
 
     _fcm.configure(
@@ -274,15 +328,23 @@ class _MyFeedPageState extends State<MyFeedPage> {
   @override
   Widget build(BuildContext context) {
     // _fcm.subscribeToTopic('feed');
+    bool verified = false;
+    try{
+     verified = info['verified'];
+    }catch (e){
+      print('error');
+      Container();
+    }
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
+
+      floatingActionButton: verified ? FloatingActionButton(
         child: Icon(Icons.add),
         onPressed: () {
           _newPost();
         }, //new post page
         backgroundColor: Colors.orange,
         splashColor: Colors.yellow,
-      ),
+      ) : Container(),
       drawer: Drawer(
           child: Column(
             children: <Widget>[
@@ -382,6 +444,14 @@ class _MyFeedPageState extends State<MyFeedPage> {
   // );
   // }
   _drawerTile() {
+    bool verified = false;
+    try{
+      verified = info['verified'];
+    }catch (e){
+      print('error');
+      Container();
+    }
+
     List<Widget> drawerTile = [];
     drawerTile.add(ListTile(
       title: Text(
@@ -401,6 +471,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
       thickness: 2,
     ));
     drawerTile.add(ListTile(
+      enabled: verified,
         title: Text(
           'Il mio profilo',
           textScaleFactor: 1.5,
@@ -432,6 +503,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
 
   _logout() {
     Navigator.of(context).popUntil(ModalRoute.withName('welcome'));
+    info = null;
     Navigator.push(
         context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
     FirebaseAuth.instance.signOut();
