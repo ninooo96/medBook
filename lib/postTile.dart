@@ -48,14 +48,16 @@ import 'myProfile.dart';
 class PostTile extends StatefulWidget {
   var data;
   var context;
+  int route;
 
-  PostTile(data, context) {
+  PostTile(data, context, route) {
     this.data = data;
     this.context = context;
+    this.route = route;
   }
 
   @override
-  _PostTileState createState() => _PostTileState(data, context);
+  _PostTileState createState() => _PostTileState(data, context, route);
 }
 
 class _PostTileState extends State<PostTile> {
@@ -64,12 +66,15 @@ class _PostTileState extends State<PostTile> {
   var record;
   var _fcm;
   var containToken = false;
+  bool eliminato = false;
+  int route;
 
-  _PostTileState(data, context) {
+  _PostTileState(data, context, route) {
     this.data = data;
     this.context = context;
     this.record = Record.fromSnapshot(data);
     this._fcm = MyFeedPage().getFCM();
+    this.route = route;
     // _containToken();
   }
   @override
@@ -132,7 +137,7 @@ class _PostTileState extends State<PostTile> {
         context,
         MaterialPageRoute(
             builder: (context) =>
-                CommentScreen(record, record2, record.reference)),
+                CommentScreen(record, record2, record.reference, route)),
       );
     }
   }
@@ -201,10 +206,17 @@ class _PostTileState extends State<PostTile> {
                               ' ', '') + '_' + FirebaseAuth.instance.currentUser
                               .uid + '-' + record.timestamp.replaceAll('/', '')
                               .replaceAll(' ', '-'))
-                              .delete().then((value) => print("Post eliminato"))
-                              .catchError((error) =>
+                              .delete().then((value) {
+                                print("Post eliminato");
+                                setState(() {
+                                  eliminato = true;
+                                });
+                                })
+                            .catchError(
+                          (error) =>
                               print("Failed to delete post: $error"));
                           // print(ModalRoute.of(context).settings.name);
+
                         },
                         child: Text(
                           'Sì',
@@ -253,7 +265,7 @@ class _PostTileState extends State<PostTile> {
 
     // print(containToken);
     // print(record.listTokens);
-    return Padding(
+    return eliminato ? Container() : Padding(
       // key: ValueKey(record.nameProfile),
         padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
         child: Container(

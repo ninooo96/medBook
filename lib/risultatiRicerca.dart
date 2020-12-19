@@ -187,7 +187,7 @@ class _RisultatiRicercaState extends State<RisultatiRicerca> {
   Widget _buildListItem(BuildContext context, QueryDocumentSnapshot data) {
     final record = Record.fromSnapshot(data);
     print(record);
-    return PostTile(data, context);
+    return PostTile(data, context,3);
   }
 }
 

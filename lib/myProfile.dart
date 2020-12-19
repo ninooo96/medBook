@@ -240,7 +240,7 @@ class _MyProfileState extends State<MyProfile> {
   _newPost() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => NewPostScreen()),
+      MaterialPageRoute(builder: (context) => NewPostScreen(1)),
     );
   }
 
@@ -553,7 +553,7 @@ class _MyProfileState extends State<MyProfile> {
     // }
     // final record = recordTmp;
     print(record);
-    return PostTile(data, context);
+    return PostTile(data, context, 1);
     // return Padding(
     //   // key: ValueKey(record.nameProfile),
     //     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),

@@ -226,7 +226,7 @@ class FeedPage extends StatelessWidget {
     return MaterialApp(
       routes: {
         'welcome': (context) => WelcomeScreen(),
-        'feed': (context) => FeedPage(),
+        'feed': (context) => MyFeedPage(),
         // 'myProfile': (context) => MyProfile
         // 'myProfile' : (context) =>MyProfile(Record.fromMap(info))//info['name'], info['id'])
       },
@@ -253,6 +253,7 @@ class MyFeedPage extends StatefulWidget {
 
 class _MyFeedPageState extends State<MyFeedPage> {
   String _profileImageUrl = ' ';
+  bool newNotification = false;
   final FirebaseFirestore _db = FirebaseFirestore.instance;
   FirebaseMessaging _fcm;
   // bool verified = true;
@@ -265,6 +266,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
   }
 
   void initializeInfo() async {
+
     var infoTmp;
     await FirebaseFirestore.instance.collection('subscribers').doc(
         FirebaseAuth.instance.currentUser.uid).get().then((user) {
@@ -313,6 +315,10 @@ class _MyFeedPageState extends State<MyFeedPage> {
         //     ],
         //   ),
         // );
+        // setState(() {
+        //   newNotification = true;
+        //   print(newNotification);
+        // });
       },
       onLaunch: (Map<String, dynamic> message) async {
         print("onLaunch: $message");
@@ -380,11 +386,12 @@ class _MyFeedPageState extends State<MyFeedPage> {
             //   onPressed: _openDrawer,
             // ),
           ),
-          title: Center(child: Text(widget.title)),
+          title: Center(child: Text('MedBook')),
           actions: [
             IconButton(icon: Icon(Icons.search), onPressed: _search),
+
             IconButton(
-              icon: Icon(Icons.notifications),
+              icon: newNotification ? Icon(Icons.notification_important) : Icon(Icons.notifications),
               onPressed: _postWithMyHashtags,
             ),
           ],
@@ -511,6 +518,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
 
   void _postWithMyHashtags() {
     // print("ciao Anto");
+    newNotification = false;
     //TODO pagina con i post di cui ho ricevuto la notifica perchè con il mio hashtag
   }
 
@@ -526,7 +534,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
   _newPost() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => NewPostScreen()),
+      MaterialPageRoute(builder: (context) => NewPostScreen(0)),
     );
   }
 
@@ -555,6 +563,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
     // List<Map> snapshot = dummySnapshot;
     //
     // return _buildList(context, snapshot);
+
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('feed')
@@ -637,7 +646,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
     // print(record.sexPatient); // record.map((data)=> print(data[1]));
     print(record.comments);
 
-    return PostTile(data, context);
+    return PostTile(data, context, 0);
     // return Padding(
     //   // key: ValueKey(record.nameProfile),
     //     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),

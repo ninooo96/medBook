@@ -376,18 +376,20 @@ class CommentScreen extends StatefulWidget {
   DocumentReference reference;
   String idPost;
   Record record;
+  int route;
 
-  CommentScreen(Record record, comments, reference) {
+  CommentScreen(Record record, comments, reference, int route) {
     this.comments = comments;
     // print('lista dei commenti?');
     // print(comments);
     this.reference = reference;
     this.idPost = record.id;
     this.record = record;
+    this.route = route;
   }
 
   @override
-  _CommentScreenState createState() => _CommentScreenState(record, comments, reference);
+  _CommentScreenState createState() => _CommentScreenState(record, comments, reference, route);
 }
 
 class _CommentScreenState extends State<CommentScreen> {
@@ -396,6 +398,7 @@ class _CommentScreenState extends State<CommentScreen> {
   final FocusNode _focusNode = FocusNode();
   DocumentReference reference;
   String idPost;
+  int route;
   Record record;
   // FirebaseMessaging _fcm = MyFeedPage().getFCM();
   var _listTokens;
@@ -422,12 +425,12 @@ class _CommentScreenState extends State<CommentScreen> {
 
 
 
-  _CommentScreenState(record, comment, reference) {
+  _CommentScreenState(record, comment, reference, route) {
     this.comments = comment;
     this.reference = reference;
     this.idPost = record.id;
     this.record=record;
-
+    this.route = route;
     // this.comments = comment.map((data) => Record.fromMap(data)).toList();
     // comment.map((data)=> print(data['comment']));
     // print('comment');
@@ -494,10 +497,7 @@ class _CommentScreenState extends State<CommentScreen> {
                       end: Alignment.centerRight,
                       colors: [Color(0xfffbb448), Color(0xfff7892b)])),
               //
-              // leading: IconButton(
-              //   icon: Icon(Icons.menu),
-              //   onPressed: _openDrawer,
-              // ),
+
             ),
             // leading: IconButton(
             //   icon: Icon(Icons.arrow_back_ios),
@@ -510,15 +510,33 @@ class _CommentScreenState extends State<CommentScreen> {
             //
             // }
             // ),
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed:() {
+                if(route == 0)
+                  Navigator.pushReplacement( context, MaterialPageRoute(builder: (BuildContext context) => MyFeedPage()));
+                else if(route ==1){
+                  FirebaseFirestore.instance
+                      .collection('subscribers')
+                      .doc(FirebaseAuth.instance.currentUser.uid)
+                      .get()
+                      .then((value) =>
+                  Navigator.pushReplacement(context, MaterialPageRoute(
+                  builder: (BuildContext context) => MyProfile(UserMB.fromSnapshot(value)))));
+                  }
+                
+                }
+            ),
             title: Text('Commenti')),
-        body: Column(
-          children: [
+            body: Column(
+            children: [
             Flexible(
-              child: ListView.builder(
-                padding: EdgeInsets.all(8.0),
-                reverse: true,
-                itemBuilder: (_, int index) => _comments[index],
-                itemCount: _comments.length,
+            child: ListView.builder(
+            padding: EdgeInsets.all(8.0),
+            reverse: true,
+            itemBuilder: (_, int index) => _comments[index],
+            itemCount: _comments.length
+
               ),
             ),
             Divider(height: 1.0),

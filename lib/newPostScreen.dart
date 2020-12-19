@@ -3,15 +3,27 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:medbook/myProfile.dart';
+import 'package:medbook/user.dart';
+import 'package:medbook/utility.dart';
 
 import 'feedPage.dart';
 
 class NewPostScreen extends StatefulWidget {
+  int route;
+  NewPostScreen(int route){
+    this.route = route;
+  }
   @override
-  _NewPostScreenState createState() => _NewPostScreenState();
+  _NewPostScreenState createState() => _NewPostScreenState(route);
 }
 
 class _NewPostScreenState extends State<NewPostScreen> {
+  int route;
+  _NewPostScreenState(int route){
+    this.route = route;
+  }
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   final hashtagPost = [];
@@ -362,30 +374,46 @@ class _NewPostScreenState extends State<NewPostScreen> {
           ]
         });
 
-        var tokens = FirebaseFirestore.instance
-            .collection('feed')
-            .doc(nameProfile.toString().toLowerCase().replaceAll(' ', '') +
-                "_" +
-                FirebaseAuth.instance.currentUser.uid +
-                "-" +
-                timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
-            .collection('tokens')
-            .doc(fcmToken);
 
-        await tokens.set({
-          'token': fcmToken,
-          'name': nameProfile // optional
-        });
+
+        // await tokens.set({
+        //   'token': fcmToken,
+        //   'name': nameProfile // optional
+        // });
         // await tokens.set({
         //   'token': fcmToken,
         //   'name': nameProfile, // optional
         // });
       }
     }
+    var reference = FirebaseFirestore.instance
+        .collection('feed')
+        .doc(nameProfile.toString().toLowerCase().replaceAll(' ', '') +
+        "_" +
+        FirebaseAuth.instance.currentUser.uid +
+        "-" +
+        timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'));
 
+    Utility().saveDeviceToken(reference, nameProfile);
     _saveDeviceToken();
 
     Navigator.of(context).pop();
+    if(route == 0) //0==feedPage
+      Navigator.pushReplacement( context, MaterialPageRoute(builder: (BuildContext context) => MyFeedPage()));
+    else {
+      print(ModalRoute.of(context).settings.name.toString() + "BOOOOh");
+        FirebaseFirestore.instance
+            .collection('subscribers')
+            .doc(FirebaseAuth.instance.currentUser.uid)
+            .get()
+            .then((value) =>
+            Navigator.pushReplacement(context, MaterialPageRoute(
+                builder: (BuildContext context) => MyProfile(UserMB.fromSnapshot(value)))));
+     }
+
+
+
+    }
     //TODO send post to firebase
-  }
+
 }
