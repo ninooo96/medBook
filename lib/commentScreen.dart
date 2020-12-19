@@ -524,7 +524,7 @@ class _CommentScreenState extends State<CommentScreen> {
                   Navigator.pushReplacement(context, MaterialPageRoute(
                   builder: (BuildContext context) => MyProfile(UserMB.fromSnapshot(value)))));
                   }
-                
+
                 }
             ),
             title: Text('Commenti')),

@@ -315,10 +315,10 @@ class _MyFeedPageState extends State<MyFeedPage> {
         //     ],
         //   ),
         // );
-        // setState(() {
-        //   newNotification = true;
-        //   print(newNotification);
-        // });
+        setState(() {
+          newNotification = true;
+          print(newNotification);
+        });
       },
       onLaunch: (Map<String, dynamic> message) async {
         print("onLaunch: $message");
@@ -391,7 +391,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
             IconButton(icon: Icon(Icons.search), onPressed: _search),
 
             IconButton(
-              icon: newNotification ? Icon(Icons.notification_important) : Icon(Icons.notifications),
+              icon: newNotification ? Icon(Icons.notification_important_outlined) : Icon(Icons.notifications),
               onPressed: _postWithMyHashtags,
             ),
           ],
@@ -518,7 +518,10 @@ class _MyFeedPageState extends State<MyFeedPage> {
 
   void _postWithMyHashtags() {
     // print("ciao Anto");
-    newNotification = false;
+    setState(() {
+      newNotification = false;
+    });
+
     //TODO pagina con i post di cui ho ricevuto la notifica perchè con il mio hashtag
   }
 
