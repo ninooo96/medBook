@@ -647,7 +647,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
     final record = Record.fromSnapshot(data);
 
     // print(record.sexPatient); // record.map((data)=> print(data[1]));
-    print(record.comments);
+    // print(record.comments);
 
     return PostTile(data, context, 0);
     // return Padding(
@@ -787,7 +787,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 void _activeNotifications() {}
 
 String _visualizeComments(record) {
-  print(record.comments.map((data) => data['comment'].toString()));
+  // print(record.comments.map((data) => data['comment'].toString()));
   return record.comments.map((data) => data['comment'][0].toString());
 }
 

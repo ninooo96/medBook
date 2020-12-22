@@ -83,7 +83,7 @@ class _PostTileState extends State<PostTile> {
     // _containToken();
     _fcm.getToken().then((token){
       for (var map in record.listTokens) {
-        if (map.containsValue(token)) {
+        if (map.containsValue(token) && map.containsValue(FirebaseAuth.instance.currentUser.uid.toString())) {
           setState(() {
             containToken = true;
           });
@@ -105,7 +105,7 @@ class _PostTileState extends State<PostTile> {
     });
   }
 
-  void addComment(context, Record record, nuovoCommento) {
+  void addComment(context, record, nuovoCommento) {
     //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
     // print('Ciao Lele' + record1.length.toString() );
     List<Map<String, dynamic>> record2 = new List<
@@ -123,7 +123,8 @@ class _PostTileState extends State<PostTile> {
             'idVotersLike': data['idVotersLike'],
             'idVotersDislike': data['idVotersDislike'],
             'profileImgUrl': data['profileImgUrl'],
-            'id': data['id']
+            'id': data['id'],
+            'timestamp': data['timestamp']
           }));
     }
 
@@ -133,6 +134,7 @@ class _PostTileState extends State<PostTile> {
     if (record.comments.first.length != 0 || nuovoCommento == 1) {
       // record1 = record;
       // Navigator.of(context).pop();
+      print("ECCOMII");
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -145,7 +147,7 @@ class _PostTileState extends State<PostTile> {
   _activateNotifications() async {
     String fcmToken = await _fcm.getToken();
     if (!containToken) {
-      Utility().saveDeviceToken(record.reference, info['name'], segui: true);
+      Utility().saveDeviceToken(record.reference, info['name'], info['id'], segui: true);
       print(record.listTokens);
       print(record.nameProfile);
       print(record.reference);
@@ -158,7 +160,7 @@ class _PostTileState extends State<PostTile> {
       print(containToken);
     }
     else {
-      Utility().removeDeviceToken(record.reference, info['name'], segui:true);
+      Utility().removeDeviceToken(record.reference, info['name'], info['id'], segui:true);
       setState(() {
         containToken = false;
       });
@@ -179,7 +181,7 @@ class _PostTileState extends State<PostTile> {
             context: context,
             builder: (context) {
               return AlertDialog(
-                title: Text("Sicuro di voler eliminare l'account?"),
+                title: Text("Sicuro di voler eliminare il post?"),
                 content: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -337,8 +339,9 @@ class _PostTileState extends State<PostTile> {
                     : Text('Non ci sono commenti'),
                 onTap: () {
                   setState(() {
-                    addComment(context, record, 0);
                     print(record.comments);
+                    addComment(context, record, 0);
+
                   });
                 },
               ),

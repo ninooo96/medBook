@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:medbook/record.dart';
 import 'package:medbook/user.dart';
 import 'package:medbook/utility.dart';
@@ -15,31 +16,33 @@ bool verified = FeedPage().getInfo()['verified'];
 class Comment extends StatefulWidget implements Comparable {
   var record; //=[{'nameProfile':'','comment':'','upvote':'0','downvote':0}];
   DocumentReference reference;
+  var comment;
   List<Map<String, dynamic>> comments;
   String idPost;
   // List<Comment> _comments;
 
   // Record record;
-  Comment(idPost, record, reference, comments) {
+  Comment(idPost, record, comment, reference, comments) {
     this.record = record;
     this.reference = reference;
     this.comments = comments;
     this.idPost = idPost;
+    this.comment = comment;
     // this._comments = _comments;
     // else
     //   this.record =[{'comments':[{'nameProfile':'','comment':'','upvote':0,'downvote':0}]}];
   }
 
   @override
-  _CommentState createState() => _CommentState(idPost, record, reference, comments);
+  _CommentState createState() => _CommentState(idPost, record, comment, reference, comments);
 
   @override
   int compareTo(other) {
-    if (this.record['upvote'] - this.record['downvote'] <
+    if (this.comment['upvote'] - this.comment['downvote'] <
         other['upvote'] - other['downvote']) return -1;
-    if (this.record['upvote'] - this.record['downvote'] >
+    if (this.comment['upvote'] - this.comment['downvote'] >
         other['upvote'] - other['downvote']) return 1;
-    if (this.record['upvote'] - this.record['downvote'] ==
+    if (this.comment['upvote'] - this.comment['downvote'] ==
         other['upvote'] - other['downvote']) return 0;
     return null;
   }
@@ -52,6 +55,7 @@ class _CommentState extends State<Comment> {
   int downvote;
   bool votatoLike;
   bool votatoDislike;
+  var comment;
   DocumentReference reference;
   List<Map<String, dynamic>> comments;
   String profileImgUrl;
@@ -60,33 +64,33 @@ class _CommentState extends State<Comment> {
   bool deleted = false;
   // List<Comment> _comments;
 
-  _CommentState(idPost, record, reference, comments) {
-    this.text = record['comment'];
-    this.id = record['id'];
-    this.upvote = record['upvote'];
-    this.downvote = record['downvote'];
-
+  _CommentState(idPost, record, comment, reference, comments) {
+    this.text = comment['comment'];
+    this.id = comment['id'];
+    this.upvote = comment['upvote'];
+    this.downvote = comment['downvote'];
+    this.comment = comment;
 
     this.record = record;
-    print('quale record?');
-    print(record);
+    // print('quale record?');
+    // print(record);
     this.reference = reference;
     // this._comments = _comments;
     this.comments = comments;
     this.idPost = idPost;
     this.votatoLike =
-        record['idVotersLike'].contains(FirebaseAuth.instance.currentUser.uid)
+        comment['idVotersLike'].contains(FirebaseAuth.instance.currentUser.uid)
             ? true
             : false;
-    this.votatoDislike = record['idVotersDislike']
+    this.votatoDislike = comment['idVotersDislike']
             .contains(FirebaseAuth.instance.currentUser.uid)
         ? true
         : false;
 
     FirebaseFirestore.instance.collection('subscribers').doc(id).get().then((
         value) {
-      print('ora');
-      print(value.data()['profileImgUrl']);
+      // print('ora');
+      // print(value.data()['profileImgUrl']);
       setState(() {
         profileImgUrl = value.data()['profileImgUrl'];
       });
@@ -119,9 +123,9 @@ class _CommentState extends State<Comment> {
                     FlatButton(
                         onPressed: () {
                           // Navigator.of(context).pop();
-                          print(record);
+                          // print(record);
                           setState(() {
-                            comments.remove(record);
+                            comments.remove(comment);
                           });
                             // List<Comment> _comments2 = [];
                             // for (var data in comments) {
@@ -136,13 +140,16 @@ class _CommentState extends State<Comment> {
                           if(comments.isEmpty)
                             reference.update({'comments': [{}]});
                           else {
-                            print(comments);
+                            // print(comments);
                             reference.update({'comments': comments});
                           }
                           Navigator.of(context).pop();
                           setState(() {
                             deleted = true;
                           });
+                          print(info);
+                          print(record.listTokens);
+                          Utility().removeDeviceToken(reference, comment['nameProfile'], comment['id'], timestamp : comment['timestamp'], listToken: record.listTokens);
                           // Navigator.of(context).reassemble();
                           // print(Navigator.of(context).canPop());
                           // if(Navigator.of(context).canPop() ) {
@@ -205,7 +212,7 @@ class _CommentState extends State<Comment> {
                 // enabled: record.id == FirebaseAuth.instance.currentUser.uid,
                   onSelected: handleClick,
                   itemBuilder: (BuildContext context) {
-                    print(id+' '+idPost);
+                    // print(id+' '+idPost);
                     return {'Elimina commento'}
                         .map((String choice) {
                       return PopupMenuItem<String>(
@@ -216,11 +223,11 @@ class _CommentState extends State<Comment> {
                     }).toList();
                   }),
               title: Text(
-                record['nameProfile'],
+                comment['nameProfile'],
                 textScaleFactor: 1.2,
               ),
               onTap: () {
-                FirebaseFirestore.instance.collection('subscribers').doc(record['id']).get().then((value) {
+                FirebaseFirestore.instance.collection('subscribers').doc(comment['id']).get().then((value) {
                   UserMB user = UserMB.fromSnapshot(value);
                   Navigator.push(
                     context,
@@ -254,23 +261,23 @@ class _CommentState extends State<Comment> {
                           if (!votatoLike && !votatoDislike) {
                             upvote++;
                             // record.updateData({'upvote': upvote});
-                            comments.remove(record);
-                            record['upvote'] = upvote;
-                            record['idVotersLike']
+                            comments.remove(comment);
+                            comment['upvote'] = upvote;
+                            comment['idVotersLike']
                                 .add(FirebaseAuth.instance.currentUser.uid);
-                            print(record);
-                            comments.add(record);
+                            // print(record);
+                            comments.add(comment);
                             reference.update({'comments': comments});
                             votatoLike = true;
                           } else if (votatoLike && !votatoDislike) {
                             upvote--;
                             // reference.updateData({'upvote': upvote});
-                            comments.remove(record);
-                            record['upvote'] = upvote;
-                            record['idVotersLike']
+                            comments.remove(comment);
+                            comment['upvote'] = upvote;
+                            comment['idVotersLike']
                                 .remove(FirebaseAuth.instance.currentUser.uid);
-                            print(record);
-                            comments.add(record);
+                            // print(record);
+                            comments.add(comment);
                             reference.update({'comments': comments});
                             votatoLike = false;
                           }
@@ -289,22 +296,22 @@ class _CommentState extends State<Comment> {
                         setState(() {
                           if (!votatoDislike && !votatoLike) {
                             downvote++;
-                            comments.remove(record);
-                            record['downvote'] = downvote;
-                            record['idVotersDislike']
+                            comments.remove(comment);
+                            comment['downvote'] = downvote;
+                            comment['idVotersDislike']
                                 .add(FirebaseAuth.instance.currentUser.uid);
-                            print(record);
-                            comments.add(record);
+                            // print(record);
+                            comments.add(comment);
                             reference.update({'comments': comments});
                             votatoDislike = true;
                           } else if (votatoDislike && !votatoLike) {
                             downvote--;
-                            comments.remove(record);
-                            record['downvote'] = downvote;
-                            record['idVotersDislike']
+                            comments.remove(comment);
+                            comment['downvote'] = downvote;
+                            comment['idVotersDislike']
                                 .remove(FirebaseAuth.instance.currentUser.uid);
-                            print(record);
-                            comments.add(record);
+                            // print(record);
+                            comments.add(comment);
                             reference.update({'comments': comments});
                             // record.update({'comments': record});
                             votatoDislike = false;
@@ -378,7 +385,7 @@ class CommentScreen extends StatefulWidget {
   Record record;
   int route;
 
-  CommentScreen(Record record, comments, reference, int route) {
+  CommentScreen(record, comments, reference, int route) {
     this.comments = comments;
     // print('lista dei commenti?');
     // print(comments);
@@ -425,8 +432,8 @@ class _CommentScreenState extends State<CommentScreen> {
 
 
 
-  _CommentScreenState(record, comment, reference, route) {
-    this.comments = comment;
+  _CommentScreenState(record, comments, reference, route) {
+    this.comments = comments;
     this.reference = reference;
     this.idPost = record.id;
     this.record=record;
@@ -440,12 +447,13 @@ class _CommentScreenState extends State<CommentScreen> {
     //     print(result.data());
     //   });
     // });
-    for (var data in comment) {
+    for (var data in comments) {
       if (data['nameProfile'] != '')
-        _comments.add(Comment(idPost, data, reference, comments));
+        _comments.add(Comment(idPost, record, data, reference, comments));
     }
+    print(_comments);
     _comments.sort((a, b) {
-      return a.compareTo(b.record);
+      return a.compareTo(b.comment);
     });
     // print('ANTONIOO');
     // print(_comments.record['upvote']);
@@ -462,7 +470,9 @@ class _CommentScreenState extends State<CommentScreen> {
     tmp.forEach((element) {
       listTokens.add({
         'name': element['name'],
-        'token' : element['token']
+        'token' : element['token'],
+        'id' : element['id']
+
       }
       );
     });
@@ -474,7 +484,7 @@ class _CommentScreenState extends State<CommentScreen> {
     populateTokens();
 
 
-    print(listTokens);
+    // print(listTokens);
       // setState(() {
 
       // _comments = [];
@@ -618,10 +628,14 @@ class _CommentScreenState extends State<CommentScreen> {
     }
 
 
-    void _handleSubmitted(comment, nameProfile) {
+    Future<void> _handleSubmitted(comment, nameProfile) async {
       // _textController.clear();
       //   Comment comment = Comment(
       //     );
+      var timeTmp = Timestamp.now();
+      var time = timeTmp.toDate();
+      final f = new DateFormat('dd/MM/yyyy').add_Hms();
+      var timestamp = f.format(time);
 
       if (_textController.text == '') return;
       var newEntry = {
@@ -633,18 +647,38 @@ class _CommentScreenState extends State<CommentScreen> {
         'idVotersDislike': [],
         'profileImgUrl': info['profileImgUrl'],
         'id': FirebaseAuth.instance.currentUser.uid,
-
+        'timestamp' :timestamp.toString().replaceAll('/', '').replaceAll(' ', '-')
       };
 
       comments.add(newEntry);
       reference.update({'comments': comment});
-      Utility().saveDeviceToken(reference, nameProfile);
+      Utility().saveDeviceToken(reference, nameProfile, FirebaseAuth.instance.currentUser.uid.toString(), timestamp: timestamp);
       setState(() {
-        _comments.add(Comment(idPost, newEntry, reference, comments));
+        _comments.add(Comment(idPost, record, newEntry, reference, comments));
       });
+
+      //save to notification
+
+
+      for (var map in record.listTokens){
+        print('notification');
+        await FirebaseFirestore.instance
+            .collection('subscribers')
+            .doc(map['id'])
+            .collection('notification')
+            .doc(record.id+"_"+timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
+            .set({
+              'name': nameProfile,
+              'profileImgUrl': info['profileImgUrl'],
+              'id': FirebaseAuth.instance.currentUser.uid,
+              'idAutorePost': record.id
+        });
+      }
+
+
       // _focusNode.requestFocus();
       _textController.clear();
-      print(comments);
+      // print(comments);
       //write newEntry to Firebase
     }
 

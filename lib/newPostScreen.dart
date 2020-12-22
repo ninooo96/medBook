@@ -330,7 +330,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
       'timestamp': timeTmp,
       'hashtags': hashtagPost,
       'profileImgUrl': info['profileImgUrl'],
-      'listTokens': [Map()]
+      'listTokens': []
     };
     await FirebaseFirestore.instance
         .collection('feed')
@@ -394,8 +394,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
         "-" +
         timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'));
 
-    Utility().saveDeviceToken(reference, nameProfile);
-    _saveDeviceToken();
+    Utility().saveDeviceToken(reference, nameProfile, FirebaseAuth.instance.currentUser.uid.toString());
+    // _saveDeviceToken();
 
     Navigator.of(context).pop();
     if(route == 0) //0==feedPage
