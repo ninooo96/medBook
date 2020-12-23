@@ -3,11 +3,11 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:medbook/record.dart';
 import 'package:intl/intl.dart';
+import 'package:medbook/record.dart';
 import 'package:medbook/postTile.dart';
 import 'package:medbook/search.dart';
-import 'package:medbook/user.dart' as userMedbook;
+import 'package:medbook/notification.dart' as notification;
 import 'package:medbook/user.dart';
 import 'package:medbook/welcomeScreen.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
@@ -15,6 +15,7 @@ import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'commentScreen.dart';
 import 'myProfile.dart';
 import 'newPostScreen.dart';
+import 'notification.dart';
 import 'setting.dart';
 
 // import 'package:cloud_firestore/cloud_firestore.dart';
@@ -44,6 +45,7 @@ final hashtags = [
 ];
 
 Map<String, dynamic> info;
+bool noNotification = false;
 // String nameProfileid = 'Prova';
 // final dummySnapshot = [
 //   {
@@ -169,6 +171,10 @@ class FeedPage extends StatelessWidget {
     info = infoNew;
   }
 
+  void setNoNotification(boolean){
+    noNotification = boolean;
+  }
+
   // // @override
   // Widget _info(){
   //   return FutureBuilder<DocumentSnapshot>(
@@ -291,11 +297,30 @@ class _MyFeedPageState extends State<MyFeedPage> {
 
   }
 
+  _saveNotificationHashtag(name) async {
+    var timeTmp = Timestamp.now();
+    var time = timeTmp.toDate();
+    final f = new DateFormat('dd/MM/yyyy').add_Hms();
+    var timestamp = f.format(time);
+    await FirebaseFirestore.instance
+        .collection('subscribers')
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .collection('notification')
+        .doc(FirebaseAuth.instance.currentUser.uid+"_"+timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
+        .set({
+      'name': name,
+      'profileImgUrl': ' ',
+      'id': ' ',
+      'idAutorePost': ' ',
+      'timestamp' : timestamp
+    });
+  }
+
+
   @override
   void initState() {
     super.initState();
     initializeInfo();
-    // ...
 
     _fcm.configure(
       onMessage: (Map<String, dynamic> message) async {
@@ -315,10 +340,20 @@ class _MyFeedPageState extends State<MyFeedPage> {
         //     ],
         //   ),
         // );
-        setState(() {
-          newNotification = true;
-          print(newNotification);
-        });
+        print(noNotification.toString()+' icao');
+        if(!noNotification) {
+
+          setState(() {
+            newNotification = true;
+            print(newNotification);
+          });
+        }
+        else if ( message['notification']['body'].contains('commentato')){
+          noNotification = false;
+        }
+        print(message);
+        print(message['notification']['body'].substring(0, message['notification']['body'].indexOf('|')));
+        // _saveNotificationHashtag(message.substring(0, s.indexOf('.'));
       },
       onLaunch: (Map<String, dynamic> message) async {
         print("onLaunch: $message");
@@ -392,7 +427,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
 
             IconButton(
               icon: newNotification ? Icon(Icons.notification_important_outlined) : Icon(Icons.notifications),
-              onPressed: _postWithMyHashtags,
+              onPressed: _notification,
             ),
           ],
         ),
@@ -516,13 +551,14 @@ class _MyFeedPageState extends State<MyFeedPage> {
     FirebaseAuth.instance.signOut();
   }
 
-  void _postWithMyHashtags() {
+  void _notification() {
     // print("ciao Anto");
     setState(() {
       newNotification = false;
     });
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => Notifications()));
 
-    //TODO pagina con i post di cui ho ricevuto la notifica perchè con il mio hashtag
   }
 
   void _search() {

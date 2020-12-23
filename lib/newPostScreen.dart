@@ -332,6 +332,9 @@ class _NewPostScreenState extends State<NewPostScreen> {
       'profileImgUrl': info['profileImgUrl'],
       'listTokens': []
     };
+
+    FeedPage().setNoNotification(true);
+
     await FirebaseFirestore.instance
         .collection('feed')
         .doc(nameProfile.toString().toLowerCase().replaceAll(' ', '') +

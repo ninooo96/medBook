@@ -671,7 +671,8 @@ class _CommentScreenState extends State<CommentScreen> {
               'name': nameProfile,
               'profileImgUrl': info['profileImgUrl'],
               'id': FirebaseAuth.instance.currentUser.uid,
-              'idAutorePost': record.id
+              'idAutorePost': record.id,
+              'timestamp':timestamp
         });
       }
 
