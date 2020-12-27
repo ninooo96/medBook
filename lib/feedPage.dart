@@ -46,6 +46,7 @@ final hashtags = [
 
 Map<String, dynamic> info;
 bool noNotification = false;
+bool flag = false;
 // String nameProfileid = 'Prova';
 // final dummySnapshot = [
 //   {
@@ -272,7 +273,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
   }
 
   void initializeInfo() async {
-
+    noNotification =false;
     var infoTmp;
     await FirebaseFirestore.instance.collection('subscribers').doc(
         FirebaseAuth.instance.currentUser.uid).get().then((user) {
@@ -297,23 +298,27 @@ class _MyFeedPageState extends State<MyFeedPage> {
 
   }
 
-  _saveNotificationHashtag(name) async {
+  _saveNotificationHashtag(id) async { //,hashtag){
     var timeTmp = Timestamp.now();
     var time = timeTmp.toDate();
     final f = new DateFormat('dd/MM/yyyy').add_Hms();
     var timestamp = f.format(time);
-    await FirebaseFirestore.instance
-        .collection('subscribers')
-        .doc(FirebaseAuth.instance.currentUser.uid)
-        .collection('notification')
-        .doc(FirebaseAuth.instance.currentUser.uid+"_"+timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
-        .set({
-      'name': name,
-      'profileImgUrl': ' ',
-      'id': ' ',
-      'idAutorePost': ' ',
-      'timestamp' : timestamp
-    });
+    await FirebaseFirestore.instance.collection('feed')
+        .doc(id).get().then( (value) async =>
+            await FirebaseFirestore.instance
+                .collection('subscribers')
+                .doc(FirebaseAuth.instance.currentUser.uid)
+                .collection('notification')
+                .doc(FirebaseAuth.instance.currentUser.uid+"_"+timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
+                .set({
+              'name': value.data()['nameProfile'],
+              'profileImgUrl': value.data()['profileImgUrl'],
+              'id': FirebaseAuth.instance.currentUser.uid,
+              'idAutorePost': value.data()['id'],
+              'timestamp' : value.data()['timestamp'],
+              'idPost': id
+            })
+        );
   }
 
 
@@ -341,19 +346,25 @@ class _MyFeedPageState extends State<MyFeedPage> {
         //   ),
         // );
         print(noNotification.toString()+' icao');
-        if(!noNotification) {
+        if(!noNotification && !flag) {
 
           setState(() {
+            flag = true;
             newNotification = true;
             print(newNotification);
           });
         }
-        else if ( message['notification']['body'].contains('commentato')){
-          noNotification = false;
+        else if ( flag){
+          setState(() {
+            noNotification = false;
+            flag=false;
+          });
+
         }
         print(message);
-        print(message['notification']['body'].substring(0, message['notification']['body'].indexOf('|')));
-        // _saveNotificationHashtag(message.substring(0, s.indexOf('.'));
+        print(message['data']['title']);
+        if(message['data']['title']!=null)
+          _saveNotificationHashtag(message['data']['title']); //,hashtag);
       },
       onLaunch: (Map<String, dynamic> message) async {
         print("onLaunch: $message");

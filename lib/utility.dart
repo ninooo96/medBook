@@ -29,7 +29,7 @@ class Utility {
     };
     if(!segui) {
       var tokens = reference.collection('tokens')
-          .doc(fcmToken);
+          .doc(fcmToken+'_'+timestamp);
 
       await tokens.set({
         'token': fcmToken,
@@ -72,7 +72,7 @@ class Utility {
     };
     if(!segui) {
       DocumentReference tokens = reference.collection('tokens')
-          .doc(fcmToken);
+          .doc(fcmToken+'_'+timestamp);
 
       await tokens.delete();
     }

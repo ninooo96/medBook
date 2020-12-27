@@ -652,7 +652,7 @@ class _CommentScreenState extends State<CommentScreen> {
 
       comments.add(newEntry);
       reference.update({'comments': comment});
-      Utility().saveDeviceToken(reference, nameProfile, FirebaseAuth.instance.currentUser.uid.toString(), timestamp: timestamp);
+      Utility().saveDeviceToken(reference, nameProfile, FirebaseAuth.instance.currentUser.uid.toString(), timestamp: timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'));
       setState(() {
         _comments.add(Comment(idPost, record, newEntry, reference, comments));
       });
@@ -662,18 +662,27 @@ class _CommentScreenState extends State<CommentScreen> {
 
       for (var map in record.listTokens){
         print('notification');
-        await FirebaseFirestore.instance
-            .collection('subscribers')
-            .doc(map['id'])
-            .collection('notification')
-            .doc(record.id+"_"+timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
-            .set({
-              'name': nameProfile,
-              'profileImgUrl': info['profileImgUrl'],
-              'id': FirebaseAuth.instance.currentUser.uid,
-              'idAutorePost': record.id,
-              'timestamp':timestamp
-        });
+        if(map['id']!=FirebaseAuth.instance.currentUser.uid) {
+          await FirebaseFirestore.instance
+              .collection('subscribers')
+              .doc(map['id'])
+              .collection('notification')
+              .doc(record.id + "_" +
+              timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
+              .set({
+            'name': nameProfile,
+            'profileImgUrl': info['profileImgUrl'],
+            'id': FirebaseAuth.instance.currentUser.uid,
+            'idAutorePost': record.id,
+            'timestamp': timestamp,
+            'hashtag' : '',
+            'idPost' : record.nameProfile.toString().toLowerCase().replaceAll(' ', '') +
+                "_" +
+                record.id +
+                "-" +
+                record.timestamp.toString().replaceAll('/', '').replaceAll(' ', '-')
+          });
+        }
       }
 
 

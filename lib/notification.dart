@@ -86,7 +86,15 @@ Widget notificationTile(data, context) {
   var id = data['id'];
   var idAutorePost = data['idAutorePost'];
   var profileImgUrl = data['profileImgUrl'];
-  return ListTile(
+  // var idPost = data['idPost']; //GIUSTO MA DA ELIMINARE LE VECCHIE NOTIFICHE
+  print('ciao');
+  print(currentID);
+  print(idAutorePost);
+  print(id);
+  print('ciao');
+
+  return Column(children: [
+    ListTile(
     leading: profileImgUrl == ' ' ? Icon(
         Icons.account_circle_outlined, size: 50) : ClipRRect(
         borderRadius: BorderRadius.circular(20),
@@ -99,7 +107,9 @@ Widget notificationTile(data, context) {
         name + ' ha commentato un post che segui') :
     Text(''),
 
-  );
+  ),
+  Divider()
+  ]);
 }
 }
 
