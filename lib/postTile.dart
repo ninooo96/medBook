@@ -197,11 +197,11 @@ class _PostTileState extends State<PostTile> {
                         onPressed: () {
                           // DateTime date = record.t
                           // print(record.timestamp.replaceAll('/', '').replaceAll(' ', '-'));
-                          print(record.nameProfile.toLowerCase().replaceAll(
-                              ' ', '') + '_' +
-                              FirebaseAuth.instance.currentUser.uid + '-' +
-                              record.timestamp.replaceAll('/', '').replaceAll(
-                                  ' ', '-'));
+                          // print(record.nameProfile.toLowerCase().replaceAll(
+                          //     ' ', '') + '_' +
+                          //     FirebaseAuth.instance.currentUser.uid + '-' +
+                          //     record.timestamp.replaceAll('/', '').replaceAll(
+                          //         ' ', '-'));
                           Navigator.of(context).pop();
                           FirebaseFirestore.instance.collection('feed')
                               .doc(record.nameProfile.toLowerCase().replaceAll(

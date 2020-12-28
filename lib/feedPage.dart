@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:medbook/openNotification.dart';
 import 'package:medbook/record.dart';
 import 'package:medbook/postTile.dart';
 import 'package:medbook/search.dart';
@@ -46,7 +47,7 @@ final hashtags = [
 
 Map<String, dynamic> info;
 bool noNotification = false;
-bool flag = false;
+// bool flag = false;
 // String nameProfileid = 'Prova';
 // final dummySnapshot = [
 //   {
@@ -298,7 +299,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
 
   }
 
-  _saveNotificationHashtag(id) async { //,hashtag){
+  _saveNotificationHashtag(id, hashtag) async { //,hashtag){
     var timeTmp = Timestamp.now();
     var time = timeTmp.toDate();
     final f = new DateFormat('dd/MM/yyyy').add_Hms();
@@ -316,7 +317,8 @@ class _MyFeedPageState extends State<MyFeedPage> {
               'id': FirebaseAuth.instance.currentUser.uid,
               'idAutorePost': value.data()['id'],
               'timestamp' : value.data()['timestamp'],
-              'idPost': id
+              'idPost': id,
+              'hashtag' : hashtag
             })
         );
   }
@@ -346,6 +348,8 @@ class _MyFeedPageState extends State<MyFeedPage> {
         //   ),
         // );
         print(noNotification.toString()+' icao');
+        var flag = message['data']['title']==null? true : FirebaseAuth.instance.currentUser.uid == message['data']['title'].substring(message['data']['title'].indexOf('_')+1, message['data']['title'].indexOf('-'));
+        print(flag.toString() + ' flag');
         if(!noNotification && !flag) {
 
           setState(() {
@@ -363,16 +367,73 @@ class _MyFeedPageState extends State<MyFeedPage> {
         }
         print(message);
         print(message['data']['title']);
-        if(message['data']['title']!=null)
-          _saveNotificationHashtag(message['data']['title']); //,hashtag);
+        if(!message['data']['title'].contains('commentato') && FirebaseAuth.instance.currentUser.uid != message['data']['title'].substring(message['data']['title'].indexOf('_')+1, message['data']['title'].indexOf('-'))) { //notifica di nuovo post associato ad un topic
+          var hashtag = message['notification']['body'].substring(
+              message['notification']['body'].indexOf(':') + 1,
+              message['notification']['body']
+                  .toString()
+                  .length);
+          _saveNotificationHashtag(message['data']['title'], hashtag);
+        }
       },
       onLaunch: (Map<String, dynamic> message) async {
         print("onLaunch: $message");
         // optional
+
+        print(message['notification'].isEmpty());
+        if(message['notification']!= {}) {
+          FirebaseFirestore.instance
+              .collection('feed')
+              .doc(message['data']['title'])
+              .get()
+              .then((value) {
+            Navigator.of(context).pop();
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => OpenNotification(value, 2)));
+          });
+          if(message['data']['type']=='topic' && FirebaseAuth.instance.currentUser.uid != message['data']['title'].substring(message['data']['title'].indexOf('_')+1, message['data']['title'].indexOf('-'))) { //notifica di nuovo post associato ad un topic
+            var hashtag = message['data']['body'].substring(
+                message['data']['body'].indexOf(':') + 1,
+                message['data']['body']
+                    .toString()
+                    .length);
+            _saveNotificationHashtag(message['data']['title'], hashtag);
+          }
+        }
       },
       onResume: (Map<String, dynamic> message) async {
         print("onResume: $message");
+        // if(!message['data']['title'].contains('commentato') && FirebaseAuth.instance.currentUser.uid != message['data']['title'].substring(message['data']['title'].indexOf('_')+1, message['data']['title'].indexOf('-'))) { //notifica di nuovo post associato ad un topic
+        //   var hashtag = message['notification']['body'].substring(
+        //       message['notification']['body'].indexOf(':') + 1,
+        //       message['notification']['body']
+        //           .toString()
+        //           .length);
+        //   _saveNotificationHashtag(message['data']['title'], hashtag);
+        // }
+        FirebaseFirestore.instance
+            .collection('feed')
+            .doc(message['data']['title'])
+            .get()
+            .then((value) {
+          Navigator.of(context).pop();
+          Navigator.push(
+              context,
+              MaterialPageRoute(
+                  builder: (context) => OpenNotification(value, 2)));
+        });
         //  optional
+        if(message['data']['type']=='topic' && FirebaseAuth.instance.currentUser.uid != message['data']['title'].substring(message['data']['title'].indexOf('_')+1, message['data']['title'].indexOf('-'))) { //notifica di nuovo post associato ad un topic
+
+          var hashtag = message['data']['body'].substring(
+              message['data']['body'].indexOf(':') + 1,
+              message['data']['body']
+                  .toString()
+                  .length);
+          _saveNotificationHashtag(message['data']['title'], hashtag);
+        }
       },
     );
   }

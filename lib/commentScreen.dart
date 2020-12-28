@@ -534,6 +534,10 @@ class _CommentScreenState extends State<CommentScreen> {
                   Navigator.pushReplacement(context, MaterialPageRoute(
                   builder: (BuildContext context) => MyProfile(UserMB.fromSnapshot(value)))));
                   }
+                else{
+                  Navigator.of(context).pop();
+                }
+
 
                 }
             ),
@@ -674,7 +678,7 @@ class _CommentScreenState extends State<CommentScreen> {
             'profileImgUrl': info['profileImgUrl'],
             'id': FirebaseAuth.instance.currentUser.uid,
             'idAutorePost': record.id,
-            'timestamp': timestamp,
+            'timestamp': timeTmp,
             'hashtag' : '',
             'idPost' : record.nameProfile.toString().toLowerCase().replaceAll(' ', '') +
                 "_" +
