@@ -33,7 +33,8 @@ class Utility {
 
       await tokens.set({
         'token': fcmToken,
-        'name': nameProfile, // optional
+        'name': nameProfile,
+        'id': id// optional
       });
     }
   }

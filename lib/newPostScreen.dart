@@ -330,7 +330,8 @@ class _NewPostScreenState extends State<NewPostScreen> {
       'timestamp': timeTmp,
       'hashtags': hashtagPost,
       'profileImgUrl': info['profileImgUrl'],
-      'listTokens': []
+      'listTokens': [],
+      'yet_opened':false
     };
 
     FeedPage().setNoNotification(true);

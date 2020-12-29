@@ -323,12 +323,16 @@ class _MyFeedPageState extends State<MyFeedPage> {
         );
   }
 
-
+  void updateYetOpened(message) async{
+    await FirebaseFirestore.instance
+        .collection('feed')
+        .doc(message['data']['title']).update({'yet_opened': true});
+  }
   @override
   void initState() {
     super.initState();
     initializeInfo();
-
+    bool yet_opened = false;
     _fcm.configure(
       onMessage: (Map<String, dynamic> message) async {
         print("onMessage: $message");
@@ -348,20 +352,20 @@ class _MyFeedPageState extends State<MyFeedPage> {
         //   ),
         // );
         print(noNotification.toString()+' icao');
-        var flag = message['data']['title']==null? true : FirebaseAuth.instance.currentUser.uid == message['data']['title'].substring(message['data']['title'].indexOf('_')+1, message['data']['title'].indexOf('-'));
+        var flag = FirebaseAuth.instance.currentUser.uid == message['data']['id'];
         print(flag.toString() + ' flag');
         if(!noNotification && !flag) {
-
+          print("QUIII");
           setState(() {
-            flag = true;
+            // flag = true;
             newNotification = true;
             print(newNotification);
           });
         }
-        else if ( flag){
+        else {
           setState(() {
             noNotification = false;
-            flag=false;
+            // flag=false;
           });
 
         }
@@ -377,21 +381,28 @@ class _MyFeedPageState extends State<MyFeedPage> {
         }
       },
       onLaunch: (Map<String, dynamic> message) async {
+        print('ONLAUNCH');
+        // print(message['notification'].first==null.toString()+'bohjk');
         print("onLaunch: $message");
+
         // optional
 
-        print(message['notification'].isEmpty());
-        if(message['notification']!= {}) {
+
+        // if(!yet_opened) {
           FirebaseFirestore.instance
               .collection('feed')
               .doc(message['data']['title'])
               .get()
               .then((value) {
-            Navigator.of(context).pop();
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => OpenNotification(value, 2)));
+            // Navigator.of(context).pop();
+            if(value['yet_opened']==false) {
+
+              updateYetOpened(message);
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => OpenNotification(value, 2)));
+            }
           });
           if(message['data']['type']=='topic' && FirebaseAuth.instance.currentUser.uid != message['data']['title'].substring(message['data']['title'].indexOf('_')+1, message['data']['title'].indexOf('-'))) { //notifica di nuovo post associato ad un topic
             var hashtag = message['data']['body'].substring(
@@ -401,7 +412,7 @@ class _MyFeedPageState extends State<MyFeedPage> {
                     .length);
             _saveNotificationHashtag(message['data']['title'], hashtag);
           }
-        }
+        // }
       },
       onResume: (Map<String, dynamic> message) async {
         print("onResume: $message");
@@ -418,12 +429,16 @@ class _MyFeedPageState extends State<MyFeedPage> {
             .doc(message['data']['title'])
             .get()
             .then((value) {
-          Navigator.of(context).pop();
-          Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) => OpenNotification(value, 2)));
+          // Navigator.of(context).pop();
+          if(value['yet_opened']==false) {
+            updateYetOpened(message);
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => OpenNotification(value, 2)));
+          }
         });
+
         //  optional
         if(message['data']['type']=='topic' && FirebaseAuth.instance.currentUser.uid != message['data']['title'].substring(message['data']['title'].indexOf('_')+1, message['data']['title'].indexOf('-'))) { //notifica di nuovo post associato ad un topic
 

@@ -119,7 +119,7 @@ class _NotificationState extends State<Notifications> {
         .doc(idPost)
         .get()
         .then((value) {
-        Navigator.of(context).pop();
+        // Navigator.of(context).pop();
         Navigator.push(
           context,
           MaterialPageRoute(
