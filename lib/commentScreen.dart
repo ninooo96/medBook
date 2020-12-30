@@ -149,7 +149,7 @@ class _CommentState extends State<Comment> {
                           });
                           print(info);
                           print(record.listTokens);
-                          Utility().removeDeviceToken(reference, comment['nameProfile'], comment['id'], timestamp : comment['timestamp'], listToken: record.listTokens);
+                          Utility().removeDeviceToken(reference, comment['nameProfile'], comment['id'], comment['token'], timestamp : comment['timestamp'], listToken: record.listTokens);
                           // Navigator.of(context).reassemble();
                           // print(Navigator.of(context).canPop());
                           // if(Navigator.of(context).canPop() ) {
@@ -203,10 +203,10 @@ class _CommentState extends State<Comment> {
               leading: profileImgUrl == ' ' || profileImgUrl == null
                   ? Icon(Icons.account_circle_outlined, size: 50)
                   : ClipRRect(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(30),
                       clipBehavior: Clip.hardEdge,
                       child:
-                          Image.network(profileImgUrl, height: 50, width: 50)),
+                          Image.network(profileImgUrl, height: 50, width: 50, fit: BoxFit.fitWidth)),
 
               trailing: PopupMenuButton<String>(
                 // enabled: record.id == FirebaseAuth.instance.currentUser.uid,
@@ -651,6 +651,7 @@ class _CommentScreenState extends State<CommentScreen> {
         'idVotersDislike': [],
         'profileImgUrl': info['profileImgUrl'],
         'id': FirebaseAuth.instance.currentUser.uid,
+        'token' : await FeedPage().getFCM().getToken(),
         'timestamp' :timestamp.toString().replaceAll('/', '').replaceAll(' ', '-')
       };
 

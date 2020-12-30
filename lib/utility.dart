@@ -12,7 +12,7 @@ class Utility {
 
     // Get the token for this device
 
-    FirebaseMessaging _fcm = MyFeedPage().getFCM();
+    FirebaseMessaging _fcm = FeedPage().getFCM();
     String fcmToken = await _fcm.getToken();
     print(fcmToken);
     // if(!listTokens.contains({'token': fcmToken,
@@ -25,7 +25,7 @@ class Utility {
     if (fcmToken != null) {
       // reference.update({'tokens': listTokens
       reference.updateData({"listTokens": FieldValue.arrayUnion([{'token': fcmToken,
-              'name': nameProfile, 'id' : id, 'timestamp' : timestamp}])});
+              'name': nameProfile, 'id' : id}])});
     };
     if(!segui) {
       var tokens = reference.collection('tokens')
@@ -39,15 +39,15 @@ class Utility {
     }
   }
 
-  removeDeviceToken(reference, nameProfile, id, {List listToken=const [], String timestamp ='', bool segui = false}) async {
+  removeDeviceToken(reference, nameProfile, id, token, {List listToken=const [], String timestamp ='', bool segui = false}) async {
     // Get the current user
     // FirebaseUser user = await _auth.currentUser();
 
     // Get the token for this device
 
-    FirebaseMessaging _fcm = MyFeedPage().getFCM();
-    String fcmToken = await _fcm.getToken();
-    print(fcmToken);
+    // FirebaseMessaging _fcm = FeedPage().getFCM();
+    // String fcmToken = await _fcm.getToken();
+    // print(fcmToken);
     // if(!listTokens.contains({'token': fcmToken,
     //   'name': nameProfile,}) ){
     //   listTokens.add({'token': fcmToken,
@@ -55,10 +55,11 @@ class Utility {
     // }
 
     // Save it to Firestore
-    if (fcmToken != null) {
+    if (token != null) {
       // reference.update({'tokens': listTokens
-      reference.updateData({"listTokens": FieldValue.arrayRemove([{'token': fcmToken,
-        'name': nameProfile, 'id' : id, 'timestamp': timestamp}])});
+      print(nameProfile + id + token + timestamp);
+      reference.updateData({"listTokens": FieldValue.arrayRemove([{'token': token,
+        'name': nameProfile, 'id' : id}])});
       if(timestamp!='') {
         for (var map in listToken) {
           print('notification');
@@ -73,7 +74,7 @@ class Utility {
     };
     if(!segui) {
       DocumentReference tokens = reference.collection('tokens')
-          .doc(fcmToken+'_'+timestamp);
+          .doc(token.toString()+'_'+timestamp);
 
       await tokens.delete();
     }

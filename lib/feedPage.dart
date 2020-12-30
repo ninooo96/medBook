@@ -47,6 +47,7 @@ final hashtags = [
 
 Map<String, dynamic> info;
 bool noNotification = false;
+final FirebaseMessaging _fcm = FirebaseMessaging();
 // bool flag = false;
 // String nameProfileid = 'Prova';
 // final dummySnapshot = [
@@ -164,6 +165,9 @@ class FeedPage extends StatelessWidget {
   //   });
   //   setInfo(infoTmp);
   // }
+  FirebaseMessaging getFCM(){
+    return _fcm;
+  }
 
   Map<String, dynamic> getInfo() {
     return info;
@@ -247,12 +251,12 @@ class FeedPage extends StatelessWidget {
 
 class MyFeedPage extends StatefulWidget {
   MyFeedPage({Key key, this.title}) : super(key: key);
-  final FirebaseMessaging _fcm = FirebaseMessaging();
+  // final FirebaseMessaging _fcm = FirebaseMessaging();
   final String title;
 
-  FirebaseMessaging getFCM(){
-    return _fcm;
-  }
+  // FirebaseMessaging getFCM(){
+  //   return _fcm;
+  // }
 
 
   @override

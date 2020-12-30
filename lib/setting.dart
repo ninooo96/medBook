@@ -190,7 +190,7 @@ class _SettingState extends State<Setting> {
     "Vibo Valentia",
   ];
   Map<String, dynamic> info = FeedPage().getInfo();
-  FirebaseMessaging _fcm = MyFeedPage().getFCM();
+  FirebaseMessaging _fcm = FeedPage().getFCM();
   String monthBirth; //= FirebaseAuth.instance.currentUser.providerData.;
   String provincia;
   bool changedMonth = false;

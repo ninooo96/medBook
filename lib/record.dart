@@ -15,6 +15,7 @@ class Record {
   final List hashtags;
   final DocumentReference reference;
   final List listTokens;
+  final String token;
   final bool yet_opened;
 
   Record.fromMap(Map<String, dynamic> map, {this.reference})
@@ -29,6 +30,7 @@ class Record {
         profileImgUrl = map['profileImgUrl'],
         listTokens = map['listTokens'],
         yet_opened = map['yet_opened'],
+        token = map['token'],
         comments = map['comments'];
 
 

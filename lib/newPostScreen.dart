@@ -33,7 +33,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
   var sexPatient;
   final _etaController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
-  FirebaseMessaging _fcm = MyFeedPage().getFCM();
+  FirebaseMessaging _fcm = FeedPage().getFCM();
 
   @override
   Widget build(BuildContext context) {
@@ -331,6 +331,7 @@ class _NewPostScreenState extends State<NewPostScreen> {
       'hashtags': hashtagPost,
       'profileImgUrl': info['profileImgUrl'],
       'listTokens': [],
+      'token': await FeedPage().getFCM().getToken(),
       'yet_opened':false
     };
 

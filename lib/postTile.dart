@@ -73,7 +73,7 @@ class _PostTileState extends State<PostTile> {
     this.data = data;
     this.context = context;
     this.record = Record.fromSnapshot(data);
-    this._fcm = MyFeedPage().getFCM();
+    this._fcm = FeedPage().getFCM();
     this.route = route;
     // _containToken();
   }
@@ -147,7 +147,7 @@ class _PostTileState extends State<PostTile> {
   _activateNotifications() async {
     String fcmToken = await _fcm.getToken();
     if (!containToken) {
-      Utility().saveDeviceToken(record.reference, info['name'], info['id'], segui: true);
+      Utility().saveDeviceToken(record.reference, info['name'], info['id'], timestamp : record.timestamp, segui: true);
       print(record.listTokens);
       print(record.nameProfile);
       print(record.reference);
@@ -160,7 +160,7 @@ class _PostTileState extends State<PostTile> {
       print(containToken);
     }
     else {
-      Utility().removeDeviceToken(record.reference, info['name'], info['id'], segui:true);
+      Utility().removeDeviceToken(record.reference, info['name'], info['id'], fcmToken, timestamp : record.timestamp, listToken: record.listTokens, segui:true);
       setState(() {
         containToken = false;
       });
@@ -279,10 +279,10 @@ class _PostTileState extends State<PostTile> {
               ListTile(
                 leading: record.profileImgUrl == ' ' ? Icon(
                     Icons.account_circle_outlined, size: 50) : ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(30),
                     clipBehavior: Clip.hardEdge,
                     child: Image.network(
-                        record.profileImgUrl, height: 50, width: 50)),
+                        record.profileImgUrl, height: 50, width: 50, fit: BoxFit.fitWidth,)),
                 title: Text(record.nameProfile),
                 trailing: PopupMenuButton<String>(
                   // enabled: record.id == FirebaseAuth.instance.currentUser.uid,

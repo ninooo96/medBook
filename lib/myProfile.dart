@@ -1,6 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:medbook/feedPage.dart';
+import 'package:medbook/notification.dart';
 import 'package:medbook/postTile.dart';
 import 'package:medbook/user.dart';
 import 'package:medbook/welcomeScreen.dart';
@@ -46,11 +49,87 @@ class _MyProfileState extends State<MyProfile> {
   var nameProfile;
   bool buildedHeader = false;
   UserMB user;
+  bool newNotification = false;
 
   _MyProfileState(UserMB user) {
     this.idProfile = user.id;
     this.nameProfile = user.nameProfile;
     this.user = user;
+  }
+
+  _saveNotificationHashtag(id, hashtag) async { //,hashtag){
+    var timeTmp = Timestamp.now();
+    var time = timeTmp.toDate();
+    final f = new DateFormat('dd/MM/yyyy').add_Hms();
+    var timestamp = f.format(time);
+    await FirebaseFirestore.instance.collection('feed')
+        .doc(id).get().then( (value) async =>
+    await FirebaseFirestore.instance
+        .collection('subscribers')
+        .doc(FirebaseAuth.instance.currentUser.uid)
+        .collection('notification')
+        .doc(FirebaseAuth.instance.currentUser.uid+"_"+timestamp.toString().replaceAll('/', '').replaceAll(' ', '-'))
+        .set({
+      'name': value.data()['nameProfile'],
+      'profileImgUrl': value.data()['profileImgUrl'],
+      'id': FirebaseAuth.instance.currentUser.uid,
+      'idAutorePost': value.data()['id'],
+      'timestamp' : value.data()['timestamp'],
+      'idPost': id,
+      'hashtag' : hashtag
+    })
+    );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // initializeInfo();
+    // bool yet_opened = false;
+    FeedPage().getFCM().configure(
+        onMessage: (Map<String, dynamic> message) async {
+          print("onMessage: $message");
+          print(noNotification.toString() + ' icao');
+          var flag = FirebaseAuth.instance.currentUser.uid ==
+              message['data']['id'];
+          print(flag.toString() + ' flag');
+          if (!noNotification && !flag) {
+            print("QUIII");
+            setState(() {
+              // flag = true;
+              newNotification = true;
+              print(newNotification);
+            });
+          }
+          else {
+            setState(() {
+              noNotification = false;
+              // flag=false;
+            });
+          }
+          print(message);
+          print(message['data']['title']);
+          if (!message['data']['title'].contains('commentato') &&
+              FirebaseAuth.instance.currentUser.uid !=
+                  message['data']['title'].substring(
+                      message['data']['title'].indexOf('_') + 1,
+                      message['data']['title'].indexOf(
+                          '-'))) { //notifica di nuovo post associato ad un topic
+            var hashtag = message['notification']['body'].substring(
+                message['notification']['body'].indexOf(':') + 1,
+                message['notification']['body']
+                    .toString()
+                    .length);
+            _saveNotificationHashtag(message['data']['title'], hashtag);
+          }
+        },
+        onLaunch: (Map<String, dynamic> message) async {
+          print('onlaunch profile');
+        },
+        onResume: (Map<String, dynamic> message) async {
+          print('onresumen profile');
+        }
+    );
   }
 
 
@@ -128,8 +207,8 @@ class _MyProfileState extends State<MyProfile> {
             actions: [
               IconButton(icon: Icon(Icons.search), onPressed: _search),
               IconButton(
-                icon: Icon(Icons.notifications),
-                onPressed: _postWithMyHashtags,
+                icon: newNotification ? Icon(Icons.notification_important_outlined) : Icon(Icons.notifications),
+                onPressed: _notification,
               ),
             ],
           ),
@@ -305,12 +384,14 @@ class _MyProfileState extends State<MyProfile> {
         height: 150,
         child: Row(children: [
           user.profileImgUrl != ' '
-              ? CircleAvatar(
+              ? Padding(padding: const EdgeInsets.all(8.0),
+              child: CircleAvatar(
 
             radius: 50,
+
             // child: Image.network(info['profileImgUrl']),
             backgroundImage: NetworkImage(user.profileImgUrl),
-          )
+          ))
               : Container(
               decoration: BoxDecoration(
                   color: Colors.grey[200],
@@ -709,6 +790,16 @@ class _MyProfileState extends State<MyProfile> {
 //       );
 //     }
 //   }
+
+  void _notification() {
+    // print("ciao Anto");
+    setState(() {
+      newNotification = false;
+    });
+    Navigator.push(
+        context, MaterialPageRoute(builder: (context) => Notifications()));
+
+  }
 }
 
 // class Record {
