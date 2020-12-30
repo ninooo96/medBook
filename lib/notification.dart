@@ -97,9 +97,9 @@ class _NotificationState extends State<Notifications> {
         leading: profileImgUrl == ' '
             ? Icon(Icons.account_circle_outlined, size: 50)
             : ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(30),
             clipBehavior: Clip.hardEdge,
-            child: Image.network(profileImgUrl, height: 50, width: 50)),
+            child: Image.network(profileImgUrl, height: 50, width: 50, fit: BoxFit.fitWidth,)),
         title: hashtag == ''
             ? (idAutorePost == currentID && id != idAutorePost)
             ? Text(name + ' ha commentato un tuo post')

@@ -667,6 +667,8 @@ class _CommentScreenState extends State<CommentScreen> {
 
       for (var map in record.listTokens){
         print('notification');
+        print(map['id']);
+        print(record.id);
         if(map['id']!=FirebaseAuth.instance.currentUser.uid) {
           await FirebaseFirestore.instance
               .collection('subscribers')

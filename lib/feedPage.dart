@@ -374,13 +374,14 @@ class _MyFeedPageState extends State<MyFeedPage> {
 
         }
         print(message);
-        print(message['data']['title']);
-        if(!message['data']['title'].contains('commentato') && FirebaseAuth.instance.currentUser.uid != message['data']['title'].substring(message['data']['title'].indexOf('_')+1, message['data']['title'].indexOf('-'))) { //notifica di nuovo post associato ad un topic
+        print(message['data']['type']);
+        if(message['data']['type']=='topic') { //notifica di nuovo post associato ad un topic
           var hashtag = message['notification']['body'].substring(
               message['notification']['body'].indexOf(':') + 1,
               message['notification']['body']
                   .toString()
                   .length);
+          print('OKK');
           _saveNotificationHashtag(message['data']['title'], hashtag);
         }
       },
