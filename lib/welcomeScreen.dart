@@ -125,7 +125,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
 
 
           style: GoogleFonts.portLligatSans(
-            // backgroundColor: Colors.white,
             textStyle: Theme
                 .of(context)
                 .textTheme
@@ -134,10 +133,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
             fontWeight: FontWeight.w700,
             color: Colors.white,
           ),
-          // TextSpan(
-          //   text: 'rnz',
-          //   style: TextStyle(color: Colors.white, fontSize: 30),
-          // ),
           )]),
     );
   }
@@ -193,7 +188,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
               SizedBox(
                 height: 20,
               ),
-              // _label()
             ],
           ),
         ),

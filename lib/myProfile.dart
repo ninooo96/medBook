@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:medbook/feedPage.dart';
 import 'package:medbook/notification.dart';
 import 'package:medbook/postTile.dart';
+import 'package:medbook/search.dart';
 import 'package:medbook/user.dart';
 import 'package:medbook/welcomeScreen.dart';
 
@@ -13,10 +14,7 @@ import 'newPostScreen.dart';
 import 'record.dart';
 import 'setting.dart';
 
-// String nameProfile;
-
 class MyProfile extends StatefulWidget {
-  // String title ;
   var idProfile;
   var nameProfile;
   UserMB user;
@@ -26,22 +24,10 @@ class MyProfile extends StatefulWidget {
     this.nameProfile = user.nameProfile;
     this.user = user;
   }
-//   String getTitle(){
-//     return title;
-// }
 
   @override
   _MyProfileState createState() => _MyProfileState(user);
 
-// nameProfile(){
-//   for(var elem in dummySnapshot){
-//     if(elem['id'] == id_accesso) {
-//       print(elem['nameProfile']);
-//       return elem['nameProfile'];
-//     }
-//     return '404';
-//   }
-// }
 }
 
 class _MyProfileState extends State<MyProfile> {
@@ -84,31 +70,22 @@ class _MyProfileState extends State<MyProfile> {
   @override
   void initState() {
     super.initState();
-    // initializeInfo();
-    // bool yet_opened = false;
     FeedPage().getFCM().configure(
         onMessage: (Map<String, dynamic> message) async {
           print("onMessage: $message");
-          print(noNotification.toString() + ' icao');
           var flag = FirebaseAuth.instance.currentUser.uid ==
               message['data']['id'];
-          print(flag.toString() + ' flag');
           if (!noNotification && !flag) {
-            print("QUIII");
             setState(() {
-              // flag = true;
               newNotification = true;
-              print(newNotification);
             });
           }
           else {
             setState(() {
               noNotification = false;
-              // flag=false;
             });
           }
           print(message);
-          print(message['data']['title']);
           if (!message['data']['title'].contains('commentato') &&
               FirebaseAuth.instance.currentUser.uid !=
                   message['data']['title'].substring(
@@ -135,21 +112,7 @@ class _MyProfileState extends State<MyProfile> {
 
   @override
   Widget build(BuildContext context) {
-    // var route = ModalRoute.withName('myProfile');
-    // print(route.toString());
-    // if(route!=null){
-    //   print(route.settings.name);
-    // }
     return _build(context, nameProfile, idProfile, user);
-    // return StreamBuilder<QuerySnapshot>(
-    //   stream: FirebaseFirestore.instance.collection('subscribers').snapshots(),
-    //   builder: (context, snapshot) {
-    //     if (!snapshot.hasData) return LinearProgressIndicator();
-    //     print('OK2');
-    //     // print(snapshot.data.docs[id_accesso-1]['nameProfile']);
-    //     return  _build(context, snapshot.data.docs[id_profile-1]['nameProfile']);
-    //   },
-    // );
   }
 
   Widget _build(BuildContext context, String nameProfile, String idProfile,
@@ -186,22 +149,13 @@ class _MyProfileState extends State<MyProfile> {
             )),
         appBar: CustomAppBar(
           appBar: AppBar(
-            //
-            // leading: IconButton(
-            //   icon: Icon(Icons.menu),
-            //   onPressed: _openDrawer,
-            // ),
             flexibleSpace: Container(
               decoration: BoxDecoration(
                   gradient: LinearGradient(
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                       colors: [Color(0xfffbb448), Color(0xfff7892b)])),
-              //
-              // leading: IconButton(
-              //   icon: Icon(Icons.menu),
-              //   onPressed: _openDrawer,
-              // ),
+
             ),
             title: Center(child: Text(user.nameProfile)),
             actions: [
@@ -212,12 +166,7 @@ class _MyProfileState extends State<MyProfile> {
               ),
             ],
           ),
-          // onTap: () {
-          //   Navigator.push(
-          //     context,
-          //     MaterialPageRoute(builder: (context) => PostTile()),
-          //   );
-          // },
+
         ),
         body: Column(children: [
           _buildBodyHeader(user),
@@ -230,10 +179,7 @@ class _MyProfileState extends State<MyProfile> {
     return Container(
       height: 90.0,
       child: DrawerHeader(
-        // child: Text('Specializzazioni',
-        //     textScaleFactor: 1.8,
-        //     textAlign: TextAlign.left,
-        //     style: TextStyle(color: Colors.white)),
+
           decoration: BoxDecoration(color: Colors.orange),
           padding: EdgeInsets.symmetric(vertical: 25)),
     );
@@ -305,16 +251,12 @@ class _MyProfileState extends State<MyProfile> {
         context, MaterialPageRoute(builder: (context) => WelcomeScreen()));
   }
 
-  void _postWithMyHashtags() {
-    print("ciao Anto");
-    //TODO pagina con i post di cui ho ricevuto la notifica perchè con il mio hashtag
-  }
-
   void _search() {
-    //TODO funzione di ricerca - da copiare da FeedPage
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => SearchScreen()),
+    );
   }
-
-  _openDrawer() {}
 
   _newPost() {
     Navigator.push(
@@ -323,63 +265,18 @@ class _MyProfileState extends State<MyProfile> {
     );
   }
 
-  // ListTile _specializzazioni() {
-  //   print(info['specializzazioni'].toList() == []);
-  //   if (info['specializzazioni'].length == 0) {
-  //     return ListTile(title: Text(' '));
-  //   } else {
-  //     return ListTile(
-  //         dense: true,
-  //         title: Text('Specializzato in: ' +
-  //             user.specializzazioni.toString().substring(
-  //                 1, user.specializzazioni
-  //                 .toString()
-  //                 .length - 1)));
-  //   }
-  // }
-
   String _specializzazioni() {
-    print(user.specializzazioni == []);
     if (user.specializzazioni.length == 0) {
-      return '';//ListTile(title: Text(' '));
+      return '';
     } else {
       return
-        // ListTile(
-        //   dense: true,
-        //   title: Text(
         'Specializzato in: ' +
             user.specializzazioni.toString().substring(
                 1, user.specializzazioni.toString().length - 1);
     }
   }
 
-// Widget _buildBodyList(
-//     BuildContext context, String nameProfile, String idProfile) {
-//   return Column(
-//     children: [
-//       _buildBodyHeader(),
-//       _buildBodyList(context, nameProfile, idProfile)
-//     ],
-//   );
-// }
-//   ListTile _specializzazioni() {
-//     print(info['specializzazioni'].toList() == []);
-//     if (info['specializzazioni'].length == 0) {
-//       return ListTile(title: Text(' '));
-//     } else {
-//       return ListTile(
-//           dense: true,
-//           title: Text('Specializzato in: ' +
-//               info['specializzazioni'].toString().substring(
-//                   1, info['specializzazioni'].toString().length - 1)));
-//     }
-//   }
   Widget _buildBodyHeader(UserMB user) {
-    // if (buildedHeader) {
-    //   return Container();
-    // } else {
-    //   buildedHeader = true;
-    // print(_controllerImage.value);
     return SingleChildScrollView(child: Container(
         height: 150,
         child: Row(children: [
@@ -389,7 +286,6 @@ class _MyProfileState extends State<MyProfile> {
 
             radius: 50,
 
-            // child: Image.network(info['profileImgUrl']),
             backgroundImage: NetworkImage(user.profileImgUrl),
           ))
               : Container(
@@ -402,59 +298,12 @@ class _MyProfileState extends State<MyProfile> {
                 Icons.camera_alt,
                 color: Colors.grey[800],
               ))
-          // CircleAvatar(radius: 50,child: Image.asset('assets/images/logo_google.png')),
-          // Image.asset('assets/images/logo_google.png')
-
-          // icon: Icon(_image == null ? Icons.account_circle_outlined : ExactAssetImage(_image.path) , size: 100.0),
           ,
-        //   Flexible(
-        //       child: Column(
-        //         mainAxisAlignment: MainAxisAlignment.center,
-        //         children: [
-        //           info['provinciaOrdine'] == ' '
-        //               ? ListTile(
-        //             dense: true,
-        //             title: Text(''),
-        //           )
-        //               : ListTile(
-        //               dense: true,
-        //               title: Text(
-        //                 'Ordine della provincia di \n' +
-        //                     user.provinciaOrdine,
-        //                 textScaleFactor: 1.5,
-        //               )),
-        //           (user.dayBirth == ' ' &&
-        //               user.monthBirth == ' ' &&
-        //               user.yearBirth == ' ')
-        //               ? ListTile(dense: true, title: Text(''))
-        //               : ListTile(
-        //               dense: true,
-        //               title: Text(
-        //                 'Data di nascita: ' +
-        //                     user.dayBirth.toString() +
-        //                     '/' +
-        //                     user.monthBirth +
-        //                     '/' +
-        //                     user.yearBirth.toString(),
-        //               )),
-        //           _specializzazioni(),
-        //         ],
-        //       ))
-        // ]));
+
           Expanded(child:
           ListTile(dense: true,
-              // mainAxisAlignment: MainAxisAlignment.center,
-              // children: [
               title:
-              user.provinciaOrdine == ' ' ? Text('')
-              // ? ListTile(
-              //     dense: true,
-              //     title: Text(''),
-              //   )
-                  :
-              // ListTile(
-              //     dense: true,
-              //     title:
+              user.provinciaOrdine == ' ' ? Text('') :
               Text(
                 'Ordine della provincia di \n' +
                     user.provinciaOrdine,
@@ -464,10 +313,7 @@ class _MyProfileState extends State<MyProfile> {
               (user.dayBirth == ' ' &&
                   user.monthBirth == ' ' &&
                   user.yearBirth == ' ') ? Text('')
-              // ? ListTile(dense: true, title: Text(''))
-              // : ListTile(
-              //     dense: true,
-              //     title:
+
                   :
               Text(
                 '\nData di nascita: ' +
@@ -479,96 +325,16 @@ class _MyProfileState extends State<MyProfile> {
 
                     _specializzazioni(),textScaleFactor: 1.2,)))
         ],
-          // ]
-          //   leading: Container(
-          //     width:100,
-          // alignment: Alignment.centerLeft,
-          // child: GestureDetector(
-          //       onTap: () => _showPicker(context),
-          //
-          //       child:
-          //       _image != null
-          //           ? ClipRRect(
-          //               //quello con 2 R ha una forma circolare
-          //               // borderRadius: BorderRadius.circular(50),
-          //
-          //           child: Image(image: FileImage(_image),width: 500, height: 500,fit: BoxFit.fitHeight),
-          //         // radius: 1000,
-          //         //       backgroundImage: FileImage(_image)
-          //               // Image.file(_image,
-          //               //     width: 100, height: 100, fit: BoxFit.fitHeight),
-          //             )
-          //           : Container(
-          //               decoration: BoxDecoration(
-          //                   color: Colors.grey[200],
-          //                   borderRadius: BorderRadius.circular(50)),
-          //               width: 100,
-          //               height: 100,
-          //               child: Icon(
-          //                 Icons.camera_alt,
-          //                 color: Colors.grey[800],
-          //               ))
-          //       // CircleAvatar(radius: 50,child: Image.asset('assets/images/logo_google.png')),
-          //       // Image.asset('assets/images/logo_google.png')
-          //
-          //       // icon: Icon(_image == null ? Icons.account_circle_outlined : ExactAssetImage(_image.path) , size: 100.0),
-          //       )),
-          // title: info['provinciaOrdine'] == ' '
-          //     ? Text('')
-          //     : Text(
-          //         'Ordine della provincia di \n' + info['provinciaOrdine']),
-          // subtitle: (info['dayBirth'] == ' ' &&
-          //         info['monthBirth'] == ' ' &&
-          //         info['yearBirth'] == ' ')
-          //     ? Text('')
-          //     : Text('\nData di nascita: \n' +
-          //         info['dayBirth'].toString() +
-          //         '/' +
-          //         info['monthBirth'] +
-          //         '/' +
-          //         info['yearBirth'].toString() +
-          //         _specializzazioni()),
-          // isThreeLine: true,
+
         )
     ));
   }
 
 
-  // Widget _buildBodyHeader(Record record) {
-  //   // if (buildedHeader) {
-  //   //   return Container();
-  //   // } else {
-  //   //   buildedHeader = true;
-  //     return Container(
-  //         height: 150,
-  //         child: ListTile(
-  //           leading: record.profileImgUrl==' ' ? Icon(Icons.account_circle_outlined,size: 50) : Container(height: 100, width: 100,child: Image.network(record.profileImgUrl)),
-  //           title: info['provinciaOrdine'] == ' '
-  //               ? Text('')
-  //               : Text(
-  //                   'Ordine della provincia di \n' + info['provinciaOrdine']),
-  //           subtitle: (info['dayBirth'] == ' ' &&
-  //                   info['monthBirth'] == ' ' &&
-  //                   info['yearBirth'] == ' ')
-  //               ? Text('')
-  //               : Text('\nData di nascita: \n' +
-  //                   info['dayBirth'].toString() +
-  //                   '/' +
-  //                   info['monthBirth'] +
-  //                   '/' +
-  //                   info['yearBirth'].toString() +
-  //                   _specializzazioni()),
-  //           isThreeLine: true,
-  //         ));
-  //
-  // }
+
 
   Widget _buildBody(BuildContext context, String nameProfile,
       String idProfile) {
-    //estrai snapshot dal Cloud Firebase
-    // List<Map> snapshot = dummySnapshot;
-    // return _buildList(context, snapshot);
-
     return StreamBuilder<QuerySnapshot>(
       stream: FirebaseFirestore.instance
           .collection('feed')
@@ -576,40 +342,16 @@ class _MyProfileState extends State<MyProfile> {
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return LinearProgressIndicator();
-        print('OK');
         return _buildList(
             context, snapshot.data.docs, nameProfile, idProfile);
       },
     );
   }
 
-// Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot2) {
-
-// return StreamBuilder<QuerySnapshot>(
-//   stream: FirebaseFirestore.instance.collection('subscribers').snapshots(),
-//   builder: (context, snapshot) {
-//     if (!snapshot.hasData) return LinearProgressIndicator();
-//     print('OK2');
-//     // print(snapshot.data.docs[id_accesso-1]['nameProfile']);
-//     return  _buildList2(context, snapshot2, snapshot.data.docs[id_profile-1]['nameProfile'], id_profile);
-//   },
-// );
-//   print(FirebaseFirestore.instance.collection("subscribers").get());//doc(id_accesso.toString()).get()[0]());
-// return _buildList2(context, snapshot, querySnapshot.data()['nameProfile']);
-// }
-
   Widget _buildList(BuildContext context, List<DocumentSnapshot> snapshot,
       String nameProfile, String idProfile) {
-    // var snapshot2 = snapshot.where((id) => id==id_accesso);
-    // print(snapshot2);
-//
     return Expanded(child: ListView(
       padding: const EdgeInsets.only(top: 5.0),
-      //da giocarci dopo che visualizzo un post
-      //     final record = Record.fromMap(data);
-      // // print(record);
-      // if( record.id==2){
-      //   print(record.post);
       children: snapshot
           .map((data) =>
           _buildListItem(
@@ -621,178 +363,16 @@ class _MyProfileState extends State<MyProfile> {
   Widget _buildListItem(BuildContext context, DocumentSnapshot data,
       String nameProfile, String idProfile) {
     var recordTmp;
-    // title = nameProfile;
-    print('amnnaiaa');
-    print(idProfile);
     if (Record
         .fromSnapshot(data)
         .id != idProfile) return Container();
     var record = Record.fromSnapshot(data);
-
-    // if(recordTot.id==id_accesso){
-    //   recordTmp = recordTot;
-    // }
-    // final record = recordTmp;
-    print(record);
     return PostTile(data, context, 1);
-    // return Padding(
-    //   // key: ValueKey(record.nameProfile),
-    //     padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 5.0),
-    //     child: Container(
-    //         decoration: BoxDecoration(
-    //           border: Border.all(color: Colors.grey),
-    //           borderRadius: BorderRadius.circular(15.0),
-    //         ),
-    //         child: Column(children: <Widget>[
-    //           ListTile(
-    //             leading: record.profileImgUrl == ' ' ? Icon(
-    //                 Icons.account_circle_outlined, size: 50) : ClipRRect(
-    //                 borderRadius: BorderRadius.circular(20),
-    //                 clipBehavior: Clip.hardEdge,
-    //                 child: Image.network(
-    //                     record.profileImgUrl, height: 50, width: 50)),
-    //             title: Text(record.nameProfile),
-    //             subtitle: Text(record.timestamp),
-    //             onTap: () {
-    //               var snap = FirebaseFirestore.instance.collection(
-    //                   'subscribers').doc(record.id).get().then((value) {
-    //                 UserMB user = UserMB.fromSnapshot(value);
-    //                 Navigator.push(
-    //                   context,
-    //                   MaterialPageRoute(
-    //                       builder: (context) =>
-    //                           MyProfile(
-    //                               user)), //.nameProfile, record.id.toString())),
-    //                 );
-    //               });
-    //             },
-    //           ),
-    //           ListTile(
-    //               title: Text('Età: ' +
-    //                   (record.agePatient).toString() +
-    //                   (record.sexPatient == 'null'
-    //                       ? ''
-    //                       : (', Sesso: ' + (record.sexPatient))) +
-    //                   (record.hashtags.length == 0
-    //                       ? ''
-    //                       : "\n# " +
-    //                       record.hashtags.toString().substring(
-    //                           1, record.hashtags
-    //                           .toString()
-    //                           .length - 1)) +
-    //                   ""
-    //                       "\n\n" +
-    //                   record.post)),
-    //           ListTile(
-    //             title: record.comments.first.length > 0
-    //                 ? record.comments.first.length > 1
-    //                 ? Text(record.comments.length.toString() + ' commenti')
-    //                 : Text(record.comments.length.toString() + ' commento')
-    //                 : Text('Non ci sono commenti'),
-    //             onTap: () {
-    //               setState(() {
-    //                 addComment(context, record.comments, record.reference, 0);
-    //                 print(record.comments);
-    //               });
-    //             },
-    //           ),
-    //           Row(
-    //             mainAxisAlignment: MainAxisAlignment.center,
-    //             children: <Widget>[
-    //               Flexible(
-    //                   child: ListTile(
-    //                     onTap: () {
-    //                       addComment(
-    //                           context, record.comments, record.reference, 1);
-    //                     },
-    //                     title: Center(child: Text('Commenta')),
-    //                   )),
-    //               Container(
-    //                   height: 30,
-    //                   child: VerticalDivider(
-    //                     color: Colors.grey,
-    //                     thickness: 2,
-    //                   )),
-    //               Flexible(
-    //                   child: ListTile(
-    //                     // onTap: _activeNotifications,
-    //                       title: Center(child: Text('Segui'))))
-    //             ],
-    //           )
-    //         ])));
+
   }
 
-// void addComment(context, record, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
-//   print('Ciao Lele' + record.length.toString(), );
-//   print(record);
-//   if(record.length==0)
-//     record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0}];
-//   print(record);
-//   if(record.length != 1 || nuovoCommento==1) {
-//     Navigator.push(
-//       context,
-//       MaterialPageRoute(builder: (context) => CommentScreen(record, reference)),
-//     );
-//   }
-//
-// }
-// void addComment(context, List<dynamic> record1, reference, nuovoCommento) { //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
-//   print('Ciao Lele' + record1.length.toString() );
-//   List<Map<String,dynamic>> record = new List<Map<String,dynamic>>();// la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
-//   record1.forEach((data) => record.add({
-//     'nameProfile' : data['nameProfile'],
-//     'comment': data['comment'],
-//     'upvote': data['upvote'],
-//     'downvote' : data['downvote']
-//   }));
-//   if(record.length==0)
-//     record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0}];
-//   print(record);
-//   if(record.length != 1 || nuovoCommento==1) {
-//     Navigator.push(
-//       context,
-//       MaterialPageRoute(builder: (context) => CommentScreen(record, reference)),
-//     );
-//   }
-//
-// }
-//   void addComment(context, List<dynamic> record1, reference, nuovoCommento) {
-//     //nuovoCommento è un intero che vale 1 se clicco il tasto per aggiungere un nuovo commento, 0 else
-//     // print('Ciao Lele' + record1.length.toString() );
-//     List<Map<String, dynamic>> record2 = new List<
-//         Map<String,
-//             dynamic>>(); // la lista dei commenti collegati al post Dart non riesce a vederli come Mappa, quindi devo ricrearla
-//     // print(nuovoCommento);
-//     // print(record1.first.length);
-//     if (record1.first.length != 0) {
-//       record1.forEach((data) =>
-//           record2.add({
-//             'nameProfile': data['nameProfile'],
-//             'comment': data['comment'],
-//             'upvote': data['upvote'],
-//             'downvote': data['downvote'],
-//             'idVotersLike': data['idVotersLike'],
-//             'idVotersDislike': data['idVotersDislike'],
-//             'profileImgUrl': data['profileImgUrl']
-//           }));
-//     }
-//
-//     // if(record.length==0)
-//     //   record =[{'nameProfile':'','comment':'','upvote':0,'downvote':0, 'idVotersLike':[0], 'idVotersDislike':[0]}];
-//     // print(record);
-//     if (record1.first.length != 0 || nuovoCommento == 1) {
-//       // record1 = record;
-//       // Navigator.of(context).pop();
-//       Navigator.push(
-//         context,
-//         MaterialPageRoute(
-//             builder: (context) => CommentScreen(record2, reference)),
-//       );
-//     }
-//   }
 
   void _notification() {
-    // print("ciao Anto");
     setState(() {
       newNotification = false;
     });
@@ -801,35 +381,6 @@ class _MyProfileState extends State<MyProfile> {
 
   }
 }
-
-// class Record {
-//   final String nameProfile;
-//   final String sexPatient;
-//   final String post;
-//   final int agePatient;
-//   final int numComment;
-//   final String id;
-//
-//   final List comments;
-//   final List hashtags;
-//
-//   final DocumentReference reference;
-//
-//   Record.fromMap(Map<String, dynamic> map, {this.reference})
-//       : nameProfile = map['nameProfile'],
-//         sexPatient = map['sexPatient'],
-//         agePatient = map['agePatient'],
-//         post = map['post'],
-//         numComment = map['numComment'],
-//         id = map['id'],
-//         hashtags = map['hashtags'],
-//         comments = map['comments'];
-//
-//   Record.fromSnapshot(DocumentSnapshot snapshot)
-//       : this.fromMap(snapshot.data(), reference: snapshot.reference);
-//
-//   String toString() => "Record<$nameProfile:$post>";
-// }
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final VoidCallback onTap;

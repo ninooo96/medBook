@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:medbook/notification.dart';
 import 'package:medbook/postTile.dart';
 
 import 'feedPage.dart';
@@ -43,23 +42,8 @@ class OpenNotificationState extends State<OpenNotification> {
                     end: Alignment.centerRight,
                     colors: [Color(0xfffbb448), Color(0xfff7892b)])),
           ),
-          // leading: IconButton(
-          //     icon: Icon(Icons.arrow_back),
-          //     onPressed: () {
-          //       if (route == 1) {
-          //         Navigator.pushReplacement(context,
-          //             MaterialPageRoute(builder: (context) => Notifications()));
-          //       } else if (route == 2) {
-          //         print('ciao');
-          //         // Navigator.of(context).pop();
-          //         Navigator.of(context).pop();
-          //         Navigator.push( context, MaterialPageRoute(builder: (BuildContext context) => new FeedPage()));
-          //
-          //       }
-          //     }),
-          // title: Text(),
+
         )),
         body: Wrap(children: [PostTile(doc, context, 3)]));
-    // PostTile(value, context, 3),
   }
 }

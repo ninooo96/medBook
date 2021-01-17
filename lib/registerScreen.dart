@@ -4,7 +4,6 @@ import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:medbook/feedPage.dart';
-// import 'package:flutter_login_signup/src/Widget/bezierContainer.dart';
 import 'package:medbook/loginScreen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -144,7 +143,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         TextSpan(
           text: 'Med ',
           style: GoogleFonts.portLligatSans(
-            // backgroundColor: Colors.white,
             textStyle: Theme.of(context).textTheme.display1,
             fontSize: 40,
             fontStyle: FontStyle.italic,
@@ -156,16 +154,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
           text: 'Book',
 
           style: GoogleFonts.portLligatSans(
-            // backgroundColor: Colors.white,
             textStyle: Theme.of(context).textTheme.display1,
             fontSize: 40,
             fontWeight: FontWeight.w700,
             color: Colors.black,
           ),
-          // TextSpan(
-          //   text: 'rnz',
-          //   style: TextStyle(color: Colors.white, fontSize: 30),
-          // ),
         )
       ]),
     );
@@ -190,11 +183,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         height: height,
         child: Stack(
           children: <Widget>[
-            // Positioned(
-            //   top: -MediaQuery.of(context).size.height * .15,
-            //   right: -MediaQuery.of(context).size.width * .4,
-            //   child: BezierContainer(),
-            // ),
             Container(
               padding: EdgeInsets.symmetric(horizontal: 20),
               child: SingleChildScrollView(
@@ -233,22 +221,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
       );
       try {
         Flushbar(
-          message: "Abbiamo inviato un'email di verifica dell'account, clicca il link per confermare ed esegui l'accesso",
+          message: "Abbiamo inviato un'email di verifica dell'account, clicca il link inviato per confermare la tua identità ed esegui l'accesso",
           duration: Duration(seconds: 4),
         ).show(context);
         Future.delayed(Duration(seconds: 5), () {
           Navigator.of(context).pop();});
         await userCredential.user.sendEmailVerification();
-        // CollectionReference users = FirebaseFirestore.instance.collection('subscribers');
-        // print(users.get().then((value) => print(value)));
-        print('prova e-mail');
         FirebaseFirestore.instance.collection('subscribers')
             .doc(FirebaseAuth.instance.currentUser.uid)
             .set({
           'name': nameController.text + " " + surnameController.text,
         });
 
-        // return userCredential.user.uid;
       } catch (e) {
         print("An error occured while trying to send email verification");
         print(e.message);
@@ -268,13 +252,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
         );
       }
     } catch (e) {
-      print('ciaoooo');
       print(e);
     }
 
-
-    // Navigator.of(context).pop();
-    // Navigator.push(context, MaterialPageRoute(builder: (context) => FeedPage()));
   }
 
 

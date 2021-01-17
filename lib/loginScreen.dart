@@ -7,7 +7,6 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:medbook/feedPage.dart';
 import 'package:medbook/registerScreen.dart';
 
-// import 'Widget/bezierContainer.dart';
 
 class LoginScreen extends StatefulWidget {
 
@@ -140,14 +139,8 @@ class _LoginScreenState extends State<LoginScreen> {
           height: 30,
         ),
         onPressed: () {
-          print('loginG1');
           _loginGoogle();
-          print('loginG2');
 
-          // Navigator.of(context).pop();
-          //   Navigator.of(context).pop();
-          //   Navigator.push(
-          //       context, MaterialPageRoute(builder: (context) => FeedPage()));
           },
 
       ),
@@ -205,8 +198,6 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget _createAccountLabel() {
     return InkWell(
       onTap: () {
-        // Navigator.push(
-        //     context, MaterialPageRoute(builder: (context) => RegisterScreen()));
       },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 20),
@@ -248,7 +239,6 @@ class _LoginScreenState extends State<LoginScreen> {
         TextSpan(
           text: 'Med ',
           style: GoogleFonts.portLligatSans(
-            // backgroundColor: Colors.white,
             textStyle: Theme.of(context).textTheme.display1,
             fontSize: 40,
             fontStyle: FontStyle.italic,
@@ -260,16 +250,11 @@ class _LoginScreenState extends State<LoginScreen> {
           text: 'Book',
 
           style: GoogleFonts.portLligatSans(
-            // backgroundColor: Colors.white,
             textStyle: Theme.of(context).textTheme.display1,
             fontSize: 40,
             fontWeight: FontWeight.w700,
             color: Colors.black,
           ),
-          // TextSpan(
-          //   text: 'rnz',
-          //   style: TextStyle(color: Colors.white, fontSize: 30),
-          // ),
         )
       ]),
     );
@@ -292,10 +277,6 @@ class _LoginScreenState extends State<LoginScreen> {
       height: height,
       child: Stack(
         children: <Widget>[
-          // Positioned(
-          //     top: -height * .15,
-          //     right: -MediaQuery.of(context).size.width * .4,
-          //     child: BezierContainer()),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 20),
             child: SingleChildScrollView(
@@ -341,14 +322,10 @@ class _LoginScreenState extends State<LoginScreen> {
           password: pwdController.text
 
       );
-      // if (userCredential.user.isEmailVerified) return userCredential.user.uid;
-      // else return null;
       if(userCredential.user.emailVerified) {
         DocumentSnapshot ds = await FirebaseFirestore.instance.collection(
             "subscribers").doc(FirebaseAuth.instance.currentUser.uid).get();
         if (!ds.exists) addUser2();
-        // Navigator.of(context).pop();
-
         Navigator.of(context).pop();
         Navigator.of(context).pop();
         Navigator.push(
@@ -361,34 +338,16 @@ class _LoginScreenState extends State<LoginScreen> {
       } else if (e.code == 'wrong-password') {
         print('Password errata');
         Flushbar(
-          // padding: EdgeInsets.all(10),
-          // borderRadius: 8,
-          //
-          // // backgroundGradient: LinearGradient(
-          // //   colors: [Colors.green.shade800, Colors.greenAccent.shade700],
-          // //   stops: [0.6, 1],
-          // // ),
-          // boxShadows: [
-          //   BoxShadow(
-          //
-          //     color: Colors.black45,
-          //     offset: Offset(6, 6),
-          //     blurRadius: 3,
-          //   ),
-          // ],
           message: 'Password errata',
           duration: Duration(seconds: 3),
         ).show(context);
 
       }
     }
-
-
   }
 
   Future<UserCredential> _loginGoogle() async {
-     // signInWithGoogle()  {
-      // Trigger the authentication flow
+    // Trigger the authentication flow
       final GoogleSignInAccount googleUser = await GoogleSignIn().signIn();
 
       // Obtain the auth details from the request
@@ -405,12 +364,10 @@ class _LoginScreenState extends State<LoginScreen> {
       // Once signed in, return the UserCredential,
       UserCredential _user = await FirebaseAuth.instance.signInWithCredential(credentialG);
       DocumentSnapshot ds = await FirebaseFirestore.instance.collection("subscribers").doc(FirebaseAuth.instance.currentUser.uid).get();
-      // if(!ds.exists) addUser(_user);
       if(_user.user.emailVerified) {
         DocumentSnapshot ds = await FirebaseFirestore.instance.collection(
             "subscribers").doc(FirebaseAuth.instance.currentUser.uid).get();
         if (!ds.exists) addUser(_user);
-        // Navigator.of(context).pop();
       }
       Navigator.of(context).pop();
         Navigator.of(context).pop();
@@ -460,7 +417,6 @@ class _LoginScreenState extends State<LoginScreen> {
     return  FirebaseFirestore.instance.collection('subscribers')
         .doc(FirebaseAuth.instance.currentUser.uid)
         .set({
-      // 'name': FirebaseAuth.instance.currentUser.displayName,//nameController.text+" "+surnameController.text,
       'id': FirebaseAuth.instance.currentUser.uid,
       'dayBirth': ' ',
       'monthBirth': ' ',

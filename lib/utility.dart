@@ -7,23 +7,15 @@ import 'package:flutter/material.dart';
 import 'feedPage.dart';
 class Utility {
   saveDeviceToken(reference, nameProfile, id, {String timestamp = '', bool segui= false}) async {
-    // Get the current user
-    // FirebaseUser user = await _auth.currentUser();
 
     // Get the token for this device
 
     FirebaseMessaging _fcm = FeedPage().getFCM();
     String fcmToken = await _fcm.getToken();
-    print(fcmToken);
-    // if(!listTokens.contains({'token': fcmToken,
-    //   'name': nameProfile,}) ){
-    //   listTokens.add({'token': fcmToken,
-    //     'name': nameProfile,});
-    // }
+
     // Save it to Firestore
 
     if (fcmToken != null) {
-      // reference.update({'tokens': listTokens
       reference.updateData({"listTokens": FieldValue.arrayUnion([{'token': fcmToken,
               'name': nameProfile, 'id' : id}])});
     };
@@ -34,35 +26,20 @@ class Utility {
       await tokens.set({
         'token': fcmToken,
         'name': nameProfile,
-        'id': id// optional
+        'id': id
       });
     }
   }
 
   removeDeviceToken(reference, nameProfile, id, token, {List listToken=const [], String timestamp ='', bool segui = false}) async {
-    // Get the current user
-    // FirebaseUser user = await _auth.currentUser();
 
-    // Get the token for this device
-
-    // FirebaseMessaging _fcm = FeedPage().getFCM();
-    // String fcmToken = await _fcm.getToken();
-    // print(fcmToken);
-    // if(!listTokens.contains({'token': fcmToken,
-    //   'name': nameProfile,}) ){
-    //   listTokens.add({'token': fcmToken,
-    //     'name': nameProfile,});
-    // }
 
     // Save it to Firestore
     if (token != null) {
-      // reference.update({'tokens': listTokens
-      print(nameProfile + id + token + timestamp);
       reference.updateData({"listTokens": FieldValue.arrayRemove([{'token': token,
         'name': nameProfile, 'id' : id}])});
       if(timestamp!='') {
         for (var map in listToken) {
-          print('notification');
           await FirebaseFirestore.instance
               .collection('subscribers')
               .doc(map['id'])

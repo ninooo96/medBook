@@ -3,7 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:medbook/openNotification.dart';
-import 'package:medbook/postTile.dart';
 
 import 'feedPage.dart';
 
@@ -41,7 +40,6 @@ class _NotificationState extends State<Notifications> {
           .snapshots(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) return LinearProgressIndicator();
-        // print('OK');
         return _buildList(context, snapshot.data.docs);
       },
     );
@@ -55,14 +53,12 @@ class _NotificationState extends State<Notifications> {
   }
 
   Future<bool> profileImageUrl(Map<String, dynamic> record) async {
-    // print(record['id']);
     await FirebaseFirestore.instance
         .collection('subscribers')
         .doc(FirebaseAuth.instance.currentUser.uid)
         .get()
         .then((value) =>
         record.update('profileImgUrl', (value2) => value['profileImgUrl']));
-    // print(record['profileImgUrl']+' PROVAAAA');
   }
 
   Widget _buildListItem(BuildContext context, DocumentSnapshot data) {
@@ -72,13 +68,6 @@ class _NotificationState extends State<Notifications> {
   }
 
   Widget notificationTile(data, context) {
-    // var data;
-    // var context;
-
-    // NotificationTile(data, context){
-    //   this.data = data;
-    //   this.context = context;
-    // }
     var currentID = FirebaseAuth.instance.currentUser.uid;
     var name = data['name'];
     var id = data['id'];
@@ -86,11 +75,6 @@ class _NotificationState extends State<Notifications> {
     var profileImgUrl = data['profileImgUrl'];
     var hashtag = data['hashtag'];
     var idPost = data['idPost'];
-    print('ciao');
-    print(currentID);
-    print(idAutorePost);
-    print(id);
-    print('ciao');
 
     return Column(children: [
       ListTile(
@@ -103,7 +87,6 @@ class _NotificationState extends State<Notifications> {
         title: hashtag == ''
             ? (idAutorePost == currentID && id != idAutorePost)
             ? Text(name + ' ha commentato un tuo post')
-            // : (idAutorePost != currentID && id != idAutorePost)
             : Text(name + ' ha commentato un post che segui')
 
             : Text(name + " | ha pubblicato un post con l'hashtag: " + hashtag),
@@ -119,38 +102,10 @@ class _NotificationState extends State<Notifications> {
         .doc(idPost)
         .get()
         .then((value) {
-        // Navigator.of(context).pop();
         Navigator.push(
           context,
           MaterialPageRoute(
               builder: (context) => OpenNotification(value, 1)));
   });
-        //           Scaffold(
-        //               appBar: CustomAppBar(
-        //                 appBar: AppBar(
-        //                     flexibleSpace: Container(
-        //                       decoration: BoxDecoration(
-        //                           gradient: LinearGradient(
-        //                               begin: Alignment.centerLeft,
-        //                               end: Alignment.centerRight,
-        //                               colors: [
-        //                                 Color(0xfffbb448),
-        //                                 Color(0xfff7892b)
-        //                               ])),
-        //                     ),
-        //                     leading: IconButton(
-        //                         icon: Icon(Icons.arrow_back),
-        //                         onPressed: () {
-        //                           if (route == 2) {
-        //                             Navigator.pushReplacement(
-        //                                 context, MaterialPageRoute(builder: (
-        //                                 context) => Notifications()));
-        //                           }
-        //                         }),
-        //                 // title: Text(),
-        //               )),
-        //       body: Wrap(children: [PostTile(value, context, 3)])),
-        //   // PostTile(value, context, 3),
-        // )));
   }
 }

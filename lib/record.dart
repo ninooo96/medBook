@@ -42,10 +42,7 @@ class Record {
 
   static String getTimestamp(Timestamp timestamp) {
     var time = timestamp.toDate();
-    // print(time);
     final f = new DateFormat('dd/MM/yyyy').add_Hms();
     return f.format(time);
-    // formatDate(time, [yyyy, '-', mm, '-', dd]);
-    // return (time.day.toString()+"/"+time.month.toString()+"/"+time.year.toString()+" - "+time.hour.toString()+":"+time.minute);
   }
 }

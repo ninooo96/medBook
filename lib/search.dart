@@ -71,26 +71,8 @@ class SearchScreen extends StatelessWidget {
             _entryField('Ricerca utente', _ricercaUtente,
                 'Inserisci il nome del profilo da ricercare'),
 
-
-            // Divider(thickness: 2,),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.start,
-            //   children: [
-            //     Text('Ricerca per Post',
-            //       style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),)
-            //
-            //   ],
-            // ),
-            // SizedBox(
-            //   height: 10,
-            // ),
             _entryField('Hashtag', _ricercaHashtag, 'Es.: Cardiologia, Dermatologia, Ortopedia'),
-            // _entryField('Parola chiave', _ricercaGenerale, 'Inserisci una parola chiave'),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.end,
-            //   children: [IconButton(icon: Icon(Icons.send,size: 40,), onPressed: null)],
-            // ),
-           
+
             _submitButton(context)
             ],
         ));
@@ -127,7 +109,6 @@ class SearchScreen extends StatelessWidget {
   titleCase(str) {
     var splitStr = str.toLowerCase().split(' ');
     for (var i = 0; i < splitStr.length; i++) {
-      // You do not need to check if i is larger than splitStr length, as your for does that for you
       // Assign it back to the array
       splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
     }
@@ -137,7 +118,6 @@ class SearchScreen extends StatelessWidget {
 
   Widget _search(context) {
     if(_ricercaUtente.text!='' || _ricercaHashtag.text!=''){
-      // print(_ricercaUtente.text.split(' ').length);
       Navigator.push(
           context,
           MaterialPageRoute(
@@ -146,24 +126,11 @@ class SearchScreen extends StatelessWidget {
       );
     }
 
-
-
-    // return StreamBuilder<QuerySnapshot>(
-    //   stream: stream
-    //       .orderBy('timestamp', descending: true)
-    //       .snapshots(),
-    //   builder: (context, snapshot) {
-    //     if (!snapshot.hasData) return LinearProgressIndicator();
-    //     print(snapshot.data.docs);
-    //     return _buildList(context, snapshot.data.docs);
-    //   },
-    // );
   }
 
   Widget _buildList(BuildContext context, List<QueryDocumentSnapshot> snapshot) {
     return ListView(
       padding: const EdgeInsets.only(top: 5.0),
-      //da giocarci dopo che visualizzo un post
 
       children: snapshot.map((data) => _buildListItem(context, data)).toList(),
     );
@@ -171,7 +138,6 @@ class SearchScreen extends StatelessWidget {
 
   _buildListItem(BuildContext context, QueryDocumentSnapshot data) {
     final record = Record.fromSnapshot(data);
-    print(record);
     return PostTile( data, context,3);
   }
 }

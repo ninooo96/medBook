@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:async/async.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +48,6 @@ class _RisultatiRicercaState extends State<RisultatiRicerca> {
   titleCase(str) {
     var splitStr = str.toLowerCase().split(' ');
     for (var i = 0; i < splitStr.length; i++) {
-      // You do not need to check if i is larger than splitStr length, as your for does that for you
       // Assign it back to the array
       splitStr[i] = splitStr[i][0].toUpperCase() + splitStr[i].substring(1);
     }
@@ -68,7 +64,6 @@ class _RisultatiRicercaState extends State<RisultatiRicerca> {
       List<String> hashtagList =
           hashtag2.contains(',') ? hashtag2.split(",") : [hashtag2];
       if (nameRicerca2.split(' ').length == 1) {
-        print('prova-hashtag-nameRicerca');
         return StreamBuilder<QuerySnapshot>(
           stream: stream
               .where('name', isEqualTo: nameRicerca2)
@@ -107,9 +102,7 @@ class _RisultatiRicercaState extends State<RisultatiRicerca> {
       }
     } else if (nameRicerca != '') {
       var nameRicerca2 = titleCase(nameRicerca);
-      print('prova-nameRicerca ' + nameRicerca2);
       if (nameRicerca2.split(' ').length == 1) {
-        print('prova-hashtag-nameRicerca');
         return StreamBuilder<QuerySnapshot>(
           stream: stream
               .where('name', isEqualTo: nameRicerca2)
@@ -148,17 +141,7 @@ class _RisultatiRicercaState extends State<RisultatiRicerca> {
       var hashtag2 = tmp.replaceAll('.', '');
       List<String> hashtagList =
           hashtag2.contains(',') ? hashtag2.split(",") : [hashtag2];
-      print(hashtagList);
 
-
-      // StreamController<dynamic> _places;
-      // _places = new StreamController();
-
-      // List<Stream> listStream =[];
-      // for(var stream_tmp in hashtagList){
-      //   listStream.add(FirebaseFirestore.instance.collection('feed').where('hashtags', arrayContainsAny: [stream_tmp]).snapshots());
-      // }
-      // var streams = StreamGroup.merge(listStream);
       return StreamBuilder<QuerySnapshot>(
         stream:
         stream
@@ -167,7 +150,6 @@ class _RisultatiRicercaState extends State<RisultatiRicerca> {
             .snapshots(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) return LinearProgressIndicator();
-          print(snapshot.data.docs);
           return _buildList(context, snapshot.data.docs);
         },
       );
@@ -178,15 +160,12 @@ class _RisultatiRicercaState extends State<RisultatiRicerca> {
       BuildContext context, List<QueryDocumentSnapshot> snapshot) {
     return ListView(
       padding: const EdgeInsets.only(top: 5.0),
-      //da giocarci dopo che visualizzo un post
-
       children: snapshot.map((data) => _buildListItem(context, data)).toList(),
     );
   }
 
   Widget _buildListItem(BuildContext context, QueryDocumentSnapshot data) {
     final record = Record.fromSnapshot(data);
-    print(record);
     return PostTile(data, context,3);
   }
 }
